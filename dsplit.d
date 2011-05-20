@@ -9,10 +9,13 @@ import std.array;
 
 struct Entity
 {
-	string text;   // declaration etc., also filename
-	string header; // scope-opening character ( { ), including whitespace
+	string header;
 	Entity[] children;
-	string footer; // terminating or scope-closing character ( } or ; ), including whitespace
+	string footer;
+
+	bool isPair; // internal hint
+
+	alias header filename; // for level 0
 }
 
 Entity[] loadFiles(string dir)
@@ -23,7 +26,7 @@ Entity[] loadFiles(string dir)
 		{
 			assert(path.startsWith(dir));
 			auto name = path[dir.length+1..$];
-			set ~= Entity(name, null, loadFile(path), null);
+			set ~= Entity(name, loadFile(path), null);
 		}
 	return set;
 }
@@ -39,7 +42,7 @@ Entity[] loadFile(string path)
 		return parseD(contents);
 	// One could add custom splitters for other languages here - for example, a simple line/word/character splitter for most text-based formats
 	default:
-		return [Entity(contents, null, null, null)];
+		return [Entity(contents, null, null)];
 	}
 }
 
@@ -68,16 +71,17 @@ Entity[] parseD(string s)
 
 	Entity[] parseScope(bool topLevel)
 	{
-		Entity entity;
 		P start = p;
 		P wsStart = p;
-		Entity[] result;
 
-		void addEntity(P textEnd, P headerEnd, Entity[] entities, P footerStart)
+		Entity makeEntity(P headerEnd, Entity[] entities, P footerStart)
 		{
-			result ~= Entity(slice(start, textEnd), headerEnd ? slice(textEnd, headerEnd) : null, entities, footerStart ? slice(footerStart, p) : null);
-			start = wsStart = p;
+			Entity result = Entity(slice(start, headerEnd), entities, footerStart ? slice(footerStart, p) : null);
+			start = wsStart = footerStart ? p : headerEnd;
+			return result;
 		}
+
+		Entity[] entities;
 
 		while (true)
 		{
@@ -87,18 +91,20 @@ Entity[] parseD(string s)
 				{
 					auto entityEnd = p;
 					p++; skipEOL();
-					addEntity(entityEnd, null, null, entityEnd);
+					entities ~= makeEntity(entityEnd, null, entityEnd);
 					break;
 				}
 				case '{':
 				{
-					auto textEnd = wsStart;
+					auto entityHead = makeEntity(wsStart, null, null);
 					p++; skipEOL();
 					auto headerEnd = p;
-					auto entities = parseScope(false);
+					auto children = parseScope(false);
 					skipEOL();
 
-					addEntity(textEnd, headerEnd, entities, lastFooterStart);
+					auto entityBody = makeEntity(headerEnd, children, lastFooterStart);
+
+					entities ~= Entity(null, [entityHead, entityBody], null, true);
 					break;
 				}
 				case '}':
@@ -114,17 +120,17 @@ Entity[] parseD(string s)
 					{
 						// there was some unterminated stuff at the end of the current scope
 						// TODO: EOL separation here
-						addEntity(p, null, null, null);
+						entities ~= makeEntity(p, null, null);
 					}
 					lastFooterStart = start;
 					p++;
-					return postProcessD(result);
+					return postProcessD(entities);
 				}
 				case '\0':
 				{
 					if (start != p)
-						addEntity(p, null, null, null);
-					return postProcessD(result);
+						entities ~= makeEntity(p, null, null);
+					return postProcessD(entities);
 				}
 				case '\'':
 				{
@@ -229,19 +235,19 @@ Entity[] postProcessD(Entity[] entities)
 {
 	for (int i=0; i<entities.length; i++)
 	{
-		if (i+3 <= entities.length && (
-			(entities[i].text.endsWithWord("in")  && entities[i+1].text.endsWithWord("out") && entities[i+2].text.endsWithWord("body")) ||
-			(entities[i].text.endsWithWord("out") && entities[i+1].text.endsWithWord("in")  && entities[i+2].text.endsWithWord("body"))
+		if (i+3 <= entities.length && entities[i].isPair && entities[i+1].isPair && entities[i+2].isPair && (
+			(entities[i].children[0].header.endsWithWord("in")  && entities[i+1].children[0].header.endsWithWord("out") && entities[i+2].children[0].header.endsWithWord("body")) ||
+			(entities[i].children[0].header.endsWithWord("out") && entities[i+1].children[0].header.endsWithWord("in")  && entities[i+2].children[0].header.endsWithWord("body"))
 		))
-			entities.replaceInPlace(i, i+3, [Entity(null, null, entities[i..i+3].dup, null)]);
+			entities.replaceInPlace(i, i+3, [Entity(null, entities[i..i+3].dup, null)]);
 		else
-		if (i+2 <= entities.length && (
-			(entities[i].text.endsWithWord("in")  && entities[i+1].text.endsWithWord("body")) ||
-			(entities[i].text.endsWithWord("out") && entities[i+1].text.endsWithWord("body")) ||
-			(entities[i].text.endsWithWord("try") && entities[i+1].text.startsWithWord("catch")) ||
-			(entities[i].text.endsWithWord("try") && entities[i+1].text.startsWithWord("finally"))
+		if (i+2 <= entities.length && entities[i].isPair && entities[i+1].isPair && (
+			(entities[i].children[0].header.endsWithWord("in")  && entities[i+1].children[0].header.endsWithWord("body")) ||
+			(entities[i].children[0].header.endsWithWord("out") && entities[i+1].children[0].header.endsWithWord("body")) ||
+			(entities[i].children[0].header.endsWithWord("try") && entities[i+1].children[0].header.startsWithWord("catch")) ||
+			(entities[i].children[0].header.endsWithWord("try") && entities[i+1].children[0].header.startsWithWord("finally"))
 		))
-			entities.replaceInPlace(i, i+2, [Entity(null, null, entities[i..i+2].dup, null)]);
+			entities.replaceInPlace(i, i+2, [Entity(null, entities[i..i+2].dup, null)]);
 	}
 
 	return entities;

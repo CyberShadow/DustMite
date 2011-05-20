@@ -24,7 +24,7 @@ void main(string[] args)
 
 	set = loadFiles(dir);
 
-	//dumpSet();
+	//return dumpSet();
 
 	if (!test(null))
 		throw new Exception("Initial test fails");
@@ -98,7 +98,6 @@ void save(int[] address, string savedir)
 				if (address.length==1 && address[0]==i) // skip this entity
 					continue;
 
-				buf.put(e.text);
 				buf.put(e.header);
 				dump(e.children, address.length>1 && address[0]==i ? address[1..$] : null);
 				buf.put(e.footer);
@@ -107,7 +106,7 @@ void save(int[] address, string savedir)
 
 		dump(f.children, address.length>1 && address[0]==i ? address[1..$] : null);
 
-		auto path = std.path.join(savedir, f.text);
+		auto path = std.path.join(savedir, f.filename);
 		if (!exists(dirname(path)))
 			mkdirRecurse(dirname(path));
 		std.file.write(path, buf.data);
@@ -140,14 +139,20 @@ void dumpSet()
 	{
 		foreach (e; entities)
 		{
-			writeln(format(replicate(">", level), " ", [printable(e.text), printable(e.header), format(e.children.length), printable(e.footer)]));
+			if (e.isPair)
+			{
+				assert(e.children.length==2 && e.header is null && e.footer is null);
+				writeln(format(replicate(">", level), " Pair"));
+			}
+			else
+				writeln(format(replicate(">", level), " ", [printable(e.header), format(e.children.length), printable(e.footer)]));
 			print(e.children, level+1);
 		}
 	}
 
 	foreach (f; set)
 	{
-		writefln("=== %s ===", f.text);
+		writefln("=== %s ===", f.filename);
 		print(f.children, 1);
 	}
 }
