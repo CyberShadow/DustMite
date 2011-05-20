@@ -1,3 +1,9 @@
+/// DustMite, a D test case minimization tool
+/// Written by Vladimir Panteleev <vladimir@thecybershadow.net>
+/// Released into the Public Domain
+
+module dustmite;
+
 import std.stdio;
 import std.file;
 import std.path;

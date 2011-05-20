@@ -1,4 +1,7 @@
 /// Very simplistic D source code "parser"
+/// Written by Vladimir Panteleev <vladimir@thecybershadow.net>
+/// Released into the Public Domain
+
 module dsplit;
 
 import std.file;
