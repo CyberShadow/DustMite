@@ -248,6 +248,12 @@ Entity[] postProcessD(Entity[] entities)
 			(entities[i].children[0].header.endsWithWord("try") && entities[i+1].children[0].header.startsWithWord("finally"))
 		))
 			entities.replaceInPlace(i, i+2, [Entity(null, entities[i..i+2].dup, null)]);
+		else
+		if (i+2 <= entities.length && entities[i+1].header.startsWithWord("while") && entities[i+1].children is null && (
+			(entities[i].isPair && entities[i].children[0].header.isWord("do")) ||
+			(entities[i].header.startsWithWord("do"))
+		))
+			entities.replaceInPlace(i, i+2, [Entity(null, entities[i..i+2].dup, null)]);
 	}
 
 	return entities;
