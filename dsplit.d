@@ -4,6 +4,8 @@ module dsplit;
 import std.file;
 import std.path;
 import std.string;
+import std.ctype;
+import std.array;
 
 struct Entity
 {
@@ -116,13 +118,13 @@ Entity[] parseD(string s)
 					}
 					lastFooterStart = start;
 					p++;
-					return result;
+					return postProcessD(result);
 				}
 				case '\0':
 				{
 					if (start != p)
 						addEntity(p, null, null, null);
-					return result;
+					return postProcessD(result);
 				}
 				case '\'':
 				{
@@ -219,4 +221,52 @@ Entity[] parseD(string s)
 	}
 
 	return parseScope(true);
+}
+
+/// Group together consecutive entities which might represent a single language construct
+/// There is no penalty for false positives, so accuracy is not very important
+Entity[] postProcessD(Entity[] entities)
+{
+	for (int i=0; i<entities.length; i++)
+	{
+		if (i+3 <= entities.length && (
+			(entities[i].text.endsWithWord("in")  && entities[i+1].text.endsWithWord("out") && entities[i+2].text.endsWithWord("body")) ||
+			(entities[i].text.endsWithWord("out") && entities[i+1].text.endsWithWord("in")  && entities[i+2].text.endsWithWord("body"))
+		))
+			entities.replaceInPlace(i, i+3, [Entity(null, null, entities[i..i+3].dup, null)]);
+		else
+		if (i+2 <= entities.length && (
+			(entities[i].text.endsWithWord("in")  && entities[i+1].text.endsWithWord("body")) ||
+			(entities[i].text.endsWithWord("out") && entities[i+1].text.endsWithWord("body")) ||
+			(entities[i].text.endsWithWord("try") && entities[i+1].text.startsWithWord("catch")) ||
+			(entities[i].text.endsWithWord("try") && entities[i+1].text.startsWithWord("finally"))
+		))
+			entities.replaceInPlace(i, i+2, [Entity(null, null, entities[i..i+2].dup, null)]);
+	}
+
+	return entities;
+}
+
+string stripD(string s)
+{
+	// TODO: strip D comments, too
+	return strip(s);
+}
+
+bool startsWithWord(string s, string word)
+{
+	s = stripD(s);
+	return s.startsWith(word) && (s.length == word.length || !isalnum(s[word.length]));
+}
+
+bool endsWithWord(string s, string word)
+{
+	s = stripD(s);
+	return s.endsWith(word) && (s.length == word.length || !isalnum(s[$-word.length-1]));
+}
+
+bool isWord(string s, string word)
+{
+	// TODO: fixme
+	return s.startsWithWord(word) || s.endsWithWord(word);
 }
