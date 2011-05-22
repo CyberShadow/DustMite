@@ -213,6 +213,8 @@ Entity[] parseD(string s)
 					}
 					else
 						p++;
+					wsStart = p;
+					break;
 				}
 				// TODO: token strings
 				// TODO: parens
