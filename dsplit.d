@@ -60,6 +60,7 @@ Entity[] parseD(string s)
 	/// Moves p forward over first series of EOL characters, or until first non-whitespace character
 	void skipEOL()
 	{
+		// TODO: skip end-of-line comments, too
 		while (iswhite(*p))
 		{
 			if (*p == '\r' || *p == '\n')
