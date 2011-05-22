@@ -95,7 +95,8 @@ void save(int[] address, string savedir)
 		if (address.length==1 && address[0]==i) // skip this file
 			continue;
 
-		auto buf = appender!string();
+		alias const(ubyte)[] Bytes;
+		auto buf = appender!Bytes();
 
 		void dump(Entity[] entities, int[] address)
 		{
@@ -104,9 +105,9 @@ void save(int[] address, string savedir)
 				if (address.length==1 && address[0]==i) // skip this entity
 					continue;
 
-				buf.put(e.header);
+				buf.put(cast(Bytes)e.header);
 				dump(e.children, address.length>1 && address[0]==i ? address[1..$] : null);
-				buf.put(e.footer);
+				buf.put(cast(Bytes)e.footer);
 			}
 		}
 
