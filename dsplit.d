@@ -51,58 +51,55 @@ Entity[] loadFile(string path)
 
 Entity[] parseD(string s)
 {
-	alias immutable(char)* P;
+	size_t i = 0, lastFooterStart;
+	enum NONE = size_t.max;
 
-	s = ("\0\0\0"~s~"\0")[3..$-1];
-	P p = s.ptr, lastFooterStart;
-	static string slice(P p0, P p1) { return p0[0..p1-p0]; }
-
-	/// Moves p forward over first series of EOL characters, or until first non-whitespace character
+	/// Moves i forward over first series of EOL characters, or until first non-whitespace character
 	void skipEOL()
 	{
 		// TODO: skip end-of-line comments, too
-		while (iswhite(*p))
+		while (iswhite(s[i]))
 		{
-			if (*p == '\r' || *p == '\n')
+			if (s[i] == '\r' || s[i] == '\n')
 			{
-				while (*p == '\r' || *p == '\n')
-					p++;
+				while (s[i] == '\r' || s[i] == '\n')
+					i++;
 				return;
 			}
-			p++;
+			i++;
 		}
 	}
 
 	Entity[] parseScope(bool topLevel)
 	{
-		P start = p;
-		P wsStart = p;
+		size_t start = i;
+		size_t wsStart = i;
 
-		Entity makeEntity(P headerEnd, Entity[] entities, P footerStart)
+		Entity makeEntity(size_t headerEnd, Entity[] entities, size_t footerStart)
 		{
-			Entity result = Entity(slice(start, headerEnd), entities, footerStart ? slice(footerStart, p) : null);
-			start = wsStart = footerStart ? p : headerEnd;
+			Entity result = Entity(s[start..headerEnd], entities, footerStart!=NONE ? s[footerStart..i] : null);
+			start = wsStart = footerStart!=NONE ? i : headerEnd;
 			return result;
 		}
 
 		Entity[] entities;
 
-		while (true)
+		while (i < s.length)
 		{
-			switch (*p)
+			switch (s[i])
 			{
 				case ';': // end of entity
 				{
-					auto entityEnd = p;
-					p++; skipEOL();
+					auto entityEnd = i;
+					i++; skipEOL();
 					entities ~= makeEntity(entityEnd, null, entityEnd);
 					break;
 				}
 				case '{':
 				{
-					auto entityHead = makeEntity(wsStart, null, null);
-					p++; skipEOL();
-					auto headerEnd = p;
+					auto entityHead = makeEntity(wsStart, null, NONE);
+					i++; skipEOL();
+					auto headerEnd = i;
 					auto children = parseScope(false);
 					skipEOL();
 
@@ -115,8 +112,8 @@ Entity[] parseD(string s)
 				{
 					if (topLevel) // stray } or bug, treat as normal character
 					{
-						p++;
-						wsStart = p;
+						i++;
+						wsStart = i;
 						break;
 					}
 
@@ -124,96 +121,90 @@ Entity[] parseD(string s)
 					{
 						// there was some unterminated stuff at the end of the current scope
 						// TODO: EOL separation here
-						entities ~= makeEntity(p, null, null);
+						entities ~= makeEntity(i, null, NONE);
 					}
 					lastFooterStart = start;
-					p++;
-					return postProcessD(entities);
-				}
-				case '\0':
-				{
-					if (start != p)
-						entities ~= makeEntity(p, null, null);
+					i++;
 					return postProcessD(entities);
 				}
 				case '\'':
 				{
-					p++;
-					if (*p == '\\')
-						p++;
-					while (*p != '\'')
-						p++;
-					p++;
-					wsStart = p;
+					i++;
+					if (s[i] == '\\')
+						i++;
+					while (s[i] != '\'')
+						i++;
+					i++;
+					wsStart = i;
 					break;
 				}
 				case '"':
 				{
-					if (*(p-1) == 'r')
+					if (s[i-1] == 'r')
 					{
-						p++;
-						while (*p != '"')
-							p++;
-						p++;
+						i++;
+						while (s[i] != '"')
+							i++;
+						i++;
 					}
 					else
 					{
-						p++;
-						while (*p != '"')
+						i++;
+						while (s[i] != '"')
 						{
-							if (*p == '\\')
-								p += 2;
+							if (s[i] == '\\')
+								i+=2;
 							else
-								p++;
+								i++;
 						}
-						p++;
+						i++;
 					}
-					wsStart = p;
+					wsStart = i;
 					break;
 				}
 				case '`':
 				{
-					p++;
-					while (*p != '`')
-						p++;
-					p++;
-					wsStart = p;
+					i++;
+					while (s[i] != '`')
+						i++;
+					i++;
+					wsStart = i;
 					break;
 				}
 				case '/':
 				{
-					p++;
-					if (*p == '/')
+					i++;
+					if (s[i] == '/')
 					{
-						while (*p != '\r' && *p != '\n')
-							p++;
+						while (s[i] != '\r' && s[i] != '\n')
+							i++;
 					}
 					else
-					if (*p == '*')
+					if (s[i] == '*')
 					{
-						p+=3;
-						while (*(p-2) != '*' && *(p-1) != '/')
-							p++;
+						i+=3;
+						while (s[i-2] != '*' && s[i-1] != '/')
+							i++;
 					}
 					else
-					if (*p == '+')
+					if (s[i] == '+')
 					{
-						p++;
+						i++;
 						int commentLevel = 1;
 						while (commentLevel)
 						{
-							if (*p == '/' && *(p+1)=='+')
-								commentLevel++, p+=2;
+							if (s[i] == '/' && s[i+1]=='+')
+								commentLevel++, i+=2;
 							else
-							if (*p == '+' && *(p+1)=='/')
-								commentLevel--, p+=2;
+							if (s[i] == '+' && s[i+1]=='/')
+								commentLevel--, i+=2;
 							else
-								p++;
+								i++;
 						}
 					}
 					else
-						p++;
-					wsStart = p;
+						i++;
+					wsStart = i;
 					break;
 				}
 				// TODO: token strings
@@ -222,14 +213,18 @@ Entity[] parseD(string s)
 				default:
 				{
 					def:
-					if (!iswhite(*p))
-						wsStart = p+1;
-					p++;
+					if (!iswhite(s[i]))
+						wsStart = i+1;
+					i++;
 					break;
 				}
 			}
 
 		}
+
+		if (start != i)
+			entities ~= makeEntity(i, null, NONE);
+		return postProcessD(entities);
 	}
 
 	return parseScope(true);
