@@ -9,6 +9,7 @@ import std.path;
 import std.string;
 import std.ctype;
 import std.array;
+debug import std.stdio;
 
 struct Entity
 {
@@ -42,6 +43,7 @@ Entity[] loadFile(string path)
 	switch (getExt(path))
 	{
 	case "d":
+		debug writeln("Loading ", path);
 		return parseD(contents);
 	// One could add custom splitters for other languages here - for example, a simple line/word/character splitter for most text-based formats
 	default:
@@ -58,11 +60,11 @@ Entity[] parseD(string s)
 	void skipEOL()
 	{
 		// TODO: skip end-of-line comments, too
-		while (iswhite(s[i]))
+		while (i < s.length && iswhite(s[i]))
 		{
 			if (s[i] == '\r' || s[i] == '\n')
 			{
-				while (s[i] == '\r' || s[i] == '\n')
+				while (i < s.length && (s[i] == '\r' || s[i] == '\n'))
 					i++;
 				return;
 			}
@@ -131,7 +133,7 @@ Entity[] parseD(string s)
 				{
 					i++;
 					if (s[i] == '\\')
-						i++;
+						i+=2;
 					while (s[i] != '\'')
 						i++;
 					i++;
@@ -183,7 +185,7 @@ Entity[] parseD(string s)
 					if (s[i] == '*')
 					{
 						i+=3;
-						while (s[i-2] != '*' && s[i-1] != '/')
+						while (s[i-2] != '*' || s[i-1] != '/')
 							i++;
 					}
 					else
