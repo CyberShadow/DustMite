@@ -17,7 +17,8 @@ struct Entity
 	Entity[] children;
 	string footer;
 
-	bool isPair; // internal hint
+	bool isPair;           /// internal hint
+	bool noRemove;         /// don't try removing this entity (children OK)
 
 	alias header filename; // for level 0
 }

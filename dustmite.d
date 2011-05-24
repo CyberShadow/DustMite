@@ -14,6 +14,7 @@ import std.process;
 import std.algorithm;
 import std.exception;
 import std.datetime;
+import std.regex;
 import dsplit;
 
 alias std.string.join join;
@@ -30,9 +31,11 @@ void measure(string what)(void delegate() p) { times.misc += elapsedTime(); p();
 int main(string[] args)
 {
 	bool force, showTimes;
+	string[] noRemoveStr;
 
 	getopt(args,
 		"force", &force,
+		"noremove", &noRemoveStr,
 		"times", &showTimes,
 	);
 
@@ -44,8 +47,10 @@ DIR should be a clean copy containing the file-set to reduce.
 TESTER should be a shell command which returns 0 for a correct reduction,
 and anything else otherwise.
 Supported options:
-     --force    Force reduction of unusual files
-     --times	Display verbose spent time breakdown
+  --force            Force reduction of unusual files
+  --noremove REGEXP  Do not reduce blocks containing REGEXP
+                       (may be used multiple times)
+  --times            Display verbose spent time breakdown
 ");
 		return 64; // EX_USAGE
 	}
@@ -68,6 +73,7 @@ Supported options:
 	auto startTime = lastTime = Clock.currTime();
 
 	measure!"load"({set = loadFiles(dir);});
+	applyNoRemove(noRemoveStr);
 
 	//return dumpSet();
 
@@ -95,13 +101,22 @@ Supported options:
 				while (i<entities.length)
 				{
 					address[level] = i;
-					if (level < testLevel) // recurse
+					if (level < testLevel)
 					{
+						// recurse
 						scan(entities[i].children, level+1);
 						i++;
 					}
-					else // test
+					else
+					if (entities[i].noRemove)
 					{
+						// skip, but don't stop going deeper
+						tested = true;
+						i++; 
+					}
+					else
+					{
+						// test
 						tested = true;
 						if (test(address[0..level+1]))
 						{
@@ -201,6 +216,41 @@ bool test(int[] address)
 	measure!"test"({result = system(tester) == 0;});
 	writeln(result);
 	return result;
+}
+
+void applyNoRemove(string[] noRemoveStr)
+{
+	auto noRemove = map!regex(noRemoveStr);
+
+	void mark(Entity[] set)
+	{
+		foreach (ref e; set)
+		{
+			e.noRemove = true;
+			mark(e.children);
+		}
+	}
+
+	bool scan(Entity[] set)
+	{
+		bool found = false;
+		foreach (ref e; set)
+			if (canFind!((a){return !match(e.header, a).empty || !match(e.footer, a).empty;})(noRemove))
+			{
+				e.noRemove = true;
+				mark(e.children);
+				found = true;
+			}
+			else
+			if (scan(e.children))
+			{
+				e.noRemove = true;
+				found = true;
+			}
+		return found;
+	}
+
+	scan(set);
 }
 
 void dumpSet()
