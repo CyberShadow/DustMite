@@ -13,6 +13,7 @@ import std.array;
 import std.process;
 import std.algorithm;
 import std.exception;
+import std.datetime;
 import dsplit;
 
 string dir, tester;
@@ -30,6 +31,8 @@ void main(string[] args)
 
 	string resultDir = dir ~ ".reduced";
 	enforce(!exists(resultDir), "Result directory already exists");
+
+	auto startTime = Clock.currTime();
 
 	set = loadFiles(dir);
 
@@ -70,6 +73,7 @@ void main(string[] args)
 						if (test(address[0..level+1]))
 						{
 							entities = remove(entities, i);
+							if (exists(resultDir)) rmdirRecurse(resultDir);
 							save(null, resultDir);
 							changed = true;
 						}
@@ -86,11 +90,16 @@ void main(string[] args)
 		} while (tested && !changed); // go deeper while we found something to test, but no results
 	} while (tested); // stop when we didn't find anything to test
 
-	writeln("Done; reduced version is in " ~ resultDir);
+	auto duration = Clock.currTime()-startTime;
+	duration = dur!"msecs"(duration.total!"msecs"); // truncate anything below ms, users aren't interested in that
+	writefln("Done in %s; reduced version is in %s", duration, resultDir);
 }
 
 void save(int[] address, string savedir)
 {
+	enforce(!exists(savedir), "Directory already exists: " ~ savedir);
+	mkdirRecurse(savedir);
+
 	foreach (i, f; set)
 	{
 		if (address.length==1 && address[0]==i) // skip this file
@@ -124,9 +133,7 @@ void save(int[] address, string savedir)
 bool test(int[] address)
 {
 	string testdir = dir ~ ".test";
-	enforce(!exists(testdir), "Testing directory already exists");
-	mkdir(testdir); scope(exit) rmdirRecurse(testdir);
-	save(address, testdir);
+	save(address, testdir); scope(exit) rmdirRecurse(testdir);
 
 	auto lastdir = getcwd(); scope(exit) chdir(lastdir);
 	chdir(testdir);
