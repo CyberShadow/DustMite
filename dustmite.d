@@ -104,8 +104,10 @@ void save(int[] address, string savedir)
 		if (address.length==1 && address[0]==i) // skip this file
 			continue;
 
-		alias const(ubyte)[] Bytes;
-		auto buf = appender!Bytes();
+		auto path = std.path.join(savedir, f.filename);
+		if (!exists(dirname(path)))
+			mkdirRecurse(dirname(path));
+		auto o = File(path, "wb");
 
 		void dump(Entity[] entities, int[] address)
 		{
@@ -114,18 +116,14 @@ void save(int[] address, string savedir)
 				if (address.length==1 && address[0]==i) // skip this entity
 					continue;
 
-				buf.put(cast(Bytes)e.header);
+				o.write(e.header);
 				dump(e.children, address.length>1 && address[0]==i ? address[1..$] : null);
-				buf.put(cast(Bytes)e.footer);
+				o.write(e.footer);
 			}
 		}
 
 		dump(f.children, address.length>1 && address[0]==i ? address[1..$] : null);
-
-		auto path = std.path.join(savedir, f.filename);
-		if (!exists(dirname(path)))
-			mkdirRecurse(dirname(path));
-		std.file.write(path, buf.data);
+		o.close();
 	}
 }
 
