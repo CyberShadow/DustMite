@@ -28,15 +28,15 @@ void main(string[] args)
 	if (altsep.length) dir = chomp(args[1], altsep);
 	tester = args[2];
 
+	string resultDir = dir ~ ".reduced";
+	enforce(!exists(resultDir), "Result directory already exists");
+
 	set = loadFiles(dir);
 
 	//return dumpSet();
 
 	if (!test(null))
 		throw new Exception("Initial test fails");
-
-	string resultDir = dir ~ ".reduced";
-	enforce(!exists(resultDir), "Result directory already exists");
 
 	bool tested;
 	do
