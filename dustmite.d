@@ -73,8 +73,7 @@ void main(string[] args)
 						if (test(address[0..level+1]))
 						{
 							entities = remove(entities, i);
-							if (exists(resultDir)) rmdirRecurse(resultDir);
-							save(null, resultDir);
+							safeSave(null, resultDir);
 							changed = true;
 						}
 						else
@@ -128,6 +127,14 @@ void save(int[] address, string savedir)
 			mkdirRecurse(dirname(path));
 		std.file.write(path, buf.data);
 	}
+}
+
+void safeSave(int[] address, string savedir)
+{
+	auto tempdir = savedir ~ ".inprogress"; scope(failure) rmdirRecurse(tempdir);
+	save(null, tempdir);
+	if (exists(savedir)) rmdirRecurse(savedir);
+	rename(tempdir, savedir);
 }
 
 bool test(int[] address)
