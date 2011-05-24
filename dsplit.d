@@ -13,14 +13,14 @@ debug import std.stdio;
 
 struct Entity
 {
-	string header;
+	string head;
 	Entity[] children;
-	string footer;
+	string tail;
 
 	bool isPair;           /// internal hint
 	bool noRemove;         /// don't try removing this entity (children OK)
 
-	alias header filename; // for level 0
+	alias head filename; // for level 0
 }
 
 Entity[] loadFiles(string dir)
@@ -78,10 +78,10 @@ Entity[] parseD(string s)
 		size_t start = i;
 		size_t wsStart = i;
 
-		Entity makeEntity(size_t headerEnd, Entity[] entities, size_t footerStart)
+		Entity makeEntity(size_t headEnd, Entity[] entities, size_t tailStart)
 		{
-			Entity result = Entity(s[start..headerEnd], entities, footerStart!=NONE ? s[footerStart..i] : null);
-			start = wsStart = footerStart!=NONE ? i : headerEnd;
+			Entity result = Entity(s[start..headEnd], entities, tailStart!=NONE ? s[tailStart..i] : null);
+			start = wsStart = tailStart!=NONE ? i : headEnd;
 			return result;
 		}
 
@@ -102,11 +102,11 @@ Entity[] parseD(string s)
 				{
 					auto entityHead = makeEntity(wsStart, null, NONE);
 					i++; skipEOL();
-					auto headerEnd = i;
+					auto headEnd = i;
 					auto children = parseScope(false);
 					skipEOL();
 
-					auto entityBody = makeEntity(headerEnd, children, lastFooterStart);
+					auto entityBody = makeEntity(headEnd, children, lastFooterStart);
 
 					entities ~= Entity(null, [entityHead, entityBody], null, true);
 					break;
@@ -240,22 +240,22 @@ Entity[] postProcessD(Entity[] entities)
 	for (int i=0; i<entities.length; i++)
 	{
 		if (i+3 <= entities.length && entities[i].isPair && entities[i+1].isPair && entities[i+2].isPair && (
-			(entities[i].children[0].header.endsWithWord("in")  && entities[i+1].children[0].header.endsWithWord("out") && entities[i+2].children[0].header.endsWithWord("body")) ||
-			(entities[i].children[0].header.endsWithWord("out") && entities[i+1].children[0].header.endsWithWord("in")  && entities[i+2].children[0].header.endsWithWord("body"))
+			(entities[i].children[0].head.endsWithWord("in")  && entities[i+1].children[0].head.endsWithWord("out") && entities[i+2].children[0].head.endsWithWord("body")) ||
+			(entities[i].children[0].head.endsWithWord("out") && entities[i+1].children[0].head.endsWithWord("in")  && entities[i+2].children[0].head.endsWithWord("body"))
 		))
 			entities.replaceInPlace(i, i+3, [Entity(null, entities[i..i+3].dup, null)]);
 		else
 		if (i+2 <= entities.length && entities[i].isPair && entities[i+1].isPair && (
-			(entities[i].children[0].header.endsWithWord("in")  && entities[i+1].children[0].header.endsWithWord("body")) ||
-			(entities[i].children[0].header.endsWithWord("out") && entities[i+1].children[0].header.endsWithWord("body")) ||
-			(entities[i].children[0].header.endsWithWord("try") && entities[i+1].children[0].header.startsWithWord("catch")) ||
-			(entities[i].children[0].header.endsWithWord("try") && entities[i+1].children[0].header.startsWithWord("finally"))
+			(entities[i].children[0].head.endsWithWord("in")  && entities[i+1].children[0].head.endsWithWord("body")) ||
+			(entities[i].children[0].head.endsWithWord("out") && entities[i+1].children[0].head.endsWithWord("body")) ||
+			(entities[i].children[0].head.endsWithWord("try") && entities[i+1].children[0].head.startsWithWord("catch")) ||
+			(entities[i].children[0].head.endsWithWord("try") && entities[i+1].children[0].head.startsWithWord("finally"))
 		))
 			entities.replaceInPlace(i, i+2, [Entity(null, entities[i..i+2].dup, null)]);
 		else
-		if (i+2 <= entities.length && entities[i+1].header.startsWithWord("while") && entities[i+1].children is null && (
-			(entities[i].isPair && entities[i].children[0].header.isWord("do")) ||
-			(entities[i].header.startsWithWord("do"))
+		if (i+2 <= entities.length && entities[i+1].head.startsWithWord("while") && entities[i+1].children is null && (
+			(entities[i].isPair && entities[i].children[0].head.isWord("do")) ||
+			(entities[i].head.startsWithWord("do"))
 		))
 			entities.replaceInPlace(i, i+2, [Entity(null, entities[i..i+2].dup, null)]);
 	}

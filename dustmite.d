@@ -170,9 +170,9 @@ void save(int[] address, string savedir)
 				if (address.length==1 && address[0]==i) // skip this entity
 					continue;
 
-				o.write(e.header);
+				o.write(e.head);
 				dump(e.children, address.length>1 && address[0]==i ? address[1..$] : null);
-				o.write(e.footer);
+				o.write(e.tail);
 			}
 		}
 
@@ -235,7 +235,7 @@ void applyNoRemove(string[] noRemoveStr)
 	{
 		bool found = false;
 		foreach (ref e; set)
-			if (canFind!((a){return !match(e.header, a).empty || !match(e.footer, a).empty;})(noRemove))
+			if (canFind!((a){return !match(e.head, a).empty || !match(e.tail, a).empty;})(noRemove))
 			{
 				e.noRemove = true;
 				mark(e.children);
@@ -266,11 +266,11 @@ void dumpSet()
 		{
 			if (e.isPair)
 			{
-				assert(e.children.length==2 && e.header is null && e.footer is null);
+				assert(e.children.length==2 && e.head is null && e.tail is null);
 				writeln(format(replicate(">", level), " Pair"));
 			}
 			else
-				writeln(format(replicate(">", level), " ", [printable(e.header), format(e.children.length), printable(e.footer)]));
+				writeln(format(replicate(">", level), " ", [printable(e.head), format(e.children.length), printable(e.tail)]));
 			print(e.children, level+1);
 		}
 	}
