@@ -39,9 +39,10 @@ void main(string[] args)
 		throw new Exception("Initial test fails");
 
 	bool tested;
+	int iterCount;
 	do
 	{
-		writeln("############### NEW ITERATION ################");
+		writefln("############### ITERATION %d ################", iterCount++);
 		bool changed;
 		int testLevel = 0;
 		do
