@@ -69,6 +69,7 @@ void main(string[] args)
 						if (test(address[0..level+1]))
 						{
 							entities = remove(entities, i);
+							save(null, resultDir);
 							changed = true;
 						}
 						else
@@ -84,8 +85,7 @@ void main(string[] args)
 		} while (tested && !changed); // go deeper while we found something to test, but no results
 	} while (tested); // stop when we didn't find anything to test
 
-	save(null, resultDir);
-	writeln("Done; saved to " ~ resultDir);
+	writeln("Done; reduced version is in " ~ resultDir);
 }
 
 void save(int[] address, string savedir)
