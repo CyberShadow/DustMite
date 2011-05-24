@@ -19,11 +19,31 @@ import dsplit;
 string dir, tester;
 Entity[] set;
 
-void main(string[] args)
+struct Times { Duration load, testSave, resultSave, test, clean, misc; }
+Times times;
+SysTime lastTime;
+Duration elapsedTime() { auto c = Clock.currTime(); auto d = c - lastTime; lastTime = c; return d; }
+void measure(string what)(void delegate() p) { times.misc += elapsedTime(); p(); mixin("times."~what~" += elapsedTime();"); }
+
+int main(string[] args)
 {
-	getopt(args);
+	bool showTimes;
+
+	getopt(args,
+		"times", &showTimes);
+
 	if (args.length != 3)
-		return writefln("Usage: %s DIR TESTER", args[0]);
+	{
+		stderr.write(
+"Usage: "~args[0]~" [OPTION]... DIR TESTER
+DIR should be a clean copy containing the file-set to reduce.
+TESTER should be a shell command which returns 0 for a correct reduction,
+and anything else otherwise.
+Supported options:
+     --times	Display verbose spent time breakdown
+");
+		return 64; // EX_USAGE
+	}
 
 	dir = chomp(args[1], sep);
 	if (altsep.length) dir = chomp(args[1], altsep);
@@ -32,9 +52,9 @@ void main(string[] args)
 	string resultDir = dir ~ ".reduced";
 	enforce(!exists(resultDir), "Result directory already exists");
 
-	auto startTime = Clock.currTime();
+	auto startTime = lastTime = Clock.currTime();
 
-	set = loadFiles(dir);
+	measure!"load"({set = loadFiles(dir);});
 
 	//return dumpSet();
 
@@ -73,7 +93,7 @@ void main(string[] args)
 						if (test(address[0..level+1]))
 						{
 							entities = remove(entities, i);
-							safeSave(null, resultDir);
+							measure!"resultSave"({safeSave(null, resultDir);});
 							changed = true;
 						}
 						else
@@ -92,6 +112,12 @@ void main(string[] args)
 	auto duration = Clock.currTime()-startTime;
 	duration = dur!"msecs"(duration.total!"msecs"); // truncate anything below ms, users aren't interested in that
 	writefln("Done in %s; reduced version is in %s", duration, resultDir);
+
+	if (showTimes)
+		foreach (i, t; times.tupleof)
+			writefln("%s: %s", times.tupleof[i].stringof, times.tupleof[i]);
+
+	return 0;
 }
 
 void save(int[] address, string savedir)
@@ -138,12 +164,14 @@ void safeSave(int[] address, string savedir)
 bool test(int[] address)
 {
 	string testdir = dir ~ ".test";
-	save(address, testdir); scope(exit) rmdirRecurse(testdir);
+	measure!"testSave"({save(address, testdir);}); scope(exit) measure!"clean"({rmdirRecurse(testdir);});
 
 	auto lastdir = getcwd(); scope(exit) chdir(lastdir);
 	chdir(testdir);
 
-	auto result = system(tester) == 0;
+	bool result;
+	measure!"test"({result = system(tester) == 0;});
+
 	writeln("Test ", address, " => ", result);
 	return result;
 }
