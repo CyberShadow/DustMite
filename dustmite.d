@@ -16,6 +16,8 @@ import std.exception;
 import std.datetime;
 import dsplit;
 
+alias std.string.join join;
+
 string dir, tester;
 Entity[] set;
 
@@ -173,6 +175,18 @@ void safeSave(int[] address, string savedir)
 	rename(tempdir, savedir);
 }
 
+string formatAddress(int[] address)
+{
+	string[] segments = new string[address.length];
+	Entity[] e = set;
+	foreach (i, a; address)
+	{
+		segments[i] = format("%d/%d", a+1, e.length);
+		e = e[a].children;
+	}
+	return "[" ~ segments.join(", ") ~ "]";
+}
+
 bool test(int[] address)
 {
 	string testdir = dir ~ ".test";
@@ -181,10 +195,11 @@ bool test(int[] address)
 	auto lastdir = getcwd(); scope(exit) chdir(lastdir);
 	chdir(testdir);
 
+	write("Test ", formatAddress(address), " => "); stdout.flush();
+
 	bool result;
 	measure!"test"({result = system(tester) == 0;});
-
-	writeln("Test ", address, " => ", result);
+	writeln(result);
 	return result;
 }
 
