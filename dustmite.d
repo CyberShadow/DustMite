@@ -27,10 +27,12 @@ void measure(string what)(void delegate() p) { times.misc += elapsedTime(); p();
 
 int main(string[] args)
 {
-	bool showTimes;
+	bool force, showTimes;
 
 	getopt(args,
-		"times", &showTimes);
+		"force", &force,
+		"times", &showTimes,
+	);
 
 	if (args.length != 3)
 	{
@@ -40,6 +42,7 @@ DIR should be a clean copy containing the file-set to reduce.
 TESTER should be a shell command which returns 0 for a correct reduction,
 and anything else otherwise.
 Supported options:
+     --force    Force reduction of unusual files
      --times	Display verbose spent time breakdown
 ");
 		return 64; // EX_USAGE
@@ -48,6 +51,14 @@ Supported options:
 	dir = chomp(args[1], sep);
 	if (altsep.length) dir = chomp(args[1], altsep);
 	tester = args[2];
+
+	if (!force)
+		foreach (path; listdir(dir, "*"))
+			if (basename(path).startsWith(".") || basename(dirname(path)).startsWith(".") || getExt(path)=="o" || getExt(path)=="obj" || getExt(path)=="exe")
+			{
+				stderr.writefln("Suspicious file found: %s\nYou should use a clean copy of the source tree.\nIf it was your intention to include this file in the file-set to be reduced,\nre-run dustmite with the --force option.", path);
+				return 1;
+			}
 
 	string resultDir = dir ~ ".reduced";
 	enforce(!exists(resultDir), "Result directory already exists");
@@ -156,6 +167,7 @@ void save(int[] address, string savedir)
 void safeSave(int[] address, string savedir)
 {
 	auto tempdir = savedir ~ ".inprogress"; scope(failure) rmdirRecurse(tempdir);
+	if (exists(tempdir)) rmdirRecurse(tempdir);
 	save(null, tempdir);
 	if (exists(savedir)) rmdirRecurse(savedir);
 	rename(tempdir, savedir);
