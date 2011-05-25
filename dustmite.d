@@ -30,12 +30,13 @@ void measure(string what)(void delegate() p) { times.misc += elapsedTime(); p();
 
 int main(string[] args)
 {
-	bool force, showTimes;
+	bool force, dump, showTimes;
 	string[] noRemoveStr;
 
 	getopt(args,
 		"force", &force,
 		"noremove", &noRemoveStr,
+		"dump", &dump,
 		"times", &showTimes,
 	);
 
@@ -50,6 +51,7 @@ Supported options:
   --force            Force reduction of unusual files
   --noremove REGEXP  Do not reduce blocks containing REGEXP
                        (may be used multiple times)
+  --dump             Dump parsed tree to DIR.dump file
   --times            Display verbose spent time breakdown
 ");
 		return 64; // EX_USAGE
@@ -75,7 +77,8 @@ Supported options:
 	measure!"load"({set = loadFiles(dir);});
 	applyNoRemove(noRemoveStr);
 
-	//return dumpSet();
+	if (dump)
+		dumpSet(dir ~ ".dump");
 
 	if (!test(null))
 		throw new Exception("Initial test fails");
@@ -253,11 +256,13 @@ void applyNoRemove(string[] noRemoveStr)
 	scan(set);
 }
 
-void dumpSet()
+void dumpSet(string fn)
 {
+	auto f = File(fn, "wt");
+
 	string printable(string s)
 	{
-		return s is null ? "null" : `"` ~ s.replace("\r", `\r`).replace("\n", `\n`) ~ `"`;
+		return s is null ? "null" : `"` ~ s.replace("\\", `\\`).replace("\"", `\"`).replace("\r", `\r`).replace("\n", `\n`) ~ `"`;
 	}
 
 	void print(Entity[] entities, int level)
@@ -267,17 +272,18 @@ void dumpSet()
 			if (e.isPair)
 			{
 				assert(e.children.length==2 && e.head is null && e.tail is null);
-				writeln(format(replicate(">", level), " Pair"));
+				f.writeln(format(replicate(">", level), " Pair"));
 			}
 			else
-				writeln(format(replicate(">", level), " ", [printable(e.head), format(e.children.length), printable(e.tail)]));
+				f.writeln(format(replicate(">", level), " ", [printable(e.head), format(e.children.length), printable(e.tail)]));
 			print(e.children, level+1);
 		}
 	}
 
-	foreach (f; set)
+	foreach (e; set)
 	{
-		writefln("=== %s ===", f.filename);
-		print(f.children, 1);
+		f.writefln("=== %s ===", e.filename);
+		print(e.children, 1);
 	}
+	f.close();
 }
