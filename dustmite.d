@@ -267,23 +267,28 @@ void dumpSet(string fn)
 
 	void print(Entity[] entities, int level)
 	{
+		auto prefix = replicate("  ", level);
 		foreach (e; entities)
 		{
-			if (e.isPair)
+			if (e.children.length == 0)
 			{
-				assert(e.children.length==2 && e.head is null && e.tail is null);
-				f.writeln(format(replicate(">", level), " Pair"));
+				f.writeln(prefix, "[ ", e.head ? printable(e.head) ~ " " : null, e.tail ? printable(e.tail) ~ " " : null, "]");
 			}
 			else
-				f.writeln(format(replicate(">", level), " ", [printable(e.head), format(e.children.length), printable(e.tail)]));
-			print(e.children, level+1);
+			{
+				f.writeln(prefix, "[", e.isPair ? " // Pair" : null);
+				if (e.head) f.writeln(prefix, "  ", printable(e.head));
+				print(e.children, level+1);
+				if (e.tail) f.writeln(prefix, "  ", printable(e.tail));
+				f.writeln(prefix, "]");
+			}
 		}
 	}
 
 	foreach (e; set)
 	{
-		f.writefln("=== %s ===", e.filename);
-		print(e.children, 1);
+		f.writefln("/*** %s ***/", e.filename);
+		print(e.children, 0);
 	}
 	f.close();
 }
