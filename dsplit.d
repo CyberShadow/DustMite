@@ -54,11 +54,12 @@ Entity[] loadFile(string path)
 
 Entity[] parseD(string s)
 {
-	size_t i = 0, lastFooterStart;
-	enum NONE = size_t.max;
+	size_t i = 0;
+	size_t start;
+	string innerTail;
 
 	/// Moves i forward over first series of EOL characters, or until first non-whitespace character
-	void skipEOL()
+	void skipToEOL()
 	{
 		// TODO: skip end-of-line comments, too
 		while (i < s.length && iswhite(s[i]))
@@ -73,166 +74,181 @@ Entity[] parseD(string s)
 		}
 	}
 
-	Entity[] parseScope(bool topLevel)
+	/// Moves i backwards to the start of the current line
+	void backToEOL()
 	{
-		size_t start = i;
-		size_t wsStart = i;
-
-		Entity makeEntity(size_t headEnd, Entity[] entities, size_t tailStart)
-		{
-			Entity result = Entity(s[start..headEnd], entities, tailStart!=NONE ? s[tailStart..i] : null);
-			start = wsStart = tailStart!=NONE ? i : headEnd;
-			return result;
-		}
-
-		Entity[] entities;
-
-		while (i < s.length)
-		{
-			switch (s[i])
-			{
-				case ';': // end of entity
-				{
-					auto entityEnd = i;
-					i++; skipEOL();
-					entities ~= makeEntity(entityEnd, null, entityEnd);
-					break;
-				}
-				case '{':
-				{
-					auto entityHead = makeEntity(wsStart, null, NONE);
-					i++; skipEOL();
-					auto headEnd = i;
-					auto children = parseScope(false);
-					skipEOL();
-
-					auto entityBody = makeEntity(headEnd, children, lastFooterStart);
-
-					entities ~= Entity(null, [entityHead, entityBody], null, true);
-					break;
-				}
-				case '}':
-				{
-					if (topLevel) // stray } or bug, treat as normal character
-					{
-						i++;
-						wsStart = i;
-						break;
-					}
-
-					if (start != wsStart)
-					{
-						// there was some unterminated stuff at the end of the current scope
-						// TODO: EOL separation here
-						entities ~= makeEntity(i, null, NONE);
-					}
-					lastFooterStart = start;
-					i++;
-					return postProcessD(entities);
-				}
-				case '\'':
-				{
-					i++;
-					if (s[i] == '\\')
-						i+=2;
-					while (s[i] != '\'')
-						i++;
-					i++;
-					wsStart = i;
-					break;
-				}
-				case '"':
-				{
-					if (s[i-1] == 'r')
-					{
-						i++;
-						while (s[i] != '"')
-							i++;
-						i++;
-					}
-					else
-					{
-						i++;
-						while (s[i] != '"')
-						{
-							if (s[i] == '\\')
-								i+=2;
-							else
-								i++;
-						}
-						i++;
-					}
-					wsStart = i;
-					break;
-				}
-				case '`':
-				{
-					i++;
-					while (s[i] != '`')
-						i++;
-					i++;
-					wsStart = i;
-					break;
-				}
-				case '/':
-				{
-					i++;
-					if (s[i] == '/')
-					{
-						while (s[i] != '\r' && s[i] != '\n')
-							i++;
-					}
-					else
-					if (s[i] == '*')
-					{
-						i+=3;
-						while (s[i-2] != '*' || s[i-1] != '/')
-							i++;
-					}
-					else
-					if (s[i] == '+')
-					{
-						i++;
-						int commentLevel = 1;
-						while (commentLevel)
-						{
-							if (s[i] == '/' && s[i+1]=='+')
-								commentLevel++, i+=2;
-							else
-							if (s[i] == '+' && s[i+1]=='/')
-								commentLevel--, i+=2;
-							else
-								i++;
-						}
-					}
-					else
-						i++;
-					wsStart = i;
-					break;
-				}
-				// TODO: token strings
-				// TODO: parens
-				// TODO: lists?
-				default:
-				{
-					def:
-					if (!iswhite(s[i]))
-						wsStart = i+1;
-					i++;
-					break;
-				}
-			}
-
-		}
-
-		if (start != i)
-			entities ~= makeEntity(i, null, NONE);
-		return postProcessD(entities);
+		while (i>start && iswhite(s[i-1]) && s[i-1] != '\n')
+			i--;
 	}
 
-	return parseScope(true);
+	void skipSymbol()
+	{
+		switch (s[i])
+		{
+		case '\'':
+			i++;
+			if (s[i] == '\\')
+				i+=2;
+			while (s[i] != '\'')
+				i++;
+			i++;
+			break;
+		case '"':
+			if (s[i-1] == 'r')
+			{
+				i++;
+				while (s[i] != '"')
+					i++;
+				i++;
+			}
+			else
+			{
+				i++;
+				while (s[i] != '"')
+				{
+					if (s[i] == '\\')
+						i+=2;
+					else
+						i++;
+				}
+				i++;
+			}
+			break;
+		case '`':
+			i++;
+			while (s[i] != '`')
+				i++;
+			i++;
+			break;
+		case '/':
+			i++;
+			if (s[i] == '/')
+			{
+				while (s[i] != '\r' && s[i] != '\n')
+					i++;
+			}
+			else
+			if (s[i] == '*')
+			{
+				i+=3;
+				while (s[i-2] != '*' || s[i-1] != '/')
+					i++;
+			}
+			else
+			if (s[i] == '+')
+			{
+				i++;
+				int commentLevel = 1;
+				while (commentLevel)
+				{
+					if (s[i] == '/' && s[i+1]=='+')
+						commentLevel++, i+=2;
+					else
+					if (s[i] == '+' && s[i+1]=='/')
+						commentLevel--, i+=2;
+					else
+						i++;
+				}
+			}
+			else
+				i++;
+			break;
+		default:
+			i++;
+			break;
+		}
+	}
+
+	Entity[] parseScope(char end)
+	{
+		enum MAX_SPLITTER_LEVELS = 4;
+		struct DSplitter { char open, close, sep; }
+		static const DSplitter[MAX_SPLITTER_LEVELS] splitters = [{'{','}',';'}, {'(',')'}, {'[',']'}, {sep:','}];
+
+		Entity[][MAX_SPLITTER_LEVELS] splitterQueue;
+
+		Entity[] terminateLevel(int level)
+		{
+			if (level == MAX_SPLITTER_LEVELS)
+			{
+				auto text = s[start..i];
+				start = i;
+				if (text.length)
+					return [Entity(text, null, null)];
+				else
+					return null;
+			}
+			else
+			{
+				auto next = terminateLevel(level+1);
+				if (next.length <= 1)
+					splitterQueue[level] ~= next;
+				else
+					splitterQueue[level] ~= Entity(null, next, null);
+				auto r = splitterQueue[level];
+				splitterQueue[level] = null;
+				return r;
+			}
+		}
+
+		string terminateText()
+		{
+			auto r = s[start..i];
+			start = i;
+			return r;
+		}
+
+		characterLoop:
+		while (i < s.length)
+		{
+			char c = s[i];
+			foreach (level, info; splitters)
+				if (info.sep && c == info.sep)
+				{
+					auto children = terminateLevel(level+1);
+					assert(i == start);
+					i++; skipToEOL();
+					splitterQueue[level] ~= Entity(null, children, terminateText());
+					continue characterLoop;
+				}
+				else
+				if (info.open && c == info.open)
+				{
+					auto openPos = i;
+					backToEOL();
+					auto pairHead = terminateLevel(level+1);
+
+					i = openPos+1; skipToEOL();
+					auto startSequence = terminateText();
+					auto bodyContents = parseScope(info.close);
+
+					auto pairBody = Entity(startSequence, bodyContents, innerTail);
+
+					splitterQueue[level] ~= pairHead ? Entity(null, [Entity(null, pairHead, null), pairBody], null, true) : pairBody;
+					continue characterLoop;
+				}
+
+			if (end && c == end)
+			{
+				auto closePos = i;
+				backToEOL();
+				auto result = terminateLevel(0);
+				i = closePos+1; skipToEOL();
+				innerTail = terminateText();
+				return result;
+			}
+			else
+				skipSymbol();
+		}
+
+		innerTail = null;
+		return terminateLevel(0);
+	}
+
+	return parseScope(0);
 }
 
+/+
 /// Group together consecutive entities which might represent a single language construct
 /// There is no penalty for false positives, so accuracy is not very important
 Entity[] postProcessD(Entity[] entities)
@@ -286,3 +302,4 @@ bool isWord(string s, string word)
 	// TODO: fixme
 	return s.startsWithWord(word) || s.endsWithWord(word);
 }
++/
