@@ -224,7 +224,13 @@ Entity[] parseD(string s)
 
 					auto pairBody = Entity(startSequence, bodyContents, innerTail);
 
-					splitterQueue[level] ~= pairHead ? Entity(null, [Entity(null, pairHead, null), pairBody], null, true) : pairBody;
+					if (pairHead.length == 0)
+						splitterQueue[level] ~= pairBody;
+					else
+					if (pairHead.length == 1)
+						splitterQueue[level] ~= Entity(null, pairHead ~ pairBody, null, true);
+					else
+						splitterQueue[level] ~= Entity(null, [Entity(null, pairHead, null), pairBody], null, true);
 					continue characterLoop;
 				}
 
