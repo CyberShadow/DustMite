@@ -52,112 +52,118 @@ Entity[] loadFile(string path)
 	}
 }
 
+void skipSymbol(string s, ref size_t i)
+{
+	switch (s[i])
+	{
+	case '\'':
+		i++;
+		if (s[i] == '\\')
+			i+=2;
+		while (s[i] != '\'')
+			i++;
+		i++;
+		break;
+	case '"':
+		if (i && s[i-1] == 'r')
+		{
+			i++;
+			while (s[i] != '"')
+				i++;
+			i++;
+		}
+		else
+		{
+			i++;
+			while (s[i] != '"')
+			{
+				if (s[i] == '\\')
+					i+=2;
+				else
+					i++;
+			}
+			i++;
+		}
+		break;
+	case '`':
+		i++;
+		while (s[i] != '`')
+			i++;
+		i++;
+		break;
+	case '/':
+		i++;
+		if (s[i] == '/')
+		{
+			while (s[i] != '\r' && s[i] != '\n')
+				i++;
+		}
+		else
+		if (s[i] == '*')
+		{
+			i+=3;
+			while (s[i-2] != '*' || s[i-1] != '/')
+				i++;
+		}
+		else
+		if (s[i] == '+')
+		{
+			i++;
+			int commentLevel = 1;
+			while (commentLevel)
+			{
+				if (s[i] == '/' && s[i+1]=='+')
+					commentLevel++, i+=2;
+				else
+				if (s[i] == '+' && s[i+1]=='/')
+					commentLevel--, i+=2;
+				else
+					i++;
+			}
+		}
+		else
+			i++;
+		break;
+	default:
+		i++;
+		break;
+	}
+}
+
+/// Moves i forward over first series of EOL characters, or until first non-whitespace character
+void skipToEOL(string s, ref size_t i)
+{
+	while (i < s.length)
+	{
+		if (iswhite(s[i]))
+			i++;
+		else
+		if (s[i..$].startsWith("//"))
+			skipSymbol(s, i);
+		else
+		if (s[i] == '\r' || s[i] == '\n')
+		{
+			while (i < s.length && (s[i] == '\r' || s[i] == '\n'))
+				i++;
+			return;
+		}
+		else
+			break;
+	}
+}
+
+/// Moves i backwards to the beginning of the current line, but not any further than start
+void backToEOL(string s, ref size_t i, size_t start)
+{
+	while (i>start && iswhite(s[i-1]) && s[i-1] != '\n')
+		i--;
+}
+
 Entity[] parseD(string s)
 {
 	size_t i = 0;
 	size_t start;
 	string innerTail;
-
-	/// Moves i forward over first series of EOL characters, or until first non-whitespace character
-	void skipToEOL()
-	{
-		// TODO: skip end-of-line comments, too
-		while (i < s.length && iswhite(s[i]))
-		{
-			if (s[i] == '\r' || s[i] == '\n')
-			{
-				while (i < s.length && (s[i] == '\r' || s[i] == '\n'))
-					i++;
-				return;
-			}
-			i++;
-		}
-	}
-
-	/// Moves i backwards to the start of the current line
-	void backToEOL()
-	{
-		while (i>start && iswhite(s[i-1]) && s[i-1] != '\n')
-			i--;
-	}
-
-	void skipSymbol()
-	{
-		switch (s[i])
-		{
-		case '\'':
-			i++;
-			if (s[i] == '\\')
-				i+=2;
-			while (s[i] != '\'')
-				i++;
-			i++;
-			break;
-		case '"':
-			if (s[i-1] == 'r')
-			{
-				i++;
-				while (s[i] != '"')
-					i++;
-				i++;
-			}
-			else
-			{
-				i++;
-				while (s[i] != '"')
-				{
-					if (s[i] == '\\')
-						i+=2;
-					else
-						i++;
-				}
-				i++;
-			}
-			break;
-		case '`':
-			i++;
-			while (s[i] != '`')
-				i++;
-			i++;
-			break;
-		case '/':
-			i++;
-			if (s[i] == '/')
-			{
-				while (s[i] != '\r' && s[i] != '\n')
-					i++;
-			}
-			else
-			if (s[i] == '*')
-			{
-				i+=3;
-				while (s[i-2] != '*' || s[i-1] != '/')
-					i++;
-			}
-			else
-			if (s[i] == '+')
-			{
-				i++;
-				int commentLevel = 1;
-				while (commentLevel)
-				{
-					if (s[i] == '/' && s[i+1]=='+')
-						commentLevel++, i+=2;
-					else
-					if (s[i] == '+' && s[i+1]=='/')
-						commentLevel--, i+=2;
-					else
-						i++;
-				}
-			}
-			else
-				i++;
-			break;
-		default:
-			i++;
-			break;
-		}
-	}
 
 	Entity[] parseScope(char end)
 	{
@@ -173,10 +179,7 @@ Entity[] parseD(string s)
 			{
 				auto text = s[start..i];
 				start = i;
-				if (text.length)
-					return [Entity(text, null, null)];
-				else
-					return null;
+				return splitText(text);
 			}
 			else
 			{
@@ -207,7 +210,7 @@ Entity[] parseD(string s)
 				{
 					auto children = terminateLevel(level+1);
 					assert(i == start);
-					i++; skipToEOL();
+					i++; skipToEOL(s, i);
 					splitterQueue[level] ~= Entity(null, children, terminateText());
 					continue characterLoop;
 				}
@@ -215,10 +218,10 @@ Entity[] parseD(string s)
 				if (info.open && c == info.open)
 				{
 					auto openPos = i;
-					backToEOL();
+					backToEOL(s, i, start);
 					auto pairHead = terminateLevel(level+1);
 
-					i = openPos+1; skipToEOL();
+					i = openPos+1; skipToEOL(s, i);
 					auto startSequence = terminateText();
 					auto bodyContents = parseScope(info.close);
 
@@ -237,14 +240,14 @@ Entity[] parseD(string s)
 			if (end && c == end)
 			{
 				auto closePos = i;
-				backToEOL();
+				backToEOL(s, i, start);
 				auto result = terminateLevel(0);
-				i = closePos+1; skipToEOL();
+				i = closePos+1; skipToEOL(s, i);
 				innerTail = terminateText();
 				return result;
 			}
 			else
-				skipSymbol();
+				skipSymbol(s, i);
 		}
 
 		innerTail = null;
@@ -263,16 +266,15 @@ void postProcessD(ref Entity[] entities)
 	for (int i=0; i<entities.length;)
 	{
 		if (i+2 <= entities.length && entities.length > 2 && (
-		    (getHeadText(entities[i]).isWord("do") && getHeadText(entities[i+1]).isWord("while"))
-		 || (getHeadText(entities[i]).isWord("try") && getHeadText(entities[i+1]).startsWithWord("catch"))
-		 || (getHeadText(entities[i]).isWord("try") && getHeadText(entities[i+1]).startsWithWord("finally"))
+		    (getHeadText(entities[i]).startsWithWord("do") && getHeadText(entities[i+1]).isWord("while"))
+		 || (getHeadText(entities[i]).startsWithWord("try") && getHeadText(entities[i+1]).startsWithWord("catch"))
+		 || (getHeadText(entities[i]).startsWithWord("try") && getHeadText(entities[i+1]).startsWithWord("finally"))
 		 || (getHeadText(entities[i+1]).isWord("in"))
 		 || (getHeadText(entities[i+1]).isWord("out"))
 		 || (getHeadText(entities[i+1]).isWord("body"))
 		))
 			entities.replaceInPlace(i, i+2, [Entity(null, entities[i..i+2].dup, null)]);
 		else
-		// TODO: else
 		{
 			postProcessD(entities[i].children);
 			i++;
@@ -280,10 +282,61 @@ void postProcessD(ref Entity[] entities)
 	}
 }
 
+const bool[string] wordSep;
+static this() { wordSep = ["else":true]; }
+
+Entity[] splitText(string s)
+{
+	Entity[] result;
+	while (s.length)
+	{
+		auto word = firstWord(s);
+		if (word in wordSep)
+		{
+			size_t p = word.ptr + word.length - s.ptr;
+			skipToEOL(s, p);
+			result ~= Entity(s[0..p], null, null);
+			s = s[p..$];
+		}
+		else
+		{
+			result ~= Entity(s, null, null);
+			s = null;
+		}
+	}
+
+	return result;
+}
+
 string stripD(string s)
 {
-	// TODO: strip D comments, too
-	return strip(s);
+	size_t i=0;
+	size_t start=s.length, end=s.length;
+	while (i < s.length)
+	{
+		if (s[i..$].startsWithComment())
+			skipSymbol(s, i);
+		else
+		if (!iswhite(s[i]))
+		{
+			if (start > i)
+				start = i;
+			i++;
+			end = i;
+		}
+		else
+			i++;
+	}
+	return s[start..end];
+}
+
+string firstWord(string s)
+{
+	size_t i = 0;
+	s = stripD(s);
+	while (i<s.length && !iswhite(s[i]))
+		i++;
+	return s[0..i];
 }
 
 bool startsWithWord(string s, string word)
@@ -300,8 +353,12 @@ bool endsWithWord(string s, string word)
 
 bool isWord(string s, string word)
 {
-	// TODO: fixme
-	return s.startsWithWord(word) || s.endsWithWord(word);
+	return stripD(s) == word;
+}
+
+bool startsWithComment(string s)
+{
+	return s.startsWith("//") || s.startsWith("/*") || s.startsWith("/+");
 }
 
 string getHeadText(in Entity e)
