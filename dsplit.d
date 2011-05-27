@@ -20,7 +20,7 @@ struct Entity
 	bool isPair;           /// internal hint
 	bool noRemove;         /// don't try removing this entity (children OK)
 
-	alias head filename; // for level 0
+	alias head filename; // for depth 0
 }
 
 Entity[] loadFiles(string dir)

@@ -104,25 +104,25 @@ Supported options:
 	{
 		writefln("############### ITERATION %d ################", iterCount++);
 		bool changed;
-		int testLevel = 0;
+		int testDepth = 0;
 		do
 		{
-			writefln("============= Level %d =============", testLevel);
+			writefln("============= Depth %d =============", testDepth);
 			tested = changed = false;
 
 			enum MAX_DEPTH = 1024;
 			uint[MAX_DEPTH] address;
 
-			void scan(ref Entity[] entities, int level)
+			void scan(ref Entity[] entities, int depth)
 			{
 				uint i = 0;
 				while (i<entities.length)
 				{
-					address[level] = i;
-					if (level < testLevel)
+					address[depth] = i;
+					if (depth < testDepth)
 					{
 						// recurse
-						scan(entities[i].children, level+1);
+						scan(entities[i].children, depth+1);
 						i++;
 					}
 					else
@@ -136,14 +136,14 @@ Supported options:
 					{
 						// test
 						tested = true;
-						if (test(Reduction(Reduction.Type.Remove, address[0..level+1])))
+						if (test(Reduction(Reduction.Type.Remove, address[0..depth+1])))
 						{
 							entities = remove(entities, i);
 							measure!"resultSave"({safeSave(null, resultDir);});
 							changed = true;
 						}
 						else
-						if (entities[i].head.length && entities[i].tail.length && test(Reduction(Reduction.Type.Unwrap, address[0..level+1])))
+						if (entities[i].head.length && entities[i].tail.length && test(Reduction(Reduction.Type.Unwrap, address[0..depth+1])))
 						{
 							entities[i].head = entities[i].tail = null;
 							measure!"resultSave"({safeSave(null, resultDir);});
@@ -158,7 +158,7 @@ Supported options:
 			scan(set, 0);
 			//writefln("Scan results: tested=%s, changed=%s", tested, changed);
 
-			testLevel++;
+			testDepth++;
 		} while (tested && !changed); // go deeper while we found something to test, but no results
 	} while (tested); // stop when we didn't find anything to test
 
@@ -303,9 +303,9 @@ void dumpSet(string fn)
 		return s is null ? "null" : `"` ~ s.replace("\\", `\\`).replace("\"", `\"`).replace("\r", `\r`).replace("\n", `\n`) ~ `"`;
 	}
 
-	void print(Entity[] entities, int level)
+	void print(Entity[] entities, int depth)
 	{
-		auto prefix = replicate("  ", level);
+		auto prefix = replicate("  ", depth);
 		foreach (e; entities)
 		{
 			if (e.children.length == 0)
@@ -316,7 +316,7 @@ void dumpSet(string fn)
 			{
 				f.writeln(prefix, "[", e.isPair ? " // Pair" : null);
 				if (e.head) f.writeln(prefix, "  ", printable(e.head));
-				print(e.children, level+1);
+				print(e.children, depth+1);
 				if (e.tail) f.writeln(prefix, "  ", printable(e.tail));
 				f.writeln(prefix, "]");
 			}
