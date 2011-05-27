@@ -40,7 +40,7 @@ int main(string[] args)
 		"times", &showTimes,
 	);
 
-	if (args.length != 3)
+	if (args.length == 0 || args.length>3)
 	{
 		stderr.write(
 "Usage: "~args[0]~" [OPTION]... DIR TESTER
@@ -59,7 +59,8 @@ Supported options:
 
 	dir = chomp(args[1], sep);
 	if (altsep.length) dir = chomp(args[1], altsep);
-	tester = args[2];
+	if (args.length>=3)
+		tester = args[2];
 
 	if (!force)
 		foreach (path; listdir(dir, "*"))
@@ -79,6 +80,12 @@ Supported options:
 
 	if (dump)
 		dumpSet(dir ~ ".dump");
+
+	if (tester is null)
+	{
+		writeln("No tester specified, exiting");
+		return 0;
+	}
 
 	if (!test(null))
 		throw new Exception("Initial test fails");
