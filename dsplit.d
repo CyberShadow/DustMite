@@ -251,38 +251,33 @@ Entity[] parseD(string s)
 		return terminateLevel(0);
 	}
 
-	return parseScope(0);
+	auto result = parseScope(0);
+	postProcessD(result);
+	return result;
 }
 
-/+
 /// Group together consecutive entities which might represent a single language construct
 /// There is no penalty for false positives, so accuracy is not very important
-Entity[] postProcessD(Entity[] entities)
+void postProcessD(ref Entity[] entities)
 {
-	for (int i=0; i<entities.length; i++)
+	for (int i=0; i<entities.length;)
 	{
-		if (i+3 <= entities.length && entities[i].isPair && entities[i+1].isPair && entities[i+2].isPair && (
-			(entities[i].children[0].head.endsWithWord("in")  && entities[i+1].children[0].head.endsWithWord("out") && entities[i+2].children[0].head.endsWithWord("body")) ||
-			(entities[i].children[0].head.endsWithWord("out") && entities[i+1].children[0].head.endsWithWord("in")  && entities[i+2].children[0].head.endsWithWord("body"))
-		))
-			entities.replaceInPlace(i, i+3, [Entity(null, entities[i..i+3].dup, null)]);
-		else
-		if (i+2 <= entities.length && entities[i].isPair && entities[i+1].isPair && (
-			(entities[i].children[0].head.endsWithWord("in")  && entities[i+1].children[0].head.endsWithWord("body")) ||
-			(entities[i].children[0].head.endsWithWord("out") && entities[i+1].children[0].head.endsWithWord("body")) ||
-			(entities[i].children[0].head.endsWithWord("try") && entities[i+1].children[0].head.startsWithWord("catch")) ||
-			(entities[i].children[0].head.endsWithWord("try") && entities[i+1].children[0].head.startsWithWord("finally"))
+		if (i+2 <= entities.length && entities.length > 2 && (
+		    (getHeadText(entities[i]).isWord("do") && getHeadText(entities[i+1]).isWord("while"))
+		 || (getHeadText(entities[i]).isWord("try") && getHeadText(entities[i+1]).startsWithWord("catch"))
+		 || (getHeadText(entities[i]).isWord("try") && getHeadText(entities[i+1]).startsWithWord("finally"))
+		 || (getHeadText(entities[i+1]).isWord("in"))
+		 || (getHeadText(entities[i+1]).isWord("out"))
+		 || (getHeadText(entities[i+1]).isWord("body"))
 		))
 			entities.replaceInPlace(i, i+2, [Entity(null, entities[i..i+2].dup, null)]);
 		else
-		if (i+2 <= entities.length && entities[i+1].head.startsWithWord("while") && entities[i+1].children is null && (
-			(entities[i].isPair && entities[i].children[0].head.isWord("do")) ||
-			(entities[i].head.startsWithWord("do"))
-		))
-			entities.replaceInPlace(i, i+2, [Entity(null, entities[i..i+2].dup, null)]);
+		// TODO: else
+		{
+			postProcessD(entities[i].children);
+			i++;
+		}
 	}
-
-	return entities;
 }
 
 string stripD(string s)
@@ -308,4 +303,18 @@ bool isWord(string s, string word)
 	// TODO: fixme
 	return s.startsWithWord(word) || s.endsWithWord(word);
 }
-+/
+
+string getHeadText(in Entity e)
+{
+	if (e.head)
+		return e.head;
+	foreach (ref child; e.children)
+	{
+		string s = getHeadText(child);
+		if (s)
+			return s;
+	}
+	if (e.tail)
+		return e.tail;
+	return null;
+}
