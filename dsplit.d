@@ -135,18 +135,18 @@ void skipToEOL(string s, ref size_t i)
 {
 	while (i < s.length)
 	{
-		if (iswhite(s[i]))
-			i++;
-		else
-		if (s[i..$].startsWith("//"))
-			skipSymbol(s, i);
-		else
 		if (s[i] == '\r' || s[i] == '\n')
 		{
 			while (i < s.length && (s[i] == '\r' || s[i] == '\n'))
 				i++;
 			return;
 		}
+		else
+		if (iswhite(s[i]))
+			i++;
+		else
+		if (s[i..$].startsWith("//"))
+			skipSymbol(s, i);
 		else
 			break;
 	}
@@ -282,8 +282,8 @@ void postProcessD(ref Entity[] entities)
 	}
 }
 
-const bool[string] wordSep;
-static this() { wordSep = ["else":true]; }
+const bool[string] wordsToSplit;
+static this() { wordsToSplit = ["else":true]; }
 
 Entity[] splitText(string s)
 {
@@ -291,7 +291,7 @@ Entity[] splitText(string s)
 	while (s.length)
 	{
 		auto word = firstWord(s);
-		if (word in wordSep)
+		if (word in wordsToSplit)
 		{
 			size_t p = word.ptr + word.length - s.ptr;
 			skipToEOL(s, p);
