@@ -95,7 +95,7 @@ void skipSymbol(string s, ref size_t i)
 		i++;
 		if (s[i] == '/')
 		{
-			while (s[i] != '\r' && s[i] != '\n')
+			while (i < s.length && s[i] != '\r' && s[i] != '\n')
 				i++;
 		}
 		else
