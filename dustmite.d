@@ -15,6 +15,7 @@ import std.algorithm;
 import std.exception;
 import std.datetime;
 import std.regex;
+import std.conv;
 import dsplit;
 
 alias std.string.join join;
@@ -27,6 +28,13 @@ Times times;
 SysTime lastTime;
 Duration elapsedTime() { auto c = Clock.currTime(); auto d = c - lastTime; lastTime = c; return d; }
 void measure(string what)(void delegate() p) { times.misc += elapsedTime(); p(); mixin("times."~what~" += elapsedTime();"); }
+
+struct Reduction
+{
+	enum Type { None, Remove, Unwrap }
+	Type type;
+	uint[] address;
+}
 
 int main(string[] args)
 {
@@ -87,7 +95,7 @@ Supported options:
 		return 0;
 	}
 
-	if (!test(null))
+	if (!test(Reduction(Reduction.Type.None)))
 		throw new Exception("Initial test fails");
 
 	bool tested;
@@ -103,11 +111,11 @@ Supported options:
 			tested = changed = false;
 
 			enum MAX_DEPTH = 1024;
-			int[MAX_DEPTH] address;
+			uint[MAX_DEPTH] address;
 
 			void scan(ref Entity[] entities, int level)
 			{
-				int i = 0;
+				uint i = 0;
 				while (i<entities.length)
 				{
 					address[level] = i;
@@ -128,9 +136,16 @@ Supported options:
 					{
 						// test
 						tested = true;
-						if (test(address[0..level+1]))
+						if (test(Reduction(Reduction.Type.Remove, address[0..level+1])))
 						{
 							entities = remove(entities, i);
+							measure!"resultSave"({safeSave(null, resultDir);});
+							changed = true;
+						}
+						else
+						if (entities[i].head.length && entities[i].tail.length && test(Reduction(Reduction.Type.Unwrap, address[0..level+1])))
+						{
+							entities[i].head = entities[i].tail = null;
 							measure!"resultSave"({safeSave(null, resultDir);});
 							changed = true;
 						}
@@ -158,35 +173,51 @@ Supported options:
 	return 0;
 }
 
-void save(int[] address, string savedir)
+void save(Reduction reduction, string savedir)
 {
 	enforce(!exists(savedir), "Directory already exists: " ~ savedir);
 	mkdirRecurse(savedir);
 
 	foreach (i, f; set)
 	{
-		if (address.length==1 && address[0]==i) // skip this file
+		if (reduction.address.length==1 && reduction.address[0]==i) // skip this file
+		{
+			assert(reduction.type == Reduction.Type.Remove);
 			continue;
+		}
 
 		auto path = std.path.join(savedir, f.filename);
 		if (!exists(dirname(path)))
 			mkdirRecurse(dirname(path));
 		auto o = File(path, "wb");
 
-		void dump(Entity[] entities, int[] address)
+		void dump(Entity[] entities, uint[] address)
 		{
 			foreach (i, e; entities)
 			{
-				if (address.length==1 && address[0]==i) // skip this entity
-					continue;
-
-				o.write(e.head);
-				dump(e.children, address.length>1 && address[0]==i ? address[1..$] : null);
-				o.write(e.tail);
+				if (address.length==1 && address[0]==i)
+				{
+					final switch(reduction.type)
+					{
+					case Reduction.Type.None:
+						assert(0);
+					case Reduction.Type.Remove: // skip this entity
+						continue;
+					case Reduction.Type.Unwrap: // skip head/tail
+						dump(e.children, null);
+						break;
+					}
+				}
+				else
+				{
+					o.write(e.head);
+					dump(e.children, address.length>1 && address[0]==i ? address[1..$] : null);
+					o.write(e.tail);
+				}
 			}
 		}
 
-		dump(f.children, address.length>1 && address[0]==i ? address[1..$] : null);
+		dump(f.children, reduction.address.length>1 && reduction.address[0]==i ? reduction.address[1..$] : null);
 		o.close();
 	}
 }
@@ -195,12 +226,12 @@ void safeSave(int[] address, string savedir)
 {
 	auto tempdir = savedir ~ ".inprogress"; scope(failure) rmdirRecurse(tempdir);
 	if (exists(tempdir)) rmdirRecurse(tempdir);
-	save(null, tempdir);
+	save(Reduction(Reduction.Type.None), tempdir);
 	if (exists(savedir)) rmdirRecurse(savedir);
 	rename(tempdir, savedir);
 }
 
-string formatAddress(int[] address)
+string formatAddress(uint[] address)
 {
 	string[] segments = new string[address.length];
 	Entity[] e = set;
@@ -212,15 +243,15 @@ string formatAddress(int[] address)
 	return "[" ~ segments.join(", ") ~ "]";
 }
 
-bool test(int[] address)
+bool test(Reduction reduction)
 {
 	string testdir = dir ~ ".test";
-	measure!"testSave"({save(address, testdir);}); scope(exit) measure!"clean"({rmdirRecurse(testdir);});
+	measure!"testSave"({save(reduction, testdir);}); scope(exit) measure!"clean"({rmdirRecurse(testdir);});
 
 	auto lastdir = getcwd(); scope(exit) chdir(lastdir);
 	chdir(testdir);
 
-	write("Test ", formatAddress(address), " => "); stdout.flush();
+	write(to!string(reduction.type), " ", formatAddress(reduction.address), " => "); stdout.flush();
 
 	bool result;
 	measure!"test"({result = system(tester) == 0;});
