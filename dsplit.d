@@ -23,7 +23,7 @@ struct Entity
 	alias head filename; // for depth 0
 }
 
-Entity[] loadFiles(string dir)
+Entity[] loadFiles(string dir, bool stripComments)
 {
 	Entity[] set;
 	foreach (path; listdir(dir, "*"))
@@ -31,20 +31,22 @@ Entity[] loadFiles(string dir)
 		{
 			assert(path.startsWith(dir));
 			auto name = path[dir.length+1..$];
-			set ~= Entity(name, loadFile(path), null);
+			set ~= Entity(name, loadFile(path, stripComments), null);
 		}
 	return set;
 }
 
 private:
 
-Entity[] loadFile(string path)
+Entity[] loadFile(string path, bool stripComments)
 {
 	string contents = cast(string)read(path);
 	switch (getExt(path))
 	{
 	case "d":
 		debug writeln("Loading ", path);
+		if (stripComments)
+			contents = stripDComments(contents);
 		return parseD(contents);
 	// One could add custom splitters for other languages here - for example, a simple line/word/character splitter for most text-based formats
 	default:
@@ -52,8 +54,9 @@ Entity[] loadFile(string path)
 	}
 }
 
-void skipSymbol(string s, ref size_t i)
+string skipSymbol(string s, ref size_t i)
 {
+	auto start = i;
 	switch (s[i])
 	{
 	case '\'':
@@ -128,6 +131,7 @@ void skipSymbol(string s, ref size_t i)
 		i++;
 		break;
 	}
+	return s[start..i];
 }
 
 /// Moves i forward over first series of EOL characters, or until first non-whitespace character
@@ -257,6 +261,19 @@ Entity[] parseD(string s)
 	auto result = parseScope(0);
 	postProcessD(result);
 	return result;
+}
+
+string stripDComments(string s)
+{
+	auto result = appender!string();
+	size_t i = 0;
+	while (i < s.length)
+	{
+		auto sym = skipSymbol(s, i);
+		if (!sym.startsWithComment())
+			result.put(sym);
+	}
+	return result.data;
 }
 
 /// Group together consecutive entities which might represent a single language construct

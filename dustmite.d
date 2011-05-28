@@ -38,12 +38,13 @@ struct Reduction
 
 int main(string[] args)
 {
-	bool force, dump, showTimes;
+	bool force, dump, showTimes, stripComments;
 	string[] noRemoveStr;
 
 	getopt(args,
 		"force", &force,
 		"noremove", &noRemoveStr,
+		"strip-comments", &stripComments,
 		"dump", &dump,
 		"times", &showTimes,
 	);
@@ -59,6 +60,7 @@ Supported options:
   --force            Force reduction of unusual files
   --noremove REGEXP  Do not reduce blocks containing REGEXP
                        (may be used multiple times)
+  --strip-comments   Attempt to remove comments from source code.
   --dump             Dump parsed tree to DIR.dump file
   --times            Display verbose spent time breakdown
 ");
@@ -83,7 +85,7 @@ Supported options:
 
 	auto startTime = lastTime = Clock.currTime();
 
-	measure!"load"({set = loadFiles(dir);});
+	measure!"load"({set = loadFiles(dir, stripComments);});
 	applyNoRemove(noRemoveStr);
 
 	if (dump)
