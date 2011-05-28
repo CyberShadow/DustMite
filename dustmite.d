@@ -39,12 +39,14 @@ struct Reduction
 int main(string[] args)
 {
 	bool force, dump, showTimes, stripComments;
+	string coverageDir;
 	string[] noRemoveStr;
 
 	getopt(args,
 		"force", &force,
 		"noremove", &noRemoveStr,
 		"strip-comments", &stripComments,
+		"coverage", &coverageDir,
 		"dump", &dump,
 		"times", &showTimes,
 	);
@@ -61,11 +63,14 @@ Supported options:
   --noremove REGEXP  Do not reduce blocks containing REGEXP
                        (may be used multiple times)
   --strip-comments   Attempt to remove comments from source code.
+  --coverage DIR     Load .lst files corresponding to source files from DIR
   --dump             Dump parsed tree to DIR.dump file
   --times            Display verbose spent time breakdown
 ");
 		return 64; // EX_USAGE
 	}
+
+	enforce(!(stripComments && coverageDir), "Sorry, --strip-comments is not compatible with --coverage");
 
 	dir = chomp(args[1], sep);
 	if (altsep.length) dir = chomp(args[1], altsep);
@@ -87,6 +92,8 @@ Supported options:
 
 	measure!"load"({set = loadFiles(dir, stripComments);});
 	applyNoRemove(noRemoveStr);
+	if (coverageDir)
+		loadCoverage(coverageDir);
 
 	if (dump)
 		dumpSet(dir ~ ".dump");
@@ -100,7 +107,7 @@ Supported options:
 	if (!test(Reduction(Reduction.Type.None)))
 		throw new Exception("Initial test fails");
 
-	bool tested;
+	bool tested, foundAnything;
 	int iterCount;
 	do
 	{
@@ -142,14 +149,14 @@ Supported options:
 						{
 							entities = remove(entities, i);
 							measure!"resultSave"({safeSave(null, resultDir);});
-							changed = true;
+							foundAnything = changed = true;
 						}
 						else
 						if (entities[i].head.length && entities[i].tail.length && test(Reduction(Reduction.Type.Unwrap, address[0..depth+1])))
 						{
 							entities[i].head = entities[i].tail = null;
 							measure!"resultSave"({safeSave(null, resultDir);});
-							changed = true;
+							foundAnything = changed = true;
 						}
 						else
 							i++;
@@ -166,7 +173,10 @@ Supported options:
 
 	auto duration = Clock.currTime()-startTime;
 	duration = dur!"msecs"(duration.total!"msecs"); // truncate anything below ms, users aren't interested in that
-	writefln("Done in %s; reduced version is in %s", duration, resultDir);
+	if (foundAnything)
+		writefln("Done in %s; reduced version is in %s", duration, resultDir);
+	else
+		writefln("Done in %s; no reductions found", duration);
 
 	if (showTimes)
 		foreach (i, t; times.tupleof)
@@ -296,6 +306,54 @@ void applyNoRemove(string[] noRemoveStr)
 	scan(set);
 }
 
+void loadCoverage(string dir)
+{
+	foreach (ref f; set)
+	{
+		auto fn = std.path.join(dir, addExt(basename(f.filename), "lst"));
+		if (!exists(fn))
+			continue;
+		writeln("Loading coverage file ", fn);
+
+		static bool covered(string line)
+		{
+			enforce(line.length >= 8 && line[7]=='|', "Invalid syntax in coverage file");
+			line = line[0..7];
+			return line != "0000000" && line != "       ";
+		}
+
+		auto lines = map!covered(splitlines(cast(string)read(fn))[0..$-1]);
+		uint line = 0;
+
+		bool coverString(string s)
+		{
+			bool result;
+			foreach (char c; s)
+			{
+				result |= lines[line];
+				if (c == '\n')
+					line++;
+			}
+			return result;
+		}
+
+		bool cover(ref Entity e)
+		{
+			bool result;
+			result |= coverString(e.head);
+			foreach (ref c; e.children)
+				result |= cover(c);
+			result |= coverString(e.tail);
+
+			e.noRemove |= result;
+			return result;
+		}
+
+		foreach (ref c; f.children)
+			f.noRemove |= cover(c);
+	}
+}
+
 void dumpSet(string fn)
 {
 	auto f = File(fn, "wt");
@@ -312,11 +370,11 @@ void dumpSet(string fn)
 		{
 			if (e.children.length == 0)
 			{
-				f.writeln(prefix, "[ ", e.head ? printable(e.head) ~ " " : null, e.tail ? printable(e.tail) ~ " " : null, "]");
+				f.writeln(prefix, "[", e.noRemove ? "!" : "", " ", e.head ? printable(e.head) ~ " " : null, e.tail ? printable(e.tail) ~ " " : null, "]");
 			}
 			else
 			{
-				f.writeln(prefix, "[", e.isPair ? " // Pair" : null);
+				f.writeln(prefix, "[", e.noRemove ? "!" : "", e.isPair ? " // Pair" : null);
 				if (e.head) f.writeln(prefix, "  ", printable(e.head));
 				print(e.children, depth+1);
 				if (e.tail) f.writeln(prefix, "  ", printable(e.tail));
