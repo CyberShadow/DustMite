@@ -91,7 +91,8 @@ Supported options:
 	auto startTime = lastTime = Clock.currTime();
 
 	measure!"load"({set = loadFiles(dir, stripComments);});
-	applyNoRemove(noRemoveStr);
+	applyNoRemoveMagic();
+	applyNoRemoveRegex(noRemoveStr);
 	if (coverageDir)
 		loadCoverage(coverageDir);
 
@@ -271,7 +272,43 @@ bool test(Reduction reduction)
 	return result;
 }
 
-void applyNoRemove(string[] noRemoveStr)
+void applyNoRemoveMagic()
+{
+	enum MAGIC_START = "DustMiteNoRemoveStart";
+	enum MAGIC_STOP  = "DustMiteNoRemoveStop";
+
+	bool state = false;
+
+	bool scanString(string s)
+	{
+		if (s.length == 0)
+			return false;
+		if (s.canFind(MAGIC_START))
+			state = true;
+		if (s.canFind(MAGIC_STOP))
+			state = false;
+		return state;
+	}
+
+	bool scan(Entity[] set)
+	{
+		bool result = false;
+		foreach (ref e; set)
+		{
+			bool removeThis;
+			removeThis  = scanString(e.head);
+			removeThis |= scan(e.children);
+			removeThis |= scanString(e.tail);
+			e.noRemove |= removeThis;
+			result |= removeThis;
+		}
+		return result;
+	}
+
+	scan(set);
+}
+
+void applyNoRemoveRegex(string[] noRemoveStr)
 {
 	auto noRemove = map!regex(noRemoveStr);
 
