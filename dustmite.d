@@ -51,7 +51,7 @@ int main(string[] args)
 		"times", &showTimes,
 	);
 
-	if (args.length == 0 || args.length>3)
+	if (args.length == 1 || args.length>3)
 	{
 		stderr.write(
 "Usage: "~args[0]~" [OPTION]... DIR TESTER
