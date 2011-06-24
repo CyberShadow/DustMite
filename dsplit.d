@@ -67,6 +67,9 @@ string skipSymbol(string s, ref size_t i)
 			i++;
 		i++;
 		break;
+	case '\\':
+		i+=2;
+		break;
 	case '"':
 		if (i && s[i-1] == 'r')
 		{
