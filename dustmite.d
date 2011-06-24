@@ -268,7 +268,7 @@ bool test(Reduction reduction)
 
 	bool result;
 	measure!"test"({result = system(tester) == 0;});
-	writeln(result);
+	writeln(result ? "Yes" : "No");
 	return result;
 }
 
