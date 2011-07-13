@@ -350,7 +350,7 @@ string stripD(string s)
 		{
 			if (start > i)
 				start = i;
-			i++;
+			skipSymbol(s, i);
 			end = i;
 		}
 		else
