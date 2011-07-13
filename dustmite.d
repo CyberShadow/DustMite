@@ -91,6 +91,8 @@ Supported options:
 	auto startTime = lastTime = Clock.currTime();
 
 	measure!"load"({set = loadFiles(dir, stripComments);});
+	enforce(set.length, "No files in specified directory");
+
 	applyNoRemoveMagic();
 	applyNoRemoveRegex(noRemoveStr);
 	if (coverageDir)
