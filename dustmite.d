@@ -79,7 +79,7 @@ Supported options:
 		tester = args[2];
 
 	if (!force)
-		foreach (path; listdir(dir, "*"))
+		foreach (string path; dirEntries(dir, SpanMode.depth))
 			if (basename(path).startsWith(".") || basename(dirname(path)).startsWith(".") || getExt(path)=="o" || getExt(path)=="obj" || getExt(path)=="exe")
 			{
 				stderr.writefln("Suspicious file found: %s\nYou should use a clean copy of the source tree.\nIf it was your intention to include this file in the file-set to be reduced,\nre-run dustmite with the --force option.", path);
@@ -362,7 +362,7 @@ void loadCoverage(string dir)
 			return line != "0000000" && line != "       ";
 		}
 
-		auto lines = map!covered(splitlines(cast(string)read(fn))[0..$-1]);
+		auto lines = map!covered(splitLines(cast(string)read(fn))[0..$-1]);
 		uint line = 0;
 
 		bool coverString(string s)
