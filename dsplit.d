@@ -221,7 +221,7 @@ Entity[] parseD(string s)
 		while (i < s.length)
 		{
 			char c = s[i];
-			foreach (level, info; splitters)
+			foreach (int level, info; splitters)
 				if (info.sep && c == info.sep)
 				{
 					auto children = terminateLevel(level+1);
