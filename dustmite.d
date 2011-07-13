@@ -54,8 +54,9 @@ int main(string[] args)
 	if (args.length == 1 || args.length>3)
 	{
 		stderr.write(
-"Usage: "~args[0]~" [OPTION]... DIR TESTER
-DIR should be a clean copy containing the file-set to reduce.
+"Usage: "~args[0]~" [OPTION]... PATH TESTER
+PATH should be a directory containing a clean copy of the file-set to reduce.
+A file path can also be specified. NAME.EXT will be treated like NAME/NAME.EXT.
 TESTER should be a shell command which returns 0 for a correct reduction,
 and anything else otherwise.
 Supported options:
@@ -85,13 +86,13 @@ Supported options:
 				return 1;
 			}
 
-	string resultDir = dir ~ ".reduced";
-	enforce(!exists(resultDir), "Result directory already exists");
-
 	auto startTime = lastTime = Clock.currTime();
 
 	measure!"load"({set = loadFiles(dir, stripComments);});
 	enforce(set.length, "No files in specified directory");
+
+	string resultDir = dir ~ ".reduced";
+	enforce(!exists(resultDir), "Result directory already exists");
 
 	applyNoRemoveMagic();
 	applyNoRemoveRegex(noRemoveStr);

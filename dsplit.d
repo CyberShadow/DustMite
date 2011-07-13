@@ -23,17 +23,26 @@ struct Entity
 	alias head filename; // for depth 0
 }
 
-Entity[] loadFiles(string dir, bool stripComments)
+Entity[] loadFiles(ref string path, bool stripComments)
 {
-	Entity[] set;
-	foreach (path; listdir(dir, "*"))
-		if (isfile(path))
-		{
-			assert(path.startsWith(dir));
-			auto name = path[dir.length+1..$];
-			set ~= Entity(name, loadFile(path, stripComments), null);
-		}
-	return set;
+	if (isfile(path))
+	{
+		auto filePath = path;
+		path = getName(path) is null ? path : getName(path);
+		return [Entity(basename(filePath), loadFile(filePath, stripComments), null)];
+	}
+	else
+	{
+		Entity[] set;
+		foreach (entry; listdir(path, "*"))
+			if (isfile(entry))
+			{
+				assert(entry.startsWith(path));
+				auto name = entry[path.length+1..$];
+				set ~= Entity(name, loadFile(entry, stripComments), null);
+			}
+		return set;
+	}
 }
 
 private:
