@@ -7,8 +7,8 @@ module dsplit;
 import std.file;
 import std.path;
 import std.string;
+import std.ctype;
 import std.array;
-import std.ascii;
 debug import std.stdio;
 
 struct Entity
@@ -34,7 +34,7 @@ Entity[] loadFiles(ref string path, bool stripComments)
 	else
 	{
 		Entity[] set;
-		foreach (string entry; dirEntries(path, SpanMode.depth))
+		foreach (entry; listdir(path, "*"))
 			if (isfile(entry))
 			{
 				assert(entry.startsWith(path));
@@ -158,7 +158,7 @@ void skipToEOL(string s, ref size_t i)
 			return;
 		}
 		else
-		if (isWhite(s[i]))
+		if (iswhite(s[i]))
 			i++;
 		else
 		if (s[i..$].startsWith("//"))
@@ -171,7 +171,7 @@ void skipToEOL(string s, ref size_t i)
 /// Moves i backwards to the beginning of the current line, but not any further than start
 void backToEOL(string s, ref size_t i, size_t start)
 {
-	while (i>start && isWhite(s[i-1]) && s[i-1] != '\n')
+	while (i>start && iswhite(s[i-1]) && s[i-1] != '\n')
 		i--;
 }
 
@@ -346,7 +346,7 @@ string stripD(string s)
 		if (s[i..$].startsWithComment())
 			skipSymbol(s, i);
 		else
-		if (!isWhite(s[i]))
+		if (!iswhite(s[i]))
 		{
 			if (start > i)
 				start = i;
@@ -363,7 +363,7 @@ string firstWord(string s)
 {
 	size_t i = 0;
 	s = stripD(s);
-	while (i<s.length && !isWhite(s[i]))
+	while (i<s.length && !iswhite(s[i]))
 		i++;
 	return s[0..i];
 }
@@ -371,13 +371,13 @@ string firstWord(string s)
 bool startsWithWord(string s, string word)
 {
 	s = stripD(s);
-	return s.startsWith(word) && (s.length == word.length || !isWordChar(s[word.length]));
+	return s.startsWith(word) && (s.length == word.length || !isalnum(s[word.length]));
 }
 
 bool endsWithWord(string s, string word)
 {
 	s = stripD(s);
-	return s.endsWith(word) && (s.length == word.length || !isWordChar(s[$-word.length-1]));
+	return s.endsWith(word) && (s.length == word.length || !isalnum(s[$-word.length-1]));
 }
 
 bool isWord(string s, string word)
@@ -403,9 +403,4 @@ string getHeadText(in Entity e)
 	if (e.tail)
 		return e.tail;
 	return null;
-}
-
-bool isWordChar(char c)
-{
-	return c=='_' || (c>='0' && c<='9') || (c>='a' && c<='z') || (c>='A' && c<='Z') || c>0x7F /* utf code-unit */;
 }
