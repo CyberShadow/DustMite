@@ -109,6 +109,9 @@ string skipSymbol(string s, ref size_t i)
 		break;
 	case '/':
 		i++;
+		if (i==s.length)
+			break;
+		else
 		if (s[i] == '/')
 		{
 			while (i < s.length && s[i] != '\r' && s[i] != '\n')
