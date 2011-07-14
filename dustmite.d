@@ -78,7 +78,7 @@ Supported options:
 	if (args.length>=3)
 		tester = args[2];
 
-	if (!force)
+	if (!force && isdir(dir))
 		foreach (path; listdir(dir, "*"))
 			if (basename(path).startsWith(".") || basename(dirname(path)).startsWith(".") || getExt(path)=="o" || getExt(path)=="obj" || getExt(path)=="exe")
 			{
