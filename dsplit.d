@@ -53,6 +53,7 @@ Entity[] loadFile(string path, bool stripComments)
 	switch (getExt(path))
 	{
 	case "d":
+	case "di":
 		debug writeln("Loading ", path);
 		if (stripComments)
 			contents = stripDComments(contents);
