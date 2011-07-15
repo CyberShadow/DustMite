@@ -276,6 +276,7 @@ bool test(Reduction reduction)
 	auto cacheResult = digest in cache;
 	if (cacheResult)
 	{
+		// Note: as far as I can see, a cache hit for a positive reduction is not possible (except, perhaps, for a no-op reduction)
 		writeln(*cacheResult ? "Yes" : "No", " (cached)");
 		return *cacheResult;
 	}
