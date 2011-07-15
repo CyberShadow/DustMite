@@ -16,6 +16,7 @@ import std.exception;
 import std.datetime;
 import std.regex;
 import std.conv;
+import std.md5;
 import dsplit;
 
 alias std.string.join join;
@@ -23,7 +24,7 @@ alias std.string.join join;
 string dir, tester;
 Entity[] set;
 
-struct Times { Duration load, testSave, resultSave, test, clean, misc; }
+struct Times { Duration load, testSave, resultSave, test, clean, cacheHash, misc; }
 Times times;
 SysTime lastTime;
 Duration elapsedTime() { auto c = Clock.currTime(); auto d = c - lastTime; lastTime = c; return d; }
@@ -189,6 +190,32 @@ Supported options:
 	return 0;
 }
 
+void dump(Entity[] entities, uint[] address, Reduction.Type reductionType, void delegate(string) writer)
+{
+	foreach (i, e; entities)
+	{
+		if (address.length==1 && address[0]==i)
+		{
+			final switch(reductionType)
+			{
+			case Reduction.Type.None:
+				assert(0);
+			case Reduction.Type.Remove: // skip this entity
+				continue;
+			case Reduction.Type.Unwrap: // skip head/tail
+				dump(e.children, null, Reduction.Type.None, writer);
+				break;
+			}
+		}
+		else
+		{
+			if (e.head.length) writer(e.head);
+			dump(e.children, address.length>1 && address[0]==i ? address[1..$] : null, reductionType, writer);
+			if (e.tail.length) writer(e.tail);
+		}
+	}
+}
+
 void save(Reduction reduction, string savedir)
 {
 	enforce(!exists(savedir), "Directory already exists: " ~ savedir);
@@ -205,35 +232,9 @@ void save(Reduction reduction, string savedir)
 		auto path = std.path.join(savedir, f.filename);
 		if (!exists(dirname(path)))
 			mkdirRecurse(dirname(path));
+
 		auto o = File(path, "wb");
-
-		void dump(Entity[] entities, uint[] address)
-		{
-			foreach (i, e; entities)
-			{
-				if (address.length==1 && address[0]==i)
-				{
-					final switch(reduction.type)
-					{
-					case Reduction.Type.None:
-						assert(0);
-					case Reduction.Type.Remove: // skip this entity
-						continue;
-					case Reduction.Type.Unwrap: // skip head/tail
-						dump(e.children, null);
-						break;
-					}
-				}
-				else
-				{
-					o.write(e.head);
-					dump(e.children, address.length>1 && address[0]==i ? address[1..$] : null);
-					o.write(e.tail);
-				}
-			}
-		}
-
-		dump(f.children, reduction.address.length>1 && reduction.address[0]==i ? reduction.address[1..$] : null);
+		dump(f.children, reduction.address.length>1 && reduction.address[0]==i ? reduction.address[1..$] : null, reduction.type, &o.write!string);
 		o.close();
 	}
 }
@@ -259,19 +260,36 @@ string formatAddress(uint[] address)
 	return "[" ~ segments.join(", ") ~ "]";
 }
 
+bool[ubyte[16]] cache;
+
 bool test(Reduction reduction)
 {
+	write(to!string(reduction.type), " ", formatAddress(reduction.address), " => "); stdout.flush();
+
+	ubyte[16] digest;
+	measure!"cacheHash"({
+		MD5_CTX context;
+		context.start();
+		dump(set, reduction.address, reduction.type, cast(void delegate(string))&context.update);
+		context.finish(digest);
+	});
+	auto cacheResult = digest in cache;
+	if (cacheResult)
+	{
+		writeln(*cacheResult ? "Yes" : "No", " (cached)");
+		return *cacheResult;
+	}
+
 	string testdir = dir ~ ".test";
 	measure!"testSave"({save(reduction, testdir);}); scope(exit) measure!"clean"({rmdirRecurse(testdir);});
 
 	auto lastdir = getcwd(); scope(exit) chdir(lastdir);
 	chdir(testdir);
 
-	write(to!string(reduction.type), " ", formatAddress(reduction.address), " => "); stdout.flush();
-
 	bool result;
 	measure!"test"({result = system(tester) == 0;});
 	writeln(result ? "Yes" : "No");
+	cache[digest] = result;
 	return result;
 }
 
