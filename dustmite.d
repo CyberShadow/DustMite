@@ -50,7 +50,7 @@ int main(string[] args)
 		"coverage", &coverageDir,
 		"dump", &dump,
 		"times", &showTimes,
-                "help", &showHelp
+		"h|help", &showHelp
 	);
 
 	if (showHelp || args.length == 1 || args.length>3)
