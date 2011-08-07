@@ -39,7 +39,7 @@ struct Reduction
 
 int main(string[] args)
 {
-	bool force, dump, showTimes, stripComments;
+	bool force, dump, showTimes, stripComments, showHelp;
 	string coverageDir;
 	string[] noRemoveStr;
 
@@ -50,9 +50,10 @@ int main(string[] args)
 		"coverage", &coverageDir,
 		"dump", &dump,
 		"times", &showTimes,
+		"h|help", &showHelp
 	);
 
-	if (args.length == 1 || args.length>3)
+	if (showHelp || args.length == 1 || args.length>3)
 	{
 		stderr.write(
 "Usage: "~args[0]~" [OPTION]... PATH TESTER
