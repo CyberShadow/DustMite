@@ -23,23 +23,31 @@ struct Entity
 	alias head filename; // for depth 0
 }
 
-Entity[] loadFiles(ref string path, bool stripComments)
+struct ParseOptions
 {
-	if (isfile(path))
+	enum Mode { Source, Words }
+
+	bool stripComments;
+	Mode mode;
+}
+
+Entity[] loadFiles(ref string path, ParseOptions options)
+{
+	if (isFile(path))
 	{
 		auto filePath = path;
 		path = getName(path) is null ? path : getName(path);
-		return [Entity(basename(filePath), loadFile(filePath, stripComments), null)];
+		return [Entity(basename(filePath), loadFile(filePath, options), null)];
 	}
 	else
 	{
 		Entity[] set;
 		foreach (entry; listdir(path, "*"))
-			if (isfile(entry))
+			if (isFile(entry))
 			{
 				assert(entry.startsWith(path));
 				auto name = entry[path.length+1..$];
-				set ~= Entity(name, loadFile(entry, stripComments), null);
+				set ~= Entity(name, loadFile(entry, options), null);
 			}
 		return set;
 	}
@@ -47,20 +55,28 @@ Entity[] loadFiles(ref string path, bool stripComments)
 
 private:
 
-Entity[] loadFile(string path, bool stripComments)
+Entity[] loadFile(string path, ParseOptions options)
 {
+	debug writeln("Loading ", path);
 	string contents = cast(string)read(path);
-	switch (getExt(path))
+
+	if (getExt(path) == "d" || getExt(path) == "di")
+		contents = stripDComments(contents);
+
+	final switch (options.mode)
 	{
-	case "d":
-	case "di":
-		debug writeln("Loading ", path);
-		if (stripComments)
-			contents = stripDComments(contents);
-		return parseD(contents);
-	// One could add custom splitters for other languages here - for example, a simple line/word/character splitter for most text-based formats
-	default:
-		return [Entity(contents, null, null)];
+	case ParseOptions.Mode.Source:
+		switch (getExt(path))
+		{
+		case "d":
+		case "di":
+			return parseD(contents);
+		// One could add custom splitters for other languages here - for example, a simple line/word/character splitter for most text-based formats
+		default:
+			return [Entity(contents, null, null)];
+		}
+	case ParseOptions.Mode.Words:
+		return parseToWords(contents);
 	}
 }
 
@@ -407,4 +423,28 @@ string getHeadText(in Entity e)
 	if (e.tail)
 		return e.tail;
 	return null;
+}
+
+// ParseOptions.Mode.Words
+
+bool isDWordChar(char c)
+{
+	return isalnum(c) || c=='_' || c=='@';
+}
+
+public Entity[] parseToWords(string text)
+{
+	Entity[] result;
+	size_t i, wordStart, wordEnd;
+	for (i = 1; i <= text.length; i++)
+		if (i==text.length || (!isDWordChar(text[i-1]) && isDWordChar(text[i])))
+		{
+			if (wordStart != i)
+				result ~= Entity(text[wordStart..wordEnd], null, text[wordEnd..i]);
+			wordStart = wordEnd = i;
+		}
+		else
+		if ((isDWordChar(text[i-1]) && !isDWordChar(text[i])))
+			wordEnd = i;
+	return result;
 }

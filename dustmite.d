@@ -17,11 +17,13 @@ import std.datetime;
 import std.regex;
 import std.conv;
 import std.md5;
+import std.ascii;
+import std.random;
 import dsplit;
 
 alias std.string.join join;
 
-string dir, tester;
+string dir, resultDir, tester;
 Entity[] set;
 
 struct Times { Duration load, testSave, resultSave, test, clean, cacheHash, misc; }
@@ -32,14 +34,45 @@ void measure(string what)(void delegate() p) { times.misc += elapsedTime(); p();
 
 struct Reduction
 {
-	enum Type { None, Remove, Unwrap }
+	enum Type { None, Remove, Unwrap, ReplaceWord }
 	Type type;
+
+	// Remove / Unwrap
 	uint[] address;
+
+	// ReplaceWord
+	string from, to;
+	int index, total;
+
+	string toString()
+	{
+		string name = .to!string(type);
+
+		final switch (type)
+		{
+			case Reduction.Type.None:
+				return name;
+			case Reduction.Type.ReplaceWord:
+				return format(`%s [%d/%d: %s -> %s]`, name, index+1, total, from, to);
+			case Reduction.Type.Remove:
+			case Reduction.Type.Unwrap:
+				string[] segments = new string[address.length];
+				Entity[] e = set;
+				foreach (i, a; address)
+				{
+					segments[i] = format("%d/%d", a+1, e.length);
+					e = e[a].children;
+				}
+				return name ~ " [" ~ segments.join(", ") ~ "]";
+		}
+	}
 }
+
+auto nullReduction = Reduction(Reduction.Type.None);
 
 int main(string[] args)
 {
-	bool force, dump, showTimes, stripComments, showHelp;
+	bool force, dump, showTimes, stripComments, obfuscate, keepLength, showHelp;
 	string coverageDir;
 	string[] noRemoveStr;
 
@@ -48,6 +81,8 @@ int main(string[] args)
 		"noremove", &noRemoveStr,
 		"strip-comments", &stripComments,
 		"coverage", &coverageDir,
+		"obfuscate", &obfuscate,
+		"keep-length", &keepLength,
 		"dump", &dump,
 		"times", &showTimes,
 		"h|help", &showHelp
@@ -67,6 +102,9 @@ Supported options:
                        (may be used multiple times)
   --strip-comments   Attempt to remove comments from source code.
   --coverage DIR     Load .lst files corresponding to source files from DIR
+  --obfuscate        Instead of reducing, obfuscates the input by replacing
+                       words with random substitutions
+  --keep-length      Preserve word length when obfuscating
   --dump             Dump parsed tree to DIR.dump file
   --times            Display verbose spent time breakdown
 ");
@@ -80,7 +118,7 @@ Supported options:
 	if (args.length>=3)
 		tester = args[2];
 
-	if (!force && isdir(dir))
+	if (!force && isDir(dir))
 		foreach (path; listdir(dir, "*"))
 			if (basename(path).startsWith(".") || basename(dirname(path)).startsWith(".") || getExt(path)=="o" || getExt(path)=="obj" || getExt(path)=="exe")
 			{
@@ -90,10 +128,13 @@ Supported options:
 
 	auto startTime = lastTime = Clock.currTime();
 
-	measure!"load"({set = loadFiles(dir, stripComments);});
+	ParseOptions parseOptions;
+	parseOptions.stripComments = stripComments;
+	parseOptions.mode = obfuscate ? ParseOptions.Mode.Words : ParseOptions.Mode.Source;
+	measure!"load"({set = loadFiles(dir, parseOptions);});
 	enforce(set.length, "No files in specified directory");
 
-	string resultDir = dir ~ ".reduced";
+	resultDir = dir ~ ".reduced";
 	enforce(!exists(resultDir), "Result directory already exists");
 
 	applyNoRemoveMagic();
@@ -113,6 +154,28 @@ Supported options:
 	if (!test(Reduction(Reduction.Type.None)))
 		throw new Exception("Initial test fails");
 
+	bool foundAnything;
+	if (obfuscate)
+		foundAnything = .obfuscate(keepLength);
+	else
+		foundAnything = reduce();
+
+	auto duration = Clock.currTime()-startTime;
+	duration = dur!"msecs"(duration.total!"msecs"); // truncate anything below ms, users aren't interested in that
+	if (foundAnything)
+		writefln("Done in %s; reduced version is in %s", duration, resultDir);
+	else
+		writefln("Done in %s; no reductions found", duration);
+
+	if (showTimes)
+		foreach (i, t; times.tupleof)
+			writefln("%s: %s", times.tupleof[i].stringof, times.tupleof[i]);
+
+	return 0;
+}
+
+bool reduce()
+{
 	bool tested, foundAnything;
 	int iterCount;
 	do
@@ -154,14 +217,14 @@ Supported options:
 						if (test(Reduction(Reduction.Type.Remove, address[0..depth+1])))
 						{
 							entities = remove(entities, i);
-							measure!"resultSave"({safeSave(null, resultDir);});
+							saveResult();
 							foundAnything = changed = true;
 						}
 						else
 						if (entities[i].head.length && entities[i].tail.length && test(Reduction(Reduction.Type.Unwrap, address[0..depth+1])))
 						{
 							entities[i].head = entities[i].tail = null;
-							measure!"resultSave"({safeSave(null, resultDir);});
+							saveResult();
 							foundAnything = changed = true;
 						}
 						else
@@ -177,41 +240,130 @@ Supported options:
 		} while (tested && !changed); // go deeper while we found something to test, but no results
 	} while (tested); // stop when we didn't find anything to test
 
-	auto duration = Clock.currTime()-startTime;
-	duration = dur!"msecs"(duration.total!"msecs"); // truncate anything below ms, users aren't interested in that
-	if (foundAnything)
-		writefln("Done in %s; reduced version is in %s", duration, resultDir);
-	else
-		writefln("Done in %s; no reductions found", duration);
-
-	if (showTimes)
-		foreach (i, t; times.tupleof)
-			writefln("%s: %s", times.tupleof[i].stringof, times.tupleof[i]);
-
-	return 0;
+	return foundAnything;
 }
 
-void dump(Entity[] entities, uint[] address, Reduction.Type reductionType, void delegate(string) writer)
+bool obfuscate(bool keepLength)
 {
+	bool foundAnything;
+
+	bool[string] wordSet;
+	string[] words; // preserve file order
+
+	foreach (f; set)
+	{
+		foreach (ref entity; parseToWords(f.filename) ~ f.children)
+			if (entity.head.length && !isDigit(entity.head[0]))
+				if (entity.head !in wordSet)
+				{
+					wordSet[entity.head] = true;
+					words ~= entity.head;
+				}
+	}
+
+	string idgen(uint length)
+	{
+		static const first = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // use caps to avoid collisions with reserved keywords
+		static const other = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
+
+		if (keepLength)
+		{
+			auto result = new char[length];
+			foreach (i, ref c; result)
+				c = (i==0 ? first : other)[uniform(0, $)];
+
+			return assumeUnique(result);
+		}
+		else
+		{
+			static int index;
+			index++;
+
+			string result;
+			result ~= first[index % $];
+			index /= first.length;
+
+			while (index)
+				result ~= other[index % $],
+				index /= other.length;
+
+			return result;
+		}
+	}
+
+	auto r = Reduction(Reduction.Type.ReplaceWord);
+	r.total = words.length;
+	foreach (i, word; words)
+	{
+		r.index = i;
+		r.from = word;
+		int tries = 0;
+		do
+			r.to = idgen(word.length);
+		while (r.to in wordSet && tries++ < 10);
+		wordSet[r.to] = true;
+
+		if (test(r))
+		{
+			foreach (ref f; set)
+			{
+				f.filename = applyReductionToPath(f.filename, r);
+				foreach (ref entity; f.children)
+					if (entity.head == r.from)
+						entity.head = r.to;
+			}
+			saveResult();
+			foundAnything = true;
+		}
+	}
+
+	return foundAnything;
+}
+
+void dump(Entity[] entities, Reduction reduction, void delegate(string) writer, bool fileLevel)
+{
+	auto childReduction = reduction;
+
 	foreach (i, e; entities)
 	{
-		if (address.length==1 && address[0]==i)
+		if (reduction.type == Reduction.Type.ReplaceWord)
 		{
-			final switch(reductionType)
+			if (fileLevel)
+			{
+				writer(applyReductionToPath(e.filename, reduction));
+				dump(e.children, reduction, writer, false);
+				assert(e.tail.length==0);
+			}
+			else
+			{
+				assert(e.children.length==0);
+				if (e.head == reduction.from)
+					writer(reduction.to);
+				else
+					writer(e.head);
+				writer(e.tail);
+			}
+		}
+		else
+		if (reduction.address.length==1 && reduction.address[0]==i)
+		{
+			final switch (reduction.type)
 			{
 			case Reduction.Type.None:
+			case Reduction.Type.ReplaceWord:
 				assert(0);
 			case Reduction.Type.Remove: // skip this entity
 				continue;
 			case Reduction.Type.Unwrap: // skip head/tail
-				dump(e.children, null, Reduction.Type.None, writer);
+				dump(e.children, nullReduction, writer, false);
 				break;
 			}
 		}
 		else
 		{
 			if (e.head.length) writer(e.head);
-			dump(e.children, address.length>1 && address[0]==i ? address[1..$] : null, reductionType, writer);
+			childReduction.address = reduction.address.length>1 && reduction.address[0]==i ? reduction.address[1..$] : null;
+			dump(e.children, reduction, writer, false);
 			if (e.tail.length) writer(e.tail);
 		}
 	}
@@ -221,6 +373,7 @@ void save(Reduction reduction, string savedir)
 {
 	enforce(!exists(savedir), "Directory already exists: " ~ savedir);
 	mkdirRecurse(savedir);
+	auto childReduction = reduction;
 
 	foreach (i, f; set)
 	{
@@ -230,14 +383,37 @@ void save(Reduction reduction, string savedir)
 			continue;
 		}
 
-		auto path = std.path.join(savedir, f.filename);
+		auto path = std.path.join(savedir, applyReductionToPath(f.filename, reduction));
 		if (!exists(dirname(path)))
 			mkdirRecurse(dirname(path));
 
 		auto o = File(path, "wb");
-		dump(f.children, reduction.address.length>1 && reduction.address[0]==i ? reduction.address[1..$] : null, reduction.type, &o.write!string);
+		childReduction.address = reduction.address.length>1 && reduction.address[0]==i ? reduction.address[1..$] : null;
+		dump(f.children, childReduction, &o.write!string, false);
 		o.close();
 	}
+}
+
+string applyReductionToPath(string path, Reduction reduction)
+{
+	if (reduction.type == Reduction.Type.ReplaceWord)
+	{
+		Entity[] words = parseToWords(path);
+		string result;
+		foreach (i, ref word; words)	
+		{
+			if (i > 0 && i == words.length-1 && words[i-1].tail.endsWith("."))
+				result ~= word.head; // skip extension
+			else
+			if (word.head == reduction.from)
+				result ~= reduction.to;
+			else
+				result ~= word.head;
+			result ~= word.tail;
+		}
+		return result;
+	}
+	return path;
 }
 
 void safeSave(int[] address, string savedir)
@@ -249,29 +425,22 @@ void safeSave(int[] address, string savedir)
 	rename(tempdir, savedir);
 }
 
-string formatAddress(uint[] address)
+void saveResult()
 {
-	string[] segments = new string[address.length];
-	Entity[] e = set;
-	foreach (i, a; address)
-	{
-		segments[i] = format("%d/%d", a+1, e.length);
-		e = e[a].children;
-	}
-	return "[" ~ segments.join(", ") ~ "]";
+	measure!"resultSave"({safeSave(null, resultDir);});
 }
 
 bool[ubyte[16]] cache;
 
 bool test(Reduction reduction)
 {
-	write(to!string(reduction.type), " ", formatAddress(reduction.address), " => "); stdout.flush();
+	write(reduction, " => "); stdout.flush();
 
 	ubyte[16] digest;
 	measure!"cacheHash"({
 		MD5_CTX context;
 		context.start();
-		dump(set, reduction.address, reduction.type, cast(void delegate(string))&context.update);
+		dump(set, reduction, cast(void delegate(string))&context.update, true);
 		context.finish(digest);
 	});
 	auto cacheResult = digest in cache;
