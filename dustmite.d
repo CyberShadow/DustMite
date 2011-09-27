@@ -363,7 +363,7 @@ void dump(Entity[] entities, Reduction reduction, void delegate(string) writer, 
 		{
 			if (e.head.length) writer(e.head);
 			childReduction.address = reduction.address.length>1 && reduction.address[0]==i ? reduction.address[1..$] : null;
-			dump(e.children, reduction, writer, false);
+			dump(e.children, childReduction, writer, false);
 			if (e.tail.length) writer(e.tail);
 		}
 	}
