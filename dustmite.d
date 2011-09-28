@@ -292,14 +292,14 @@ bool obfuscate(bool keepLength)
 	}
 
 	auto r = Reduction(Reduction.Type.ReplaceWord);
-	r.total = words.length;
-	foreach (i, word; words)
+	r.total = cast(uint) words.length;
+	foreach (int i, word; words)
 	{
 		r.index = i;
 		r.from = word;
 		int tries = 0;
 		do
-			r.to = idgen(word.length);
+			r.to = idgen(cast(uint) word.length);
 		while (r.to in wordSet && tries++ < 10);
 		wordSet[r.to] = true;
 
