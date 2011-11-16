@@ -60,8 +60,9 @@ Entity[] loadFile(string path, ParseOptions options)
 	debug writeln("Loading ", path);
 	string contents = cast(string)read(path);
 
-	if (getExt(path) == "d" || getExt(path) == "di")
-		contents = stripDComments(contents);
+	if (options.stripComments)
+		if (getExt(path) == "d" || getExt(path) == "di")
+			contents = stripDComments(contents);
 
 	final switch (options.mode)
 	{
