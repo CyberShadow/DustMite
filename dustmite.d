@@ -118,9 +118,11 @@ Supported options:
 	if (args.length>=3)
 		tester = args[2];
 
+	bool isDotName(string fn) { return fn.startsWith(".") && !(fn=="." || fn==".."); }
+
 	if (!force && isDir(dir))
 		foreach (path; listdir(dir, "*"))
-			if (basename(path).startsWith(".") || basename(dirname(path)).startsWith(".") || getExt(path)=="o" || getExt(path)=="obj" || getExt(path)=="exe")
+			if (isDotName(basename(path)) || isDotName(basename(dirname(path))) || getExt(path)=="o" || getExt(path)=="obj" || getExt(path)=="exe")
 			{
 				stderr.writefln("Suspicious file found: %s\nYou should use a clean copy of the source tree.\nIf it was your intention to include this file in the file-set to be reduced,\nre-run dustmite with the --force option.", path);
 				return 1;
