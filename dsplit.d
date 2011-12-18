@@ -47,7 +47,7 @@ Entity[] loadFiles(ref string path, ParseOptions options)
 			{
 				assert(entry.startsWith(path));
 				auto name = entry[path.length+1..$];
-				set ~= Entity(name, loadFile(entry, options), null);
+				set ~= Entity(name.replace(`\`, `/`), loadFile(entry, options), null);
 			}
 		return set;
 	}
