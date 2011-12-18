@@ -136,9 +136,6 @@ Supported options:
 	measure!"load"({set = loadFiles(dir, parseOptions);});
 	enforce(set.length, "No files in specified directory");
 
-	resultDir = dir ~ ".reduced";
-	enforce(!exists(resultDir), "Result directory already exists");
-
 	applyNoRemoveMagic();
 	applyNoRemoveRegex(noRemoveStr);
 	if (coverageDir)
@@ -152,6 +149,9 @@ Supported options:
 		writeln("No tester specified, exiting");
 		return 0;
 	}
+
+	resultDir = dir ~ ".reduced";
+	enforce(!exists(resultDir), "Result directory already exists");
 
 	if (!test(Reduction(Reduction.Type.None)))
 		throw new Exception("Initial test fails");
