@@ -37,7 +37,7 @@ Entity[] loadFiles(ref string path, ParseOptions options)
 	{
 		auto filePath = path;
 		path = getName(path) is null ? path : getName(path);
-		return [Entity(basename(filePath), loadFile(filePath, options), null)];
+		return [Entity(basename(filePath).replace(`\`, `/`), loadFile(filePath, options), null)];
 	}
 	else
 	{
