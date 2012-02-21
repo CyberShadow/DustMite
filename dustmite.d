@@ -31,6 +31,7 @@ Times times;
 SysTime lastTime;
 Duration elapsedTime() { auto c = Clock.currTime(); auto d = c - lastTime; lastTime = c; return d; }
 void measure(string what)(void delegate() p) { times.misc += elapsedTime(); p(); mixin("times."~what~" += elapsedTime();"); }
+int tests;
 
 struct Reduction
 {
@@ -165,9 +166,9 @@ Supported options:
 	auto duration = Clock.currTime()-startTime;
 	duration = dur!"msecs"(duration.total!"msecs"); // truncate anything below ms, users aren't interested in that
 	if (foundAnything)
-		writefln("Done in %s; reduced version is in %s", duration, resultDir);
+		writefln("Done in %s tests and %s; reduced version is in %s", tests, duration, resultDir);
 	else
-		writefln("Done in %s; no reductions found", duration);
+		writefln("Done in %s tests and %s; no reductions found", tests, duration);
 
 	if (showTimes)
 		foreach (i, t; times.tupleof)
@@ -469,6 +470,7 @@ bool test(Reduction reduction)
 		writeln(*cacheResult ? "Yes" : "No", " (cached)");
 		return *cacheResult;
 	}
+	tests++;
 
 	string testdir = dir ~ ".test";
 	measure!"testSave"({save(reduction, testdir);}); scope(exit) measure!"clean"({safeRmdirRecurse(testdir);});
