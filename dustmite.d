@@ -418,12 +418,29 @@ string applyReductionToPath(string path, Reduction reduction)
 	return path;
 }
 
+void safeRmdirRecurse(string dir)
+{
+	while (true)
+		try
+		{
+			rmdirRecurse(dir);
+			return;
+		}
+		catch (Exception e)
+		{
+			writeln("Error while rmdir-ing " ~ dir ~ ": " ~ e.msg);
+			import core.thread;
+			Thread.sleep(dur!"seconds"(1));
+			writeln("Retrying...");
+		}
+}
+
 void safeSave(int[] address, string savedir)
 {
-	auto tempdir = savedir ~ ".inprogress"; scope(failure) rmdirRecurse(tempdir);
-	if (exists(tempdir)) rmdirRecurse(tempdir);
+	auto tempdir = savedir ~ ".inprogress"; scope(failure) safeRmdirRecurse(tempdir);
+	if (exists(tempdir)) safeRmdirRecurse(tempdir);
 	save(Reduction(Reduction.Type.None), tempdir);
-	if (exists(savedir)) rmdirRecurse(savedir);
+	if (exists(savedir)) safeRmdirRecurse(savedir);
 	rename(tempdir, savedir);
 }
 
@@ -454,7 +471,7 @@ bool test(Reduction reduction)
 	}
 
 	string testdir = dir ~ ".test";
-	measure!"testSave"({save(reduction, testdir);}); scope(exit) measure!"clean"({rmdirRecurse(testdir);});
+	measure!"testSave"({save(reduction, testdir);}); scope(exit) measure!"clean"({safeRmdirRecurse(testdir);});
 
 	auto lastdir = getcwd(); scope(exit) chdir(lastdir);
 	chdir(testdir);
