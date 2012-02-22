@@ -23,7 +23,7 @@ import dsplit;
 
 alias std.string.join join;
 
-string dir, resultDir, tester;
+string dir, resultDir, tester, globalCache;
 Entity[] set;
 
 struct Times { Duration load, testSave, resultSave, test, clean, cacheHash, misc; }
@@ -32,6 +32,7 @@ SysTime lastTime;
 Duration elapsedTime() { auto c = Clock.currTime(); auto d = c - lastTime; lastTime = c; return d; }
 void measure(string what)(void delegate() p) { times.misc += elapsedTime(); p(); mixin("times."~what~" += elapsedTime();"); }
 int tests;
+bool noSave;
 
 struct Reduction
 {
@@ -86,6 +87,8 @@ int main(string[] args)
 		"keep-length", &keepLength,
 		"dump", &dump,
 		"times", &showTimes,
+		"cache", &globalCache, // for research
+		"nosave", &noSave, // for research
 		"h|help", &showHelp
 	);
 
@@ -323,11 +326,11 @@ bool obfuscate(bool keepLength)
 	return foundAnything;
 }
 
-void dump(Entity[] entities, Reduction reduction, void delegate(string) writer, bool fileLevel)
+void dump(Entity[] entities, ref Reduction reduction, void delegate(string) writer, bool fileLevel)
 {
 	auto childReduction = reduction;
 
-	foreach (i, e; entities)
+	foreach (i, ref e; entities)
 	{
 		if (reduction.type == Reduction.Type.ReplaceWord)
 		{
@@ -447,7 +450,8 @@ void safeSave(int[] address, string savedir)
 
 void saveResult()
 {
-	measure!"resultSave"({safeSave(null, resultDir);});
+	if (!noSave)
+		measure!"resultSave"({safeSave(null, resultDir);});
 }
 
 bool[ubyte[16]] cache;
@@ -463,26 +467,60 @@ bool test(Reduction reduction)
 		dump(set, reduction, cast(void delegate(string))&context.update, true);
 		context.finish(digest);
 	});
-	auto cacheResult = digest in cache;
-	if (cacheResult)
+
+	bool ramCached(lazy bool fallback)
 	{
-		// Note: as far as I can see, a cache hit for a positive reduction is not possible (except, perhaps, for a no-op reduction)
-		writeln(*cacheResult ? "Yes" : "No", " (cached)");
-		return *cacheResult;
+		auto cacheResult = digest in cache;
+		if (cacheResult)
+		{
+			// Note: as far as I can see, a cache hit for a positive reduction is not possible (except, perhaps, for a no-op reduction)
+			writeln(*cacheResult ? "Yes" : "No", " (cached)");
+			return *cacheResult;
+		}
+		auto result = fallback;
+		return cache[digest] = result;
 	}
-	tests++;
 
-	string testdir = dir ~ ".test";
-	measure!"testSave"({save(reduction, testdir);}); scope(exit) measure!"clean"({safeRmdirRecurse(testdir);});
+	bool diskCached(lazy bool fallback)
+	{
+		tests++;
 
-	auto lastdir = getcwd(); scope(exit) chdir(lastdir);
-	chdir(testdir);
+		if (globalCache)
+		{
+			string cacheBase = absolutePath(buildPath(globalCache, digestToString(digest))) ~ "-";
+			if (exists(cacheBase~"0"))
+			{
+				writeln("No (disk cache)");
+				return false;
+			}
+			if (exists(cacheBase~"1"))
+			{
+				writeln("Yes (disk cache)");
+				return true;
+			}
+			auto result = fallback;
+			std.file.write(cacheBase ~ (result ? "1" : "0"), "");
+			return result;
+		}
+		else
+			return fallback;
+	}
 
-	bool result;
-	measure!"test"({result = system(tester) == 0;});
-	writeln(result ? "Yes" : "No");
-	cache[digest] = result;
-	return result;
+	bool doTest()
+	{
+		string testdir = dir ~ ".test";
+		measure!"testSave"({save(reduction, testdir);}); scope(exit) measure!"clean"({safeRmdirRecurse(testdir);});
+
+		auto lastdir = getcwd(); scope(exit) chdir(lastdir);
+		chdir(testdir);
+
+		bool result;
+		measure!"test"({result = system(tester) == 0;});
+		writeln(result ? "Yes" : "No");
+		return result;
+	}
+
+	return ramCached(diskCached(doTest()));
 }
 
 void applyNoRemoveMagic()
