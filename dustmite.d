@@ -185,6 +185,55 @@ Supported options:
 	return 0;
 }
 
+void reduceScan(ref Entity[] set, int testDepth, out bool tested, out bool changed)
+{
+	tested = changed = false;
+
+	enum MAX_DEPTH = 1024;
+	uint[MAX_DEPTH] address;
+
+	void scan(ref Entity[] entities, int depth)
+	{
+		foreach_reverse (i; 0..entities.length)
+		{
+			address[depth] = i;
+			if (depth < testDepth)
+			{
+				// recurse
+				scan(entities[i].children, depth+1);
+			}
+			else
+			if (entities[i].noRemove)
+			{
+				// skip, but don't stop going deeper
+				tested = true;
+			}
+			else
+			{
+				// test
+				tested = true;
+				if (test(Reduction(Reduction.Type.Remove, address[0..depth+1])))
+				{
+					entities = remove(entities, i);
+					saveResult();
+					changed = true;
+				}
+				else
+				if (entities[i].head.length && entities[i].tail.length && test(Reduction(Reduction.Type.Unwrap, address[0..depth+1])))
+				{
+					entities[i].head = entities[i].tail = null;
+					saveResult();
+					changed = true;
+				}
+			}
+		}
+	}
+
+	scan(set, 0);
+
+	//writefln("Scan results: tested=%s, changed=%s", tested, changed);
+}
+
 /// Keep going deeper until we find a successful reduction.
 /// When found, finish tests at current depth and restart from top depth (new iteration).
 /// If we reach the bottom (depth with no nodes on it), we're done.
@@ -200,50 +249,8 @@ void reduceIterative()
 		do
 		{
 			writefln("============= Depth %d =============", testDepth);
-			tested = changed = false;
 
-			enum MAX_DEPTH = 1024;
-			uint[MAX_DEPTH] address;
-
-			void scan(ref Entity[] entities, int depth)
-			{
-				foreach_reverse (i; 0..entities.length)
-				{
-					address[depth] = i;
-					if (depth < testDepth)
-					{
-						// recurse
-						scan(entities[i].children, depth+1);
-					}
-					else
-					if (entities[i].noRemove)
-					{
-						// skip, but don't stop going deeper
-						tested = true;
-					}
-					else
-					{
-						// test
-						tested = true;
-						if (test(Reduction(Reduction.Type.Remove, address[0..depth+1])))
-						{
-							entities = remove(entities, i);
-							saveResult();
-							changed = true;
-						}
-						else
-						if (entities[i].head.length && entities[i].tail.length && test(Reduction(Reduction.Type.Unwrap, address[0..depth+1])))
-						{
-							entities[i].head = entities[i].tail = null;
-							saveResult();
-							changed = true;
-						}
-					}
-				}
-			}
-
-			scan(set, 0);
-			//writefln("Scan results: tested=%s, changed=%s", tested, changed);
+			reduceScan(set, testDepth, tested, changed);
 
 			testDepth++;
 		} while (tested && !changed); // go deeper while we found something to test, but no results
@@ -269,54 +276,13 @@ void reduceBacktracking()
 		do
 		{
 			writefln("============= Depth %d =============", testDepth);
-			bool depthChanged = false;
-			depthTested = false;
+			bool depthChanged;
 
-			enum MAX_DEPTH = 1024;
-			uint[MAX_DEPTH] address;
-
-			void scan(ref Entity[] entities, int depth)
-			{
-				foreach_reverse (i; 0..entities.length)
-				{
-					address[depth] = i;
-					if (depth < testDepth)
-					{
-						// recurse
-						scan(entities[i].children, depth+1);
-					}
-					else
-					if (entities[i].noRemove)
-					{
-						// skip, but don't stop going deeper
-						depthTested = true;
-					}
-					else
-					{
-						// test
-						depthTested = true;
-						if (test(Reduction(Reduction.Type.Remove, address[0..depth+1])))
-						{
-							entities = remove(entities, i);
-							saveResult();
-							depthChanged = iterationChanged = true;
-						}
-						else
-						if (entities[i].head.length && entities[i].tail.length && test(Reduction(Reduction.Type.Unwrap, address[0..depth+1])))
-						{
-							entities[i].head = entities[i].tail = null;
-							saveResult();
-							depthChanged = iterationChanged = true;
-						}
-					}
-				}
-			}
-
-			scan(set, 0);
-			//writefln("Scan results: tested=%s, changed=%s", tested, changed);
+			reduceScan(set, testDepth, depthTested, depthChanged);
 
 			if (depthChanged)
 			{
+				iterationChanged = true;
 				testDepth--;
 				if (testDepth < 0)
 					testDepth = 0;
