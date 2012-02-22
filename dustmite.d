@@ -16,9 +16,9 @@ import std.exception;
 import std.datetime;
 import std.regex;
 import std.conv;
-import std.md5;
 import std.ascii;
 import std.random;
+
 import dsplit;
 
 alias std.string.join join;
@@ -454,19 +454,53 @@ void saveResult()
 		measure!"resultSave"({safeSave(null, resultDir);});
 }
 
-bool[ubyte[16]] cache;
+version(HAVE_AE)
+{
+	// Use faster murmurhash from http://github.com/CyberShadow/ae
+	// when compiled with -version=HAVE_AE
+
+	import ae.utils.digest;
+	import ae.utils.textout;
+
+	alias MH3Digest128 HASH;
+
+	HASH hash(Reduction reduction)
+	{
+		static StringBuffer sb;
+		sb.clear();
+		dump(set, reduction, &sb.put!string, true);
+		return murmurHash3_128(sb.get());
+	}
+
+	alias digestToStringMH3 formatHash;
+}
+else
+{
+	import std.md5;
+
+	alias ubyte[16] HASH;
+
+	HASH hash(Reduction reduction)
+	{
+		ubyte[16] digest;
+		MD5_CTX context;
+		context.start();
+		dump(set, reduction, cast(void delegate(string))&context.update, true);
+		context.finish(digest);
+		return digest;
+	}
+
+	alias digestToString formatHash;
+}
+
+bool[HASH] cache;
 
 bool test(Reduction reduction)
 {
 	write(reduction, " => "); stdout.flush();
 
-	ubyte[16] digest;
-	measure!"cacheHash"({
-		MD5_CTX context;
-		context.start();
-		dump(set, reduction, cast(void delegate(string))&context.update, true);
-		context.finish(digest);
-	});
+	HASH digest;
+	measure!"cacheHash"({ digest = hash(reduction); });
 
 	bool ramCached(lazy bool fallback)
 	{
@@ -487,7 +521,7 @@ bool test(Reduction reduction)
 
 		if (globalCache)
 		{
-			string cacheBase = absolutePath(buildPath(globalCache, digestToString(digest))) ~ "-";
+			string cacheBase = absolutePath(buildPath(globalCache, formatHash(digest))) ~ "-";
 			if (exists(cacheBase~"0"))
 			{
 				writeln("No (disk cache)");
