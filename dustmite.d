@@ -62,7 +62,7 @@ struct Reduction
 				Entity[] e = set;
 				foreach (i, a; address)
 				{
-					segments[i] = format("%d/%d", a+1, e.length);
+					segments[i] = format("%d/%d", e.length-a, e.length);
 					e = e[a].children;
 				}
 				return name ~ " [" ~ segments.join(", ") ~ "]";
@@ -199,22 +199,19 @@ bool reduce()
 
 			void scan(ref Entity[] entities, int depth)
 			{
-				uint i = 0;
-				while (i<entities.length)
+				foreach_reverse(i; 0..entities.length)
 				{
 					address[depth] = i;
 					if (depth < testDepth)
 					{
 						// recurse
 						scan(entities[i].children, depth+1);
-						i++;
 					}
 					else
 					if (entities[i].noRemove)
 					{
 						// skip, but don't stop going deeper
 						tested = true;
-						i++; 
 					}
 					else
 					{
@@ -233,8 +230,6 @@ bool reduce()
 							saveResult();
 							foundAnything = changed = true;
 						}
-						else
-							i++;
 					}
 				}
 			}
