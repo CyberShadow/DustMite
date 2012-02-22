@@ -185,7 +185,36 @@ Supported options:
 	return 0;
 }
 
-void reduceScan(ref Entity[] set, int testDepth, out bool tested, out bool changed)
+/// Try reductions at address. Automatically edit entities (current reduction level).
+bool testAddress(uint[] address)
+{
+	bool reduceSet(uint[] subAddress, ref Entity[] entities)
+	{
+		auto i = subAddress[0];
+		if (subAddress.length > 1)
+			return reduceSet(subAddress[1..$], entities[i].children);
+
+		if (test(Reduction(Reduction.Type.Remove, address)))
+		{
+			entities = remove(entities, i);
+			saveResult();
+			return true;
+		}
+		else
+		if (entities[i].head.length && entities[i].tail.length && test(Reduction(Reduction.Type.Unwrap, address)))
+		{
+			entities[i].head = entities[i].tail = null;
+			saveResult();
+			return true;
+		}
+		else
+			return false;
+	}
+
+	return reduceSet(address, set);
+}
+
+void testLevel(int testDepth, out bool tested, out bool changed)
 {
 	tested = changed = false;
 
@@ -212,19 +241,8 @@ void reduceScan(ref Entity[] set, int testDepth, out bool tested, out bool chang
 			{
 				// test
 				tested = true;
-				if (test(Reduction(Reduction.Type.Remove, address[0..depth+1])))
-				{
-					entities = remove(entities, i);
-					saveResult();
+				if (testAddress(address[0..depth+1]))
 					changed = true;
-				}
-				else
-				if (entities[i].head.length && entities[i].tail.length && test(Reduction(Reduction.Type.Unwrap, address[0..depth+1])))
-				{
-					entities[i].head = entities[i].tail = null;
-					saveResult();
-					changed = true;
-				}
 			}
 		}
 	}
@@ -245,14 +263,14 @@ void reduceCareful()
 	{
 		writefln("############### ITERATION %d ################", iterCount++);
 		bool changed;
-		int testDepth = 0;
+		int depth = 0;
 		do
 		{
-			writefln("============= Depth %d =============", testDepth);
+			writefln("============= Depth %d =============", depth);
 
-			reduceScan(set, testDepth, tested, changed);
+			testLevel(depth, tested, changed);
 
-			testDepth++;
+			depth++;
 		} while (tested && !changed); // go deeper while we found something to test, but no results
 	} while (tested); // stop when we didn't find anything to test
 }
@@ -272,36 +290,77 @@ void reduceLookback()
 		iterationChanged = false;
 		writefln("############### ITERATION %d ################", iterCount++);
 
-		int testDepth = 0, maxDepth = 0;
+		int depth = 0, maxDepth = 0;
 		bool depthTested;
 
 		do
 		{
-			writefln("============= Depth %d =============", testDepth);
+			writefln("============= Depth %d =============", depth);
 			bool depthChanged;
 
-			reduceScan(set, testDepth, depthTested, depthChanged);
+			testLevel(depth, depthTested, depthChanged);
 
 			if (depthChanged)
 			{
 				iterationChanged = true;
-				testDepth--;
-				if (testDepth < 0)
-					testDepth = 0;
+				depth--;
+				if (depth < 0)
+					depth = 0;
 			}
 			else
 			{
 				maxDepth++;
-				testDepth = maxDepth;
+				depth = maxDepth;
 			}
 		} while (depthTested); // keep going up/down while we found something to test
 	} while (iterationChanged); // stop when we couldn't reduce anything this iteration
 }
 
+void reduceInDepth()
+{
+	bool changed;
+	int iterCount;
+	do
+	{
+		changed = false;
+		writefln("############### ITERATION %d ################", iterCount++);
+
+		enum MAX_DEPTH = 1024;
+		uint[MAX_DEPTH] address;
+
+		void scan(ref Entity[] entities, int depth)
+		{
+			foreach_reverse (i; 0..entities.length)
+			{
+				address[depth] = i;
+				if (entities[i].noRemove)
+				{
+					// skip, but don't stop going deeper
+				}
+				else
+				{
+					// test
+					if (testAddress(address[0..depth+1]))
+					{
+						changed = true;
+						continue;
+					}
+				}
+
+				// recurse
+				scan(entities[i].children, depth+1);
+			}
+		}
+
+		scan(set, 0);
+	} while (changed); // stop when we couldn't reduce anything this iteration
+}
+
 void reduce()
 {
 	//reduceIterative();
-	reduceLookback();
+	//reduceLookback();
+	reduceInDepth();
 }
 
 void obfuscate(bool keepLength)
