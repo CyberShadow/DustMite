@@ -237,7 +237,7 @@ void reduceScan(ref Entity[] set, int testDepth, out bool tested, out bool chang
 /// Keep going deeper until we find a successful reduction.
 /// When found, finish tests at current depth and restart from top depth (new iteration).
 /// If we reach the bottom (depth with no nodes on it), we're done.
-void reduceIterative()
+void reduceCareful()
 {
 	bool tested;
 	int iterCount;
@@ -259,9 +259,11 @@ void reduceIterative()
 
 /// Keep going deeper until we find a successful reduction.
 /// When found, go up a depth level.
+/// Keep going up while we find new reductions. Repeat topmost depth level as necessary.
+/// Once no new reductions are found at higher depths, jump to the next unvisited depth in this iteration.
 /// If we reach the bottom (depth with no nodes on it), start a new iteration.
 /// If we finish an iteration without finding anything, we're done.
-void reduceBacktracking()
+void reduceLookback()
 {
 	bool iterationChanged;
 	int iterCount;
@@ -270,7 +272,7 @@ void reduceBacktracking()
 		iterationChanged = false;
 		writefln("############### ITERATION %d ################", iterCount++);
 
-		int testDepth = 0;
+		int testDepth = 0, maxDepth = 0;
 		bool depthTested;
 
 		do
@@ -288,7 +290,10 @@ void reduceBacktracking()
 					testDepth = 0;
 			}
 			else
-				testDepth++;
+			{
+				maxDepth++;
+				testDepth = maxDepth;
+			}
 		} while (depthTested); // keep going up/down while we found something to test
 	} while (iterationChanged); // stop when we couldn't reduce anything this iteration
 }
@@ -296,7 +301,7 @@ void reduceBacktracking()
 void reduce()
 {
 	//reduceIterative();
-	reduceBacktracking();
+	reduceLookback();
 }
 
 void obfuscate(bool keepLength)
