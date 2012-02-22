@@ -53,6 +53,40 @@ Entity[] loadFiles(ref string path, ParseOptions options)
 	}
 }
 
+enum BIN_SIZE = 16;
+
+void optimize(ref Entity[] set)
+{
+	static void group(ref Entity[] set, size_t start, size_t end)
+	{
+		//set = set[0..start] ~ [Entity(removable, set[start..end])] ~ set[end..$];
+		set.replaceInPlace(start, end, [Entity(null, set[start..end].dup, null)]);
+	}
+
+	static void clusterBy(ref Entity[] set, size_t binSize)
+	{
+		if (set.length > binSize)
+		{
+			auto bins = set.length/binSize;
+			if (set.length % binSize > 1)
+				group(set, bins*binSize, set.length);
+			foreach_reverse (i; 0..bins)
+				group(set, i*binSize, (i+1)*binSize);
+		}
+	}
+
+	static void doOptimize(ref Entity[] set)
+	{
+		foreach (ref entity; set)
+			doOptimize(entity.children);
+		clusterBy(set, BIN_SIZE);
+	}
+
+	// Don't bin top level (files)
+	foreach (ref entity; set)
+		doOptimize(entity.children);
+}
+
 private:
 
 Entity[] loadFile(string path, ParseOptions options)

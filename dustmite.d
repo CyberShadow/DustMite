@@ -31,7 +31,7 @@ Times times;
 SysTime lastTime;
 Duration elapsedTime() { auto c = Clock.currTime(); auto d = c - lastTime; lastTime = c; return d; }
 void measure(string what)(void delegate() p) { times.misc += elapsedTime(); p(); mixin("times."~what~" += elapsedTime();"); }
-int tests;
+int tests; bool foundAnything;
 bool noSave;
 
 struct Reduction
@@ -140,6 +140,7 @@ Supported options:
 	measure!"load"({set = loadFiles(dir, parseOptions);});
 	enforce(set.length, "No files in specified directory");
 
+	optimize(set);
 	applyNoRemoveMagic();
 	applyNoRemoveRegex(noRemoveStr);
 	if (coverageDir)
@@ -160,16 +161,20 @@ Supported options:
 	if (!test(Reduction(Reduction.Type.None)))
 		throw new Exception("Initial test fails");
 
-	bool foundAnything;
+	foundAnything = false;
 	if (obfuscate)
-		foundAnything = .obfuscate(keepLength);
+		.obfuscate(keepLength);
 	else
-		foundAnything = reduce();
+		reduce();
 
 	auto duration = Clock.currTime()-startTime;
 	duration = dur!"msecs"(duration.total!"msecs"); // truncate anything below ms, users aren't interested in that
 	if (foundAnything)
+	{
+		if (noSave)
+			measure!"resultSave"({safeSave(resultDir);});
 		writefln("Done in %s tests and %s; reduced version is in %s", tests, duration, resultDir);
+	}
 	else
 		writefln("Done in %s tests and %s; no reductions found", tests, duration);
 
@@ -180,9 +185,12 @@ Supported options:
 	return 0;
 }
 
-bool reduce()
+/// Keep going deeper until we find a successful reduction.
+/// When found, finish tests at current depth and restart from top depth (new iteration).
+/// If we reach the bottom (depth with no nodes on it), we're done.
+void reduceIterative()
 {
-	bool tested, foundAnything;
+	bool tested;
 	int iterCount;
 	do
 	{
@@ -199,7 +207,7 @@ bool reduce()
 
 			void scan(ref Entity[] entities, int depth)
 			{
-				foreach_reverse(i; 0..entities.length)
+				foreach_reverse (i; 0..entities.length)
 				{
 					address[depth] = i;
 					if (depth < testDepth)
@@ -221,14 +229,14 @@ bool reduce()
 						{
 							entities = remove(entities, i);
 							saveResult();
-							foundAnything = changed = true;
+							changed = true;
 						}
 						else
 						if (entities[i].head.length && entities[i].tail.length && test(Reduction(Reduction.Type.Unwrap, address[0..depth+1])))
 						{
 							entities[i].head = entities[i].tail = null;
 							saveResult();
-							foundAnything = changed = true;
+							changed = true;
 						}
 					}
 				}
@@ -240,14 +248,93 @@ bool reduce()
 			testDepth++;
 		} while (tested && !changed); // go deeper while we found something to test, but no results
 	} while (tested); // stop when we didn't find anything to test
-
-	return foundAnything;
 }
 
-bool obfuscate(bool keepLength)
+/// Keep going deeper until we find a successful reduction.
+/// When found, go up a depth level.
+/// If we reach the bottom (depth with no nodes on it), start a new iteration.
+/// If we finish an iteration without finding anything, we're done.
+void reduceBacktracking()
 {
-	bool foundAnything;
+	bool iterationChanged;
+	int iterCount;
+	do
+	{
+		iterationChanged = false;
+		writefln("############### ITERATION %d ################", iterCount++);
 
+		int testDepth = 0;
+		bool depthTested;
+
+		do
+		{
+			writefln("============= Depth %d =============", testDepth);
+			bool depthChanged = false;
+			depthTested = false;
+
+			enum MAX_DEPTH = 1024;
+			uint[MAX_DEPTH] address;
+
+			void scan(ref Entity[] entities, int depth)
+			{
+				foreach_reverse (i; 0..entities.length)
+				{
+					address[depth] = i;
+					if (depth < testDepth)
+					{
+						// recurse
+						scan(entities[i].children, depth+1);
+					}
+					else
+					if (entities[i].noRemove)
+					{
+						// skip, but don't stop going deeper
+						depthTested = true;
+					}
+					else
+					{
+						// test
+						depthTested = true;
+						if (test(Reduction(Reduction.Type.Remove, address[0..depth+1])))
+						{
+							entities = remove(entities, i);
+							saveResult();
+							depthChanged = iterationChanged = true;
+						}
+						else
+						if (entities[i].head.length && entities[i].tail.length && test(Reduction(Reduction.Type.Unwrap, address[0..depth+1])))
+						{
+							entities[i].head = entities[i].tail = null;
+							saveResult();
+							depthChanged = iterationChanged = true;
+						}
+					}
+				}
+			}
+
+			scan(set, 0);
+			//writefln("Scan results: tested=%s, changed=%s", tested, changed);
+
+			if (depthChanged)
+			{
+				testDepth--;
+				if (testDepth < 0)
+					testDepth = 0;
+			}
+			else
+				testDepth++;
+		} while (depthTested); // keep going up/down while we found something to test
+	} while (iterationChanged); // stop when we couldn't reduce anything this iteration
+}
+
+void reduce()
+{
+	//reduceIterative();
+	reduceBacktracking();
+}
+
+void obfuscate(bool keepLength)
+{
 	bool[string] wordSet;
 	string[] words; // preserve file order
 
@@ -314,11 +401,8 @@ bool obfuscate(bool keepLength)
 						entity.head = r.to;
 			}
 			saveResult();
-			foundAnything = true;
 		}
 	}
-
-	return foundAnything;
 }
 
 void dump(Entity[] entities, ref Reduction reduction, void delegate(string) writer, bool fileLevel)
@@ -434,7 +518,7 @@ void safeRmdirRecurse(string dir)
 		}
 }
 
-void safeSave(int[] address, string savedir)
+void safeSave(string savedir)
 {
 	auto tempdir = savedir ~ ".inprogress"; scope(failure) safeRmdirRecurse(tempdir);
 	if (exists(tempdir)) safeRmdirRecurse(tempdir);
@@ -446,7 +530,7 @@ void safeSave(int[] address, string savedir)
 void saveResult()
 {
 	if (!noSave)
-		measure!"resultSave"({safeSave(null, resultDir);});
+		measure!"resultSave"({safeSave(resultDir);});
 }
 
 version(HAVE_AE)
@@ -549,7 +633,10 @@ bool test(Reduction reduction)
 		return result;
 	}
 
-	return ramCached(diskCached(doTest()));
+	auto result = ramCached(diskCached(doTest()));
+	if (result)
+		foundAnything = true;
+	return result;
 }
 
 void applyNoRemoveMagic()
