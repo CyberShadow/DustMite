@@ -85,9 +85,7 @@ void optimize(ref Entity[] set)
 		clusterBy(set, BIN_SIZE);
 	}
 
-	// Don't bin top level (files)
-	foreach (ref entity; set)
-		doOptimize(entity.children);
+	doOptimize(set);
 }
 
 private:

@@ -140,7 +140,8 @@ Supported options:
 	measure!"load"({set = loadFiles(dir, parseOptions);});
 	enforce(set.length, "No files in specified directory");
 
-	optimize(set);
+	if (!obfuscate)
+		optimize(set);
 	applyNoRemoveMagic();
 	applyNoRemoveRegex(noRemoveStr);
 	if (coverageDir)
@@ -185,7 +186,7 @@ Supported options:
 	return 0;
 }
 
-/// Try reductions at address. Automatically edit entities (current reduction level).
+/// Try reductions at address. Edit set, save result and return true on successful reduction.
 bool testAddress(uint[] address)
 {
 	bool reduceSet(uint[] subAddress, ref Entity[] entities)
@@ -450,8 +451,14 @@ void dump(Entity[] entities, ref Reduction reduction, void delegate(string) writ
 		{
 			if (fileLevel)
 			{
-				writer(applyReductionToPath(e.filename, reduction));
-				dump(e.children, reduction, writer, false);
+				if (e.filename)
+				{
+					writer(applyReductionToPath(e.filename, reduction));
+					dump(e.children, reduction, writer, false);
+				}
+				else
+					dump(e.children, reduction, writer, true);
+
 				assert(e.tail.length==0);
 			}
 			else
@@ -475,7 +482,7 @@ void dump(Entity[] entities, ref Reduction reduction, void delegate(string) writ
 			case Reduction.Type.Remove: // skip this entity
 				continue;
 			case Reduction.Type.Unwrap: // skip head/tail
-				dump(e.children, nullReduction, writer, false);
+				dump(e.children, nullReduction, writer, fileLevel && e.filename is null);
 				break;
 			}
 		}
@@ -483,7 +490,7 @@ void dump(Entity[] entities, ref Reduction reduction, void delegate(string) writ
 		{
 			if (e.head.length) writer(e.head);
 			childReduction.address = reduction.address.length>1 && reduction.address[0]==i ? reduction.address[1..$] : null;
-			dump(e.children, childReduction, writer, false);
+			dump(e.children, childReduction, writer, fileLevel && e.filename is null);
 			if (e.tail.length) writer(e.tail);
 		}
 	}
@@ -495,23 +502,36 @@ void save(Reduction reduction, string savedir)
 	mkdirRecurse(savedir);
 	auto childReduction = reduction;
 
-	foreach (i, f; set)
+	void saveFiles(Entity[] entities, uint[] address)
 	{
-		if (reduction.address.length==1 && reduction.address[0]==i) // skip this file
+		foreach (i, f; entities)
 		{
-			assert(reduction.type == Reduction.Type.Remove);
-			continue;
+			if (address.length==1 && address[0]==i) // skip this file / file group
+			{
+				assert(reduction.type == Reduction.Type.Remove);
+				continue;
+			}
+
+			auto nextAddress = address.length>1 && address[0]==i ? address[1..$] : null;
+
+			if (f.filename)
+			{
+
+				auto path = std.path.join(savedir, applyReductionToPath(f.filename, reduction));
+				if (!exists(dirname(path)))
+					mkdirRecurse(dirname(path));
+
+				auto o = File(path, "wb");
+				childReduction.address = nextAddress;
+				dump(f.children, childReduction, &o.write!string, false);
+				o.close();
+			}
+			else
+				saveFiles(f.children, nextAddress);
 		}
-
-		auto path = std.path.join(savedir, applyReductionToPath(f.filename, reduction));
-		if (!exists(dirname(path)))
-			mkdirRecurse(dirname(path));
-
-		auto o = File(path, "wb");
-		childReduction.address = reduction.address.length>1 && reduction.address[0]==i ? reduction.address[1..$] : null;
-		dump(f.children, childReduction, &o.write!string, false);
-		o.close();
 	}
+
+	saveFiles(set, reduction.address);
 }
 
 string applyReductionToPath(string path, Reduction reduction)
@@ -797,35 +817,40 @@ void dumpSet(string fn)
 {
 	auto f = File(fn, "wt");
 
-	string printable(string s)
+	string printable(string s, bool isFile)
 	{
-		return s is null ? "null" : `"` ~ s.replace("\\", `\\`).replace("\"", `\"`).replace("\r", `\r`).replace("\n", `\n`) ~ `"`;
+		if (isFile)
+			return "/*** " ~ s ~ " ***/";
+		else
+			return s is null ? "null" : `"` ~ s.replace("\\", `\\`).replace("\"", `\"`).replace("\r", `\r`).replace("\n", `\n`) ~ `"`;
 	}
 
-	void print(Entity[] entities, int depth)
+	void print(Entity[] entities, int depth, bool fileLevel)
 	{
 		auto prefix = replicate("  ", depth);
 		foreach (e; entities)
 		{
+			bool isFile = fileLevel && e.filename;
+			bool inFiles = fileLevel && !e.filename;
+
+			// if (!fileLevel) { f.writeln(prefix, "[ ... ]"); continue; }
+
 			if (e.children.length == 0)
 			{
-				f.writeln(prefix, "[", e.noRemove ? "!" : "", " ", e.head ? printable(e.head) ~ " " : null, e.tail ? printable(e.tail) ~ " " : null, "]");
+				f.writeln(prefix, "[", e.noRemove ? "!" : "", " ", e.head ? printable(e.head, isFile) ~ " " : null, e.tail ? printable(e.tail, isFile) ~ " " : null, "]");
 			}
 			else
 			{
 				f.writeln(prefix, "[", e.noRemove ? "!" : "", e.isPair ? " // Pair" : null);
-				if (e.head) f.writeln(prefix, "  ", printable(e.head));
-				print(e.children, depth+1);
-				if (e.tail) f.writeln(prefix, "  ", printable(e.tail));
+				if (e.head) f.writeln(prefix, "  ", printable(e.head, isFile));
+				print(e.children, depth+1, inFiles);
+				if (e.tail) f.writeln(prefix, "  ", printable(e.tail, isFile));
 				f.writeln(prefix, "]");
 			}
 		}
 	}
 
-	foreach (e; set)
-	{
-		f.writefln("/*** %s ***/", e.filename);
-		print(e.children, 0);
-	}
+	print(set, 0, true);
+
 	f.close();
 }
