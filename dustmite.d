@@ -24,7 +24,7 @@ import dsplit;
 alias std.string.join join;
 
 string dir, resultDir, tester, globalCache;
-int maxBreadth;
+size_t maxBreadth;
 Entity[] set;
 
 struct Times { Duration load, testSave, resultSave, test, clean, cacheHash, misc; }
@@ -41,7 +41,7 @@ struct Reduction
 	Type type;
 
 	// Remove / Unwrap
-	uint[] address;
+	size_t[] address;
 
 	// ReplaceWord
 	string from, to;
@@ -189,9 +189,9 @@ Supported options:
 	return 0;
 }
 
-int getMaxBreadth(Entity[] set)
+size_t getMaxBreadth(Entity[] set)
 {
-	int breadth = set.length;
+	size_t breadth = set.length;
 	foreach (ref child; set)
 	{
 		auto childBreadth = getMaxBreadth(child.children);
@@ -202,9 +202,9 @@ int getMaxBreadth(Entity[] set)
 }
 
 /// Try reductions at address. Edit set, save result and return true on successful reduction.
-bool testAddress(uint[] address)
+bool testAddress(size_t[] address)
 {
-	bool reduceSet(uint[] subAddress, ref Entity[] entities)
+	bool reduceSet(size_t[] subAddress, ref Entity[] entities)
 	{
 		auto i = subAddress[0];
 		if (subAddress.length > 1)
@@ -235,7 +235,7 @@ void testLevel(int testDepth, out bool tested, out bool changed)
 	tested = changed = false;
 
 	enum MAX_DEPTH = 1024;
-	uint[MAX_DEPTH] address;
+	size_t[MAX_DEPTH] address;
 
 	void scan(ref Entity[] entities, int depth)
 	{
@@ -347,7 +347,7 @@ void reduceInDepth()
 		writefln("############### ITERATION %d ################", iterCount++);
 
 		enum MAX_DEPTH = 1024;
-		uint[MAX_DEPTH] address;
+		size_t[MAX_DEPTH] address;
 
 		void scan(ref Entity[] entities, int depth)
 		{
@@ -517,7 +517,7 @@ void save(Reduction reduction, string savedir)
 	mkdirRecurse(savedir);
 	auto childReduction = reduction;
 
-	void saveFiles(Entity[] entities, uint[] address)
+	void saveFiles(Entity[] entities, size_t[] address)
 	{
 		foreach (i, f; entities)
 		{
