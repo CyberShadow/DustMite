@@ -53,7 +53,7 @@ Entity[] loadFiles(ref string path, ParseOptions options)
 	}
 }
 
-enum BIN_SIZE = 16;
+enum BIN_SIZE = 2;
 
 void optimize(ref Entity[] set)
 {
@@ -65,13 +65,16 @@ void optimize(ref Entity[] set)
 
 	static void clusterBy(ref Entity[] set, size_t binSize)
 	{
-		if (set.length > binSize)
+		while (set.length > binSize)
 		{
-			auto bins = set.length/binSize;
-			if (set.length % binSize > 1)
-				group(set, bins*binSize, set.length);
+			auto size = set.length >= binSize*2 ? binSize : (set.length+1) / 2;
+			//auto size = binSize;
+
+			auto bins = set.length/size;
+			if (set.length % size > 1)
+				group(set, bins*size, set.length);
 			foreach_reverse (i; 0..bins)
-				group(set, i*binSize, (i+1)*binSize);
+				group(set, i*size, (i+1)*size);
 		}
 	}
 
