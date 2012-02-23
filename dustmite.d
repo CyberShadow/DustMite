@@ -24,6 +24,7 @@ import dsplit;
 alias std.string.join join;
 
 string dir, resultDir, tester, globalCache;
+int maxBreadth;
 Entity[] set;
 
 struct Times { Duration load, testSave, resultSave, test, clean, cacheHash, misc; }
@@ -60,12 +61,13 @@ struct Reduction
 			case Reduction.Type.Unwrap:
 				string[] segments = new string[address.length];
 				Entity[] e = set;
+				bool binary = maxBreadth == 2;
 				foreach (i, a; address)
 				{
-					segments[i] = format("%d/%d", e.length-a, e.length);
+					segments[i] = binary ? text(a) : format("%d/%d", e.length-a, e.length);
 					e = e[a].children;
 				}
-				return name ~ " [" ~ segments.join(", ") ~ "]";
+				return name ~ " [" ~ segments.join(binary ? "" : ", ") ~ "]";
 		}
 	}
 }
@@ -146,6 +148,7 @@ Supported options:
 	applyNoRemoveRegex(noRemoveStr);
 	if (coverageDir)
 		loadCoverage(coverageDir);
+	maxBreadth = getMaxBreadth(set);
 
 	if (dump)
 		dumpSet(dir ~ ".dump");
@@ -184,6 +187,18 @@ Supported options:
 			writefln("%s: %s", times.tupleof[i].stringof, times.tupleof[i]);
 
 	return 0;
+}
+
+int getMaxBreadth(Entity[] set)
+{
+	int breadth = set.length;
+	foreach (ref child; set)
+	{
+		auto childBreadth = getMaxBreadth(child.children);
+		if (breadth < childBreadth)
+			breadth = childBreadth;
+	}
+	return breadth;
 }
 
 /// Try reductions at address. Edit set, save result and return true on successful reduction.
