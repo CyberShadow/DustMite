@@ -280,7 +280,7 @@ void reduceCareful()
 /// Keep going up while we find new reductions. Repeat topmost depth level as necessary.
 /// Once no new reductions are found at higher depths, jump to the next unvisited depth in this iteration.
 /// If we reach the bottom (depth with no nodes on it), start a new iteration.
-/// If we finish an iteration without finding anything, we're done.
+/// If we finish an iteration without finding any reductions, we're done.
 void reduceLookback()
 {
 	bool iterationChanged;
@@ -316,6 +316,11 @@ void reduceLookback()
 	} while (iterationChanged); // stop when we couldn't reduce anything this iteration
 }
 
+/// Look at every entity in the tree.
+/// If we can reduce this entity, continue looking at its siblings.
+/// Otherwise, recurse and look at its children.
+/// End an iteration once we looked at an entire tree.
+/// If we finish an iteration without finding any reductions, we're done.
 void reduceInDepth()
 {
 	bool changed;
