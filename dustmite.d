@@ -45,7 +45,7 @@ struct Reduction
 
 	// ReplaceWord
 	string from, to;
-	int index, total;
+	size_t index, total;
 
 	string toString()
 	{
@@ -400,7 +400,7 @@ void obfuscate(bool keepLength)
 				}
 	}
 
-	string idgen(uint length)
+	string idgen(size_t length)
 	{
 		static const first = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // use caps to avoid collisions with reserved keywords
 		static const other = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
@@ -431,14 +431,14 @@ void obfuscate(bool keepLength)
 	}
 
 	auto r = Reduction(Reduction.Type.ReplaceWord);
-	r.total = cast(uint) words.length;
-	foreach (int i, word; words)
+	r.total = words.length;
+	foreach (i, word; words)
 	{
 		r.index = i;
 		r.from = word;
 		int tries = 0;
 		do
-			r.to = idgen(cast(uint) word.length);
+			r.to = idgen(word.length);
 		while (r.to in wordSet && tries++ < 10);
 		wordSet[r.to] = true;
 
@@ -796,7 +796,7 @@ void loadCoverage(string dir)
 			return line != "0000000" && line != "       ";
 		}
 
-		auto lines = map!covered(splitLines(cast(string)read(fn))[0..$-1]);
+		auto lines = map!covered(splitLines(readText(fn))[0..$-1]);
 		uint line = 0;
 
 		bool coverString(string s)
