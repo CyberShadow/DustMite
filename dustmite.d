@@ -61,13 +61,16 @@ struct Reduction
 			case Reduction.Type.Unwrap:
 				string[] segments = new string[address.length];
 				Entity[] e = set;
+				real progress = 0.0, progressFraction = 100.0;
 				bool binary = maxBreadth == 2;
 				foreach (i, a; address)
 				{
 					segments[i] = binary ? text(a) : format("%d/%d", e.length-a, e.length);
+					progressFraction /= e.length;
+					progress += progressFraction * (e.length-a-1);
 					e = e[a].children;
 				}
-				return name ~ " [" ~ segments.join(binary ? "" : ", ") ~ "]";
+				return format("[%5.1f%%] %s [%s]", progress, name, segments.join(binary ? "" : ", "));
 		}
 	}
 }
