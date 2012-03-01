@@ -20,7 +20,7 @@ class Entity
 	bool isPair;           /// internal hint
 	bool noRemove;         /// don't try removing this entity (children OK)
 
-	alias head filename; // for depth 0
+	alias head filename; // topmost node with head/tail is a file; its head is its filename
 
 	this(string head = null, Entity[] children = null, string tail = null, bool isPair = false)
 	{
