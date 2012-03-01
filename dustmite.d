@@ -25,7 +25,7 @@ alias std.string.join join;
 
 string dir, resultDir, tester, globalCache;
 size_t maxBreadth;
-Entity set;
+Entity root;
 
 struct Times { Duration load, testSave, resultSave, test, clean, cacheHash, misc; }
 Times times;
@@ -60,7 +60,7 @@ struct Reduction
 			case Reduction.Type.Remove:
 			case Reduction.Type.Unwrap:
 				string[] segments = new string[address.length];
-				Entity e = set;
+				Entity e = root;
 				real progress = 0.0, progressFraction = 100.0;
 				bool binary = maxBreadth == 2;
 				foreach (i, a; address)
@@ -142,16 +142,16 @@ Supported options:
 	ParseOptions parseOptions;
 	parseOptions.stripComments = stripComments;
 	parseOptions.mode = obfuscate ? ParseOptions.Mode.Words : ParseOptions.Mode.Source;
-	measure!"load"({set = loadFiles(dir, parseOptions);});
-	enforce(set.children.length, "No files in specified directory");
+	measure!"load"({root = loadFiles(dir, parseOptions);});
+	enforce(root.children.length, "No files in specified directory");
 
 	if (!obfuscate)
-		optimize(set);
+		optimize(root);
 	applyNoRemoveMagic();
 	applyNoRemoveRegex(noRemoveStr);
 	if (coverageDir)
 		loadCoverage(coverageDir);
-	maxBreadth = getMaxBreadth(set);
+	maxBreadth = getMaxBreadth(root);
 
 	if (dump)
 		dumpSet(dir ~ ".dump");
@@ -192,10 +192,10 @@ Supported options:
 	return 0;
 }
 
-size_t getMaxBreadth(Entity set)
+size_t getMaxBreadth(Entity e)
 {
-	size_t breadth = set.children.length;
-	foreach (child; set.children)
+	size_t breadth = e.children.length;
+	foreach (child; e.children)
 	{
 		auto childBreadth = getMaxBreadth(child);
 		if (breadth < childBreadth)
@@ -209,7 +209,7 @@ bool testAddress(size_t[] address)
 {
 	if (!address.length)
 		return false; // TODO
-	Entity p = set;
+	Entity p = root;
 	foreach (a; address[0..$-1])
 		p = p.children[a];
 	auto i = address[$-1];
@@ -265,7 +265,7 @@ void testLevel(int testDepth, out bool tested, out bool changed)
 		}
 	}
 
-	scan(set, 0);
+	scan(root, 0);
 
 	//writefln("Scan results: tested=%s, changed=%s", tested, changed);
 }
@@ -375,7 +375,7 @@ void reduceInDepth()
 			}
 		}
 
-		scan(set, 0);
+		scan(root, 0);
 	} while (changed); // stop when we couldn't reduce anything this iteration
 }
 
@@ -391,7 +391,7 @@ void obfuscate(bool keepLength)
 	bool[string] wordSet;
 	string[] words; // preserve file order
 
-	foreach (f; set.children)
+	foreach (f; root.children)
 	{
 		foreach (entity; parseToWords(f.filename) ~ f.children)
 			if (entity.head.length && !isDigit(entity.head[0]))
@@ -446,7 +446,7 @@ void obfuscate(bool keepLength)
 
 		if (test(r))
 		{
-			foreach (f; set.children)
+			foreach (f; root.children)
 			{
 				f.filename = applyReductionToPath(f.filename, r);
 				foreach (entity; f.children)
@@ -545,7 +545,7 @@ void save(Reduction reduction, string savedir)
 			}
 	}
 
-	saveFiles(set, reduction.address);
+	saveFiles(root, reduction.address);
 }
 
 string applyReductionToPath(string path, Reduction reduction)
@@ -616,7 +616,7 @@ version(HAVE_AE)
 	{
 		static StringBuffer sb;
 		sb.clear();
-		dump(set.children, reduction, &sb.put!string, true);
+		dump(root.children, reduction, &sb.put!string, true);
 		return murmurHash3_128(sb.get());
 	}
 
@@ -633,7 +633,7 @@ else
 		ubyte[16] digest;
 		MD5_CTX context;
 		context.start();
-		dump(set.children, reduction, cast(void delegate(string))&context.update, true);
+		dump(root.children, reduction, cast(void delegate(string))&context.update, true);
 		context.finish(digest);
 		return digest;
 	}
@@ -737,7 +737,7 @@ void applyNoRemoveMagic()
 		return removeThis;
 	}
 
-	scan(set);
+	scan(root);
 }
 
 void applyNoRemoveRegex(string[] noRemoveStr)
@@ -770,13 +770,13 @@ void applyNoRemoveRegex(string[] noRemoveStr)
 		}
 	}
 
-	scan(set);
+	scan(root);
 }
 
 void loadCoverage(string dir)
 {
 /*
-	foreach (ref f; set)
+	foreach (ref f; root)
 	{
 		auto fn = std.path.join(dir, addExt(basename(f.filename), "lst"));
 		if (!exists(fn))
@@ -859,7 +859,7 @@ void dumpSet(string fn)
 		}
 	}
 
-	print(set, 0, true);
+	print(root, 0, true);
 
 	f.close();
 }
