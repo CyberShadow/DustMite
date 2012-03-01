@@ -11,7 +11,7 @@ import std.ascii;
 import std.array;
 debug import std.stdio;
 
-struct Entity
+class Entity
 {
 	string head;
 	Entity[] children;
@@ -21,6 +21,14 @@ struct Entity
 	bool noRemove;         /// don't try removing this entity (children OK)
 
 	alias head filename; // for depth 0
+
+	this(string head = null, Entity[] children = null, string tail = null, bool isPair = false)
+	{
+		this.head     = head;
+		this.children = children;
+		this.tail     = tail;
+		this.isPair   = isPair;
+	}
 }
 
 struct ParseOptions
@@ -37,7 +45,7 @@ Entity[] loadFiles(ref string path, ParseOptions options)
 	{
 		auto filePath = path;
 		path = getName(path) is null ? path : getName(path);
-		return [Entity(basename(filePath).replace(`\`, `/`), loadFile(filePath, options), null)];
+		return [new Entity(basename(filePath).replace(`\`, `/`), loadFile(filePath, options), null)];
 	}
 	else
 	{
@@ -47,7 +55,7 @@ Entity[] loadFiles(ref string path, ParseOptions options)
 			{
 				assert(entry.startsWith(path));
 				auto name = entry[path.length+1..$];
-				set ~= Entity(name.replace(`\`, `/`), loadFile(entry, options), null);
+				set ~= new Entity(name.replace(`\`, `/`), loadFile(entry, options), null);
 			}
 		return set;
 	}
@@ -59,8 +67,8 @@ void optimize(ref Entity[] set)
 {
 	static void group(ref Entity[] set, size_t start, size_t end)
 	{
-		//set = set[0..start] ~ [Entity(removable, set[start..end])] ~ set[end..$];
-		set.replaceInPlace(start, end, [Entity(null, set[start..end].dup, null)]);
+		//set = set[0..start] ~ [new Entity(removable, set[start..end])] ~ set[end..$];
+		set.replaceInPlace(start, end, [new Entity(null, set[start..end].dup, null)]);
 	}
 
 	static void clusterBy(ref Entity[] set, size_t binSize)
@@ -109,7 +117,7 @@ Entity[] loadFile(string path, ParseOptions options)
 			return parseD(contents);
 		// One could add custom splitters for other languages here - for example, a simple line/word/character splitter for most text-based formats
 		default:
-			return [Entity(contents, null, null)];
+			return [new Entity(contents, null, null)];
 		}
 	case ParseOptions.Mode.Words:
 		return parseToWords(contents);
@@ -259,7 +267,7 @@ Entity[] parseD(string s)
 				if (next.length <= 1)
 					splitterQueue[level] ~= next;
 				else
-					splitterQueue[level] ~= Entity(null, next, null);
+					splitterQueue[level] ~= new Entity(null, next, null);
 				auto r = splitterQueue[level];
 				splitterQueue[level] = null;
 				return r;
@@ -283,7 +291,7 @@ Entity[] parseD(string s)
 					auto children = terminateLevel(level+1);
 					assert(i == start);
 					i++; skipToEOL(s, i);
-					splitterQueue[level] ~= Entity(null, children, terminateText());
+					splitterQueue[level] ~= new Entity(null, children, terminateText());
 					continue characterLoop;
 				}
 				else
@@ -297,15 +305,15 @@ Entity[] parseD(string s)
 					auto startSequence = terminateText();
 					auto bodyContents = parseScope(info.close);
 
-					auto pairBody = Entity(startSequence, bodyContents, innerTail);
+					auto pairBody = new Entity(startSequence, bodyContents, innerTail);
 
 					if (pairHead.length == 0)
 						splitterQueue[level] ~= pairBody;
 					else
 					if (pairHead.length == 1)
-						splitterQueue[level] ~= Entity(null, pairHead ~ pairBody, null, true);
+						splitterQueue[level] ~= new Entity(null, pairHead ~ pairBody, null, true);
 					else
-						splitterQueue[level] ~= Entity(null, [Entity(null, pairHead, null), pairBody], null, true);
+						splitterQueue[level] ~= new Entity(null, [new Entity(null, pairHead, null), pairBody], null, true);
 					continue characterLoop;
 				}
 
@@ -358,7 +366,7 @@ void postProcessD(ref Entity[] entities)
 		 || (getHeadText(entities[i+1]).isWord("out"))
 		 || (getHeadText(entities[i+1]).isWord("body"))
 		))
-			entities.replaceInPlace(i, i+2, [Entity(null, entities[i..i+2].dup, null)]);
+			entities.replaceInPlace(i, i+2, [new Entity(null, entities[i..i+2].dup, null)]);
 		else
 		{
 			postProcessD(entities[i].children);
@@ -380,12 +388,12 @@ Entity[] splitText(string s)
 		{
 			size_t p = word.ptr + word.length - s.ptr;
 			skipToEOL(s, p);
-			result ~= Entity(s[0..p], null, null);
+			result ~= new Entity(s[0..p], null, null);
 			s = s[p..$];
 		}
 		else
 		{
-			result ~= Entity(s, null, null);
+			result ~= new Entity(s, null, null);
 			s = null;
 		}
 	}
@@ -476,7 +484,7 @@ public Entity[] parseToWords(string text)
 		if (i==text.length || (!isDWordChar(text[i-1]) && isDWordChar(text[i])))
 		{
 			if (wordStart != i)
-				result ~= Entity(text[wordStart..wordEnd], null, text[wordEnd..i]);
+				result ~= new Entity(text[wordStart..wordEnd], null, text[wordEnd..i]);
 			wordStart = wordEnd = i;
 		}
 		else
