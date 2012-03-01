@@ -86,14 +86,14 @@ void optimize(Entity set)
 		}
 	}
 
-	static void doOptimize(ref Entity[] set)
+	static void doOptimize(Entity e)
 	{
-		foreach (ref entity; set)
-			doOptimize(entity.children);
-		clusterBy(set, BIN_SIZE);
+		foreach (c; e.children)
+			doOptimize(c);
+		clusterBy(e.children, BIN_SIZE);
 	}
 
-	doOptimize(set.children);
+	doOptimize(set);
 }
 
 private:

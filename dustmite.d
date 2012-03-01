@@ -239,33 +239,33 @@ void testLevel(int testDepth, out bool tested, out bool changed)
 	enum MAX_DEPTH = 1024;
 	size_t[MAX_DEPTH] address;
 
-	void scan(Entity[] entities, int depth)
+	void scan(Entity e, int depth)
 	{
-		foreach_reverse (i, e; entities)
+		if (depth < testDepth)
 		{
-			address[depth] = i;
-			if (depth < testDepth)
+			// recurse
+			foreach_reverse (i, c; e.children)
 			{
-				// recurse
-				scan(e.children, depth+1);
+				address[depth] = i;
+				scan(c, depth+1);
 			}
-			else
-			if (e.noRemove)
-			{
-				// skip, but don't stop going deeper
-				tested = true;
-			}
-			else
-			{
-				// test
-				tested = true;
-				if (testAddress(address[0..depth+1]))
-					changed = true;
-			}
+		}
+		else
+		if (e.noRemove)
+		{
+			// skip, but don't stop going deeper
+			tested = true;
+		}
+		else
+		{
+			// test
+			tested = true;
+			if (testAddress(address[0..depth]))
+				changed = true;
 		}
 	}
 
-	scan(set.children, 0);
+	scan(set, 0);
 
 	//writefln("Scan results: tested=%s, changed=%s", tested, changed);
 }
