@@ -726,57 +726,51 @@ void applyNoRemoveMagic()
 		return state;
 	}
 
-	bool scan(Entity[] set)
+	bool scan(Entity e)
 	{
-		bool result = false;
-		foreach (ref e; set)
-		{
-			bool removeThis;
-			removeThis  = scanString(e.head);
-			removeThis |= scan(e.children);
-			removeThis |= scanString(e.tail);
-			e.noRemove |= removeThis;
-			result |= removeThis;
-		}
-		return result;
+		bool removeThis;
+		removeThis  = scanString(e.head);
+		foreach (c; e.children)
+			removeThis |= scan(c);
+		removeThis |= scanString(e.tail);
+		e.noRemove |= removeThis;
+		return removeThis;
 	}
 
-	scan(set.children);
+	scan(set);
 }
 
 void applyNoRemoveRegex(string[] noRemoveStr)
 {
 	auto noRemove = map!regex(noRemoveStr);
 
-	void mark(Entity[] set)
+	void mark(Entity e)
 	{
-		foreach (ref e; set)
+		e.noRemove = true;
+		foreach (c; e.children)
+			mark(c);
+	}
+
+	bool scan(Entity e)
+	{
+		if (canFind!((a){return !match(e.head, a).empty || !match(e.tail, a).empty;})(noRemove))
 		{
 			e.noRemove = true;
-			mark(e.children);
+			foreach (c; e.children)
+				mark(c);
+			return true;
+		}
+		else
+		{
+			bool found = false;
+			foreach (c; e.children)
+				if (scan(c))
+					e.noRemove = found = true;
+			return found;
 		}
 	}
 
-	bool scan(Entity[] set)
-	{
-		bool found = false;
-		foreach (ref e; set)
-			if (canFind!((a){return !match(e.head, a).empty || !match(e.tail, a).empty;})(noRemove))
-			{
-				e.noRemove = true;
-				mark(e.children);
-				found = true;
-			}
-			else
-			if (scan(e.children))
-			{
-				e.noRemove = true;
-				found = true;
-			}
-		return found;
-	}
-
-	scan(set.children);
+	scan(set);
 }
 
 void loadCoverage(string dir)
@@ -842,32 +836,30 @@ void dumpSet(string fn)
 			return s is null ? "null" : `"` ~ s.replace("\\", `\\`).replace("\"", `\"`).replace("\r", `\r`).replace("\n", `\n`) ~ `"`;
 	}
 
-	void print(Entity[] entities, int depth, bool fileLevel)
+	void print(Entity e, int depth, bool fileLevel)
 	{
 		auto prefix = replicate("  ", depth);
-		foreach (e; entities)
+		bool isFile = fileLevel && e.filename;
+		bool inFiles = fileLevel && !e.filename;
+
+		// if (!fileLevel) { f.writeln(prefix, "[ ... ]"); continue; }
+
+		if (e.children.length == 0)
 		{
-			bool isFile = fileLevel && e.filename;
-			bool inFiles = fileLevel && !e.filename;
-
-			// if (!fileLevel) { f.writeln(prefix, "[ ... ]"); continue; }
-
-			if (e.children.length == 0)
-			{
-				f.writeln(prefix, "[", e.noRemove ? "!" : "", " ", e.head ? printable(e.head, isFile) ~ " " : null, e.tail ? printable(e.tail, isFile) ~ " " : null, "]");
-			}
-			else
-			{
-				f.writeln(prefix, "[", e.noRemove ? "!" : "", e.isPair ? " // Pair" : null);
-				if (e.head) f.writeln(prefix, "  ", printable(e.head, isFile));
-				print(e.children, depth+1, inFiles);
-				if (e.tail) f.writeln(prefix, "  ", printable(e.tail, isFile));
-				f.writeln(prefix, "]");
-			}
+			f.writeln(prefix, "[", e.noRemove ? "!" : "", " ", e.head ? printable(e.head, isFile) ~ " " : null, e.tail ? printable(e.tail, isFile) ~ " " : null, "]");
+		}
+		else
+		{
+			f.writeln(prefix, "[", e.noRemove ? "!" : "", e.isPair ? " // Pair" : null);
+			if (e.head) f.writeln(prefix, "  ", printable(e.head, isFile));
+			foreach (c; e.children)
+				print(c, depth+1, inFiles);
+			if (e.tail) f.writeln(prefix, "  ", printable(e.tail, isFile));
+			f.writeln(prefix, "]");
 		}
 	}
 
-	print(set.children, 0, true);
+	print(set, 0, true);
 
 	f.close();
 }
