@@ -241,16 +241,16 @@ void testLevel(int testDepth, out bool tested, out bool changed)
 
 	void scan(Entity[] entities, int depth)
 	{
-		foreach_reverse (i; 0..entities.length)
+		foreach_reverse (i, e; entities)
 		{
 			address[depth] = i;
 			if (depth < testDepth)
 			{
 				// recurse
-				scan(entities[i].children, depth+1);
+				scan(e.children, depth+1);
 			}
 			else
-			if (entities[i].noRemove)
+			if (e.noRemove)
 			{
 				// skip, but don't stop going deeper
 				tested = true;
