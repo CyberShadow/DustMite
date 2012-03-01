@@ -39,23 +39,23 @@ struct ParseOptions
 	Mode mode;
 }
 
-Entity[] loadFiles(ref string path, ParseOptions options)
+Entity loadFiles(ref string path, ParseOptions options)
 {
 	if (isFile(path))
 	{
 		auto filePath = path;
 		path = getName(path) is null ? path : getName(path);
-		return [new Entity(basename(filePath).replace(`\`, `/`), loadFile(filePath, options), null)];
+		return new Entity(basename(filePath).replace(`\`, `/`), loadFile(filePath, options), null);
 	}
 	else
 	{
-		Entity[] set;
+		auto set = new Entity();
 		foreach (string entry; dirEntries(path, SpanMode.breadth))
 			if (isFile(entry))
 			{
 				assert(entry.startsWith(path));
 				auto name = entry[path.length+1..$];
-				set ~= new Entity(name.replace(`\`, `/`), loadFile(entry, options), null);
+				set.children ~= new Entity(name.replace(`\`, `/`), loadFile(entry, options), null);
 			}
 		return set;
 	}
@@ -63,7 +63,7 @@ Entity[] loadFiles(ref string path, ParseOptions options)
 
 enum BIN_SIZE = 2;
 
-void optimize(ref Entity[] set)
+void optimize(Entity set)
 {
 	static void group(ref Entity[] set, size_t start, size_t end)
 	{
@@ -93,7 +93,7 @@ void optimize(ref Entity[] set)
 		clusterBy(set, BIN_SIZE);
 	}
 
-	doOptimize(set);
+	doOptimize(set.children);
 }
 
 private:

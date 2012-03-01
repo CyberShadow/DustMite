@@ -25,7 +25,7 @@ alias std.string.join join;
 
 string dir, resultDir, tester, globalCache;
 size_t maxBreadth;
-Entity[] set;
+Entity set;
 
 struct Times { Duration load, testSave, resultSave, test, clean, cacheHash, misc; }
 Times times;
@@ -60,15 +60,15 @@ struct Reduction
 			case Reduction.Type.Remove:
 			case Reduction.Type.Unwrap:
 				string[] segments = new string[address.length];
-				Entity[] e = set;
+				Entity e = set;
 				real progress = 0.0, progressFraction = 100.0;
 				bool binary = maxBreadth == 2;
 				foreach (i, a; address)
 				{
-					segments[i] = binary ? text(a) : format("%d/%d", e.length-a, e.length);
-					progressFraction /= e.length;
-					progress += progressFraction * (e.length-a-1);
-					e = e[a].children;
+					segments[i] = binary ? text(a) : format("%d/%d", e.children.length-a, e.children.length);
+					progressFraction /= e.children.length;
+					progress += progressFraction * (e.children.length-a-1);
+					e = e.children[a];
 				}
 				return format("[%5.1f%%] %s [%s]", progress, name, segments.join(binary ? "" : ", "));
 		}
@@ -143,7 +143,7 @@ Supported options:
 	parseOptions.stripComments = stripComments;
 	parseOptions.mode = obfuscate ? ParseOptions.Mode.Words : ParseOptions.Mode.Source;
 	measure!"load"({set = loadFiles(dir, parseOptions);});
-	enforce(set.length, "No files in specified directory");
+	enforce(set.children.length, "No files in specified directory");
 
 	if (!obfuscate)
 		optimize(set);
@@ -192,12 +192,12 @@ Supported options:
 	return 0;
 }
 
-size_t getMaxBreadth(Entity[] set)
+size_t getMaxBreadth(Entity set)
 {
-	size_t breadth = set.length;
-	foreach (ref child; set)
+	size_t breadth = set.children.length;
+	foreach (child; set.children)
 	{
-		auto childBreadth = getMaxBreadth(child.children);
+		auto childBreadth = getMaxBreadth(child);
 		if (breadth < childBreadth)
 			breadth = childBreadth;
 	}
@@ -207,30 +207,29 @@ size_t getMaxBreadth(Entity[] set)
 /// Try reductions at address. Edit set, save result and return true on successful reduction.
 bool testAddress(size_t[] address)
 {
-	bool reduceSet(size_t[] subAddress, ref Entity[] entities)
+	if (!address.length)
+		return false; // TODO
+	Entity p = set;
+	foreach (a; address[0..$-1])
+		p = p.children[a];
+	auto i = address[$-1];
+	auto n = p.children[i];
+
+	if (test(Reduction(Reduction.Type.Remove, address)))
 	{
-		auto i = subAddress[0];
-		if (subAddress.length > 1)
-			return reduceSet(subAddress[1..$], entities[i].children);
-
-		if (test(Reduction(Reduction.Type.Remove, address)))
-		{
-			entities = remove(entities, i);
-			saveResult();
-			return true;
-		}
-		else
-		if (entities[i].head.length && entities[i].tail.length && test(Reduction(Reduction.Type.Unwrap, address)))
-		{
-			entities[i].head = entities[i].tail = null;
-			saveResult();
-			return true;
-		}
-		else
-			return false;
+		p.children = remove(p.children, i);
+		saveResult();
+		return true;
 	}
-
-	return reduceSet(address, set);
+	else
+	if (n.head.length && n.tail.length && test(Reduction(Reduction.Type.Unwrap, address)))
+	{
+		n.head = n.tail = null;
+		saveResult();
+		return true;
+	}
+	else
+		return false;
 }
 
 void testLevel(int testDepth, out bool tested, out bool changed)
@@ -240,7 +239,7 @@ void testLevel(int testDepth, out bool tested, out bool changed)
 	enum MAX_DEPTH = 1024;
 	size_t[MAX_DEPTH] address;
 
-	void scan(ref Entity[] entities, int depth)
+	void scan(Entity[] entities, int depth)
 	{
 		foreach_reverse (i; 0..entities.length)
 		{
@@ -266,7 +265,7 @@ void testLevel(int testDepth, out bool tested, out bool changed)
 		}
 	}
 
-	scan(set, 0);
+	scan(set.children, 0);
 
 	//writefln("Scan results: tested=%s, changed=%s", tested, changed);
 }
@@ -352,27 +351,27 @@ void reduceInDepth()
 		enum MAX_DEPTH = 1024;
 		size_t[MAX_DEPTH] address;
 
-		void scan(ref Entity[] entities, int depth)
+		void scan(Entity e, int depth)
 		{
-			foreach_reverse (i; 0..entities.length)
+			if (e.noRemove)
+			{
+				// skip, but don't stop going deeper
+			}
+			else
+			{
+				// test
+				if (testAddress(address[0..depth]))
+				{
+					changed = true;
+					return;
+				}
+			}
+
+			// recurse
+			foreach_reverse (i, c; e.children)
 			{
 				address[depth] = i;
-				if (entities[i].noRemove)
-				{
-					// skip, but don't stop going deeper
-				}
-				else
-				{
-					// test
-					if (testAddress(address[0..depth+1]))
-					{
-						changed = true;
-						continue;
-					}
-				}
-
-				// recurse
-				scan(entities[i].children, depth+1);
+				scan(c, depth+1);
 			}
 		}
 
@@ -392,7 +391,7 @@ void obfuscate(bool keepLength)
 	bool[string] wordSet;
 	string[] words; // preserve file order
 
-	foreach (f; set)
+	foreach (f; set.children)
 	{
 		foreach (ref entity; parseToWords(f.filename) ~ f.children)
 			if (entity.head.length && !isDigit(entity.head[0]))
@@ -447,7 +446,7 @@ void obfuscate(bool keepLength)
 
 		if (test(r))
 		{
-			foreach (ref f; set)
+			foreach (f; set.children)
 			{
 				f.filename = applyReductionToPath(f.filename, r);
 				foreach (ref entity; f.children)
@@ -520,33 +519,30 @@ void save(Reduction reduction, string savedir)
 	mkdirRecurse(savedir);
 	auto childReduction = reduction;
 
-	void saveFiles(Entity[] entities, size_t[] address)
+	void saveFiles(Entity f, size_t[] address)
 	{
-		foreach (i, f; entities)
+		if (f.filename)
 		{
-			if (address.length==1 && address[0]==i) // skip this file / file group
-			{
-				assert(reduction.type == Reduction.Type.Remove);
-				continue;
-			}
+			auto path = std.path.join(savedir, applyReductionToPath(f.filename, reduction));
+			if (!exists(dirname(path)))
+				mkdirRecurse(dirname(path));
 
-			auto nextAddress = address.length>1 && address[0]==i ? address[1..$] : null;
-
-			if (f.filename)
-			{
-
-				auto path = std.path.join(savedir, applyReductionToPath(f.filename, reduction));
-				if (!exists(dirname(path)))
-					mkdirRecurse(dirname(path));
-
-				auto o = File(path, "wb");
-				childReduction.address = nextAddress;
-				dump(f.children, childReduction, &o.write!string, false);
-				o.close();
-			}
-			else
-				saveFiles(f.children, nextAddress);
+			auto o = File(path, "wb");
+			childReduction.address = address;
+			dump(f.children, childReduction, &o.write!string, false);
+			o.close();
 		}
+		else
+			foreach (i, c; f.children)
+			{
+				if (address.length==1 && address[0]==i) // skip this file / file group
+				{
+					assert(reduction.type == Reduction.Type.Remove);
+					continue;
+				}
+
+				saveFiles(c, address.length>1 && address[0]==i ? address[1..$] : null);
+			}
 	}
 
 	saveFiles(set, reduction.address);
@@ -620,7 +616,7 @@ version(HAVE_AE)
 	{
 		static StringBuffer sb;
 		sb.clear();
-		dump(set, reduction, &sb.put!string, true);
+		dump(set.children, reduction, &sb.put!string, true);
 		return murmurHash3_128(sb.get());
 	}
 
@@ -637,7 +633,7 @@ else
 		ubyte[16] digest;
 		MD5_CTX context;
 		context.start();
-		dump(set, reduction, cast(void delegate(string))&context.update, true);
+		dump(set.children, reduction, cast(void delegate(string))&context.update, true);
 		context.finish(digest);
 		return digest;
 	}
@@ -745,7 +741,7 @@ void applyNoRemoveMagic()
 		return result;
 	}
 
-	scan(set);
+	scan(set.children);
 }
 
 void applyNoRemoveRegex(string[] noRemoveStr)
@@ -780,11 +776,12 @@ void applyNoRemoveRegex(string[] noRemoveStr)
 		return found;
 	}
 
-	scan(set);
+	scan(set.children);
 }
 
 void loadCoverage(string dir)
 {
+/*
 	foreach (ref f; set)
 	{
 		auto fn = std.path.join(dir, addExt(basename(f.filename), "lst"));
@@ -829,6 +826,8 @@ void loadCoverage(string dir)
 		foreach (ref c; f.children)
 			f.noRemove |= cover(c);
 	}
+*/
+	assert(0, "FIXME");
 }
 
 void dumpSet(string fn)
@@ -868,7 +867,7 @@ void dumpSet(string fn)
 		}
 	}
 
-	print(set, 0, true);
+	print(set.children, 0, true);
 
 	f.close();
 }
