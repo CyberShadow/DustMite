@@ -165,7 +165,7 @@ Supported options:
 	resultDir = dir ~ ".reduced";
 	enforce(!exists(resultDir), "Result directory already exists");
 
-	if (!test(Reduction(Reduction.Type.None)))
+	if (!test(nullReduction))
 		throw new Exception("Initial test fails");
 
 	foundAnything = false;
@@ -595,7 +595,7 @@ void safeSave(string savedir)
 {
 	auto tempdir = savedir ~ ".inprogress"; scope(failure) safeRmdirRecurse(tempdir);
 	if (exists(tempdir)) safeRmdirRecurse(tempdir);
-	save(Reduction(Reduction.Type.None), tempdir);
+	save(nullReduction, tempdir);
 	if (exists(savedir)) safeRmdirRecurse(savedir);
 	rename(tempdir, savedir);
 }
