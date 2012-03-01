@@ -458,7 +458,7 @@ void obfuscate(bool keepLength)
 	}
 }
 
-void dump(Entity[] entities, ref Reduction reduction, void delegate(string) writer, bool fileLevel)
+void dump(Entity[] entities, ref Reduction reduction, void delegate(string) writer)
 {
 	auto childReduction = reduction;
 
@@ -466,19 +466,13 @@ void dump(Entity[] entities, ref Reduction reduction, void delegate(string) writ
 	{
 		if (reduction.type == Reduction.Type.ReplaceWord)
 		{
-			if (fileLevel)
+			if (e.filename)
 			{
-				if (e.filename)
-				{
-					writer(applyReductionToPath(e.filename, reduction));
-					dump(e.children, reduction, writer, false);
-				}
-				else
-					dump(e.children, reduction, writer, true);
-
-				assert(e.tail.length==0);
+				assert(e.head.length==0 && e.tail.length==0);
+				writer(applyReductionToPath(e.filename, reduction));
 			}
 			else
+			if (e.head)
 			{
 				assert(e.children.length==0);
 				if (e.head == reduction.from)
@@ -487,6 +481,8 @@ void dump(Entity[] entities, ref Reduction reduction, void delegate(string) writ
 					writer(e.head);
 				writer(e.tail);
 			}
+			else
+				dump(e.children, reduction, writer);
 		}
 		else
 		if (reduction.address.length==1 && reduction.address[0]==i)
@@ -499,7 +495,7 @@ void dump(Entity[] entities, ref Reduction reduction, void delegate(string) writ
 			case Reduction.Type.Remove: // skip this entity
 				continue;
 			case Reduction.Type.Unwrap: // skip head/tail
-				dump(e.children, nullReduction, writer, fileLevel && e.filename is null);
+				dump(e.children, nullReduction, writer);
 				break;
 			}
 		}
@@ -507,7 +503,7 @@ void dump(Entity[] entities, ref Reduction reduction, void delegate(string) writ
 		{
 			if (e.head.length) writer(e.head);
 			childReduction.address = reduction.address.length>1 && reduction.address[0]==i ? reduction.address[1..$] : null;
-			dump(e.children, childReduction, writer, fileLevel && e.filename is null);
+			dump(e.children, childReduction, writer);
 			if (e.tail.length) writer(e.tail);
 		}
 	}
@@ -529,7 +525,7 @@ void save(Reduction reduction, string savedir)
 
 			auto o = File(path, "wb");
 			childReduction.address = address;
-			dump(f.children, childReduction, &o.write!string, false);
+			dump(f.children, childReduction, &o.write!string);
 			o.close();
 		}
 		else
@@ -616,7 +612,7 @@ version(HAVE_AE)
 	{
 		static StringBuffer sb;
 		sb.clear();
-		dump(root.children, reduction, &sb.put!string, true);
+		dump(root.children, reduction, &sb.put!string);
 		return murmurHash3_128(sb.get());
 	}
 
@@ -633,7 +629,7 @@ else
 		ubyte[16] digest;
 		MD5_CTX context;
 		context.start();
-		dump(root.children, reduction, cast(void delegate(string))&context.update, true);
+		dump(root.children, reduction, cast(void delegate(string))&context.update);
 		context.finish(digest);
 		return digest;
 	}

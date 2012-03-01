@@ -17,16 +17,19 @@ class Entity
 	Entity[] children;
 	string tail;
 
+	string filename;
+	@property bool isFile() { return filename != ""; }
+
 	bool isPair;           /// internal hint
 	bool noRemove;         /// don't try removing this entity (children OK)
 
-	alias head filename; // topmost node with head/tail is a file; its head is its filename
 
-	this(string head = null, Entity[] children = null, string tail = null, bool isPair = false)
+	this(string head = null, Entity[] children = null, string tail = null, string filename = null, bool isPair = false)
 	{
 		this.head     = head;
 		this.children = children;
 		this.tail     = tail;
+		this.filename = filename;
 		this.isPair   = isPair;
 	}
 }
@@ -55,7 +58,7 @@ Entity loadFiles(ref string path, ParseOptions options)
 			{
 				assert(entry.startsWith(path));
 				auto name = entry[path.length+1..$];
-				set.children ~= new Entity(name.replace(`\`, `/`), loadFile(entry, options), null);
+				set.children ~= new Entity(null, loadFile(entry, options), null, name.replace(`\`, `/`));
 			}
 		return set;
 	}
@@ -311,9 +314,9 @@ Entity[] parseD(string s)
 						splitterQueue[level] ~= pairBody;
 					else
 					if (pairHead.length == 1)
-						splitterQueue[level] ~= new Entity(null, pairHead ~ pairBody, null, true);
+						splitterQueue[level] ~= new Entity(null, pairHead ~ pairBody, null, null, true);
 					else
-						splitterQueue[level] ~= new Entity(null, [new Entity(null, pairHead, null), pairBody], null, true);
+						splitterQueue[level] ~= new Entity(null, [new Entity(null, pairHead, null), pairBody], null, null, true);
 					continue characterLoop;
 				}
 
