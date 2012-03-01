@@ -393,7 +393,7 @@ void obfuscate(bool keepLength)
 
 	foreach (f; set.children)
 	{
-		foreach (ref entity; parseToWords(f.filename) ~ f.children)
+		foreach (entity; parseToWords(f.filename) ~ f.children)
 			if (entity.head.length && !isDigit(entity.head[0]))
 				if (entity.head !in wordSet)
 				{
@@ -449,7 +449,7 @@ void obfuscate(bool keepLength)
 			foreach (f; set.children)
 			{
 				f.filename = applyReductionToPath(f.filename, r);
-				foreach (ref entity; f.children)
+				foreach (entity; f.children)
 					if (entity.head == r.from)
 						entity.head = r.to;
 			}
@@ -462,7 +462,7 @@ void dump(Entity[] entities, ref Reduction reduction, void delegate(string) writ
 {
 	auto childReduction = reduction;
 
-	foreach (i, ref e; entities)
+	foreach (i, e; entities)
 	{
 		if (reduction.type == Reduction.Type.ReplaceWord)
 		{
@@ -554,7 +554,7 @@ string applyReductionToPath(string path, Reduction reduction)
 	{
 		Entity[] words = parseToWords(path);
 		string result;
-		foreach (i, ref word; words)	
+		foreach (i, word; words)
 		{
 			if (i > 0 && i == words.length-1 && words[i-1].tail.endsWith("."))
 				result ~= word.head; // skip extension
