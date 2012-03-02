@@ -528,7 +528,14 @@ bool tryReduction(Reduction r)
 {
 	if (test(r))
 	{
+		debug
+			auto hashBefore = hash(r);
 		applyReduction(r);
+		debug
+		{
+			auto hashAfter = hash(nullReduction);
+			assert(hashBefore == hashAfter, "Reduction preview/application mismatch");
+		}
 		saveResult();
 		return true;
 	}
