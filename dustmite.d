@@ -476,6 +476,7 @@ void dump(Entity e, ref Reduction reduction, void delegate(string) writer)
 	}
 	else
 	{
+		if (e.filename.length) writer(e.filename);
 		if (e.head.length) writer(e.head);
 		foreach (c; e.children)
 			dump(c, reduction, writer);
