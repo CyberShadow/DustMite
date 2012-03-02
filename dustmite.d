@@ -490,6 +490,12 @@ void save(Reduction reduction, string savedir)
 
 	void saveFiles(Entity f)
 	{
+		if (f is reduction.target) // skip this file / file group
+		{
+			assert(reduction.type == Reduction.Type.Remove);
+			return;
+		}
+		else
 		if (f.filename)
 		{
 			auto path = std.path.join(savedir, applyReductionToPath(f.filename, reduction));
@@ -500,12 +506,6 @@ void save(Reduction reduction, string savedir)
 			foreach (c; f.children)
 				dump(c, reduction, &o.write!string);
 			o.close();
-		}
-		else
-		if (f is reduction.target) // skip this file / file group
-		{
-			assert(reduction.type == Reduction.Type.Remove);
-			return;
 		}
 		else
 			foreach (c; f.children)
