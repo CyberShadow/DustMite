@@ -42,6 +42,7 @@ struct Reduction
 
 	// Remove / Unwrap
 	size_t[] address;
+	Entity target;
 
 	// ReplaceWord
 	string from, to;
@@ -207,27 +208,13 @@ size_t getMaxBreadth(Entity e)
 /// Try reductions at address. Edit set, save result and return true on successful reduction.
 bool testAddress(size_t[] address)
 {
-	if (!address.length)
-		return false; // TODO
-	Entity p = root;
-	foreach (a; address[0..$-1])
-		p = p.children[a];
-	auto i = address[$-1];
-	auto n = p.children[i];
+	auto e = entityAt(address);
 
-	if (test(Reduction(Reduction.Type.Remove, address)))
-	{
-		p.children = remove(p.children, i);
-		saveResult();
+	if (tryReduction(Reduction(Reduction.Type.Remove, address, e)))
 		return true;
-	}
 	else
-	if (n.head.length && n.tail.length && test(Reduction(Reduction.Type.Unwrap, address)))
-	{
-		n.head = n.tail = null;
-		saveResult();
+	if (e.head.length && e.tail.length && tryReduction(Reduction(Reduction.Type.Unwrap, address, e)))
 		return true;
-	}
 	else
 		return false;
 }
@@ -444,68 +431,55 @@ void obfuscate(bool keepLength)
 		while (r.to in wordSet && tries++ < 10);
 		wordSet[r.to] = true;
 
-		if (test(r))
-		{
-			foreach (f; root.children)
-			{
-				f.filename = applyReductionToPath(f.filename, r);
-				foreach (entity; f.children)
-					if (entity.head == r.from)
-						entity.head = r.to;
-			}
-			saveResult();
-		}
+		tryReduction(r);
 	}
 }
 
-void dump(Entity[] entities, ref Reduction reduction, void delegate(string) writer)
+void dump(Entity e, ref Reduction reduction, void delegate(string) writer)
 {
-	auto childReduction = reduction;
-
-	foreach (i, e; entities)
+	if (reduction.type == Reduction.Type.ReplaceWord)
 	{
-		if (reduction.type == Reduction.Type.ReplaceWord)
+		if (e.filename)
 		{
-			if (e.filename)
-			{
-				assert(e.head.length==0 && e.tail.length==0);
-				writer(applyReductionToPath(e.filename, reduction));
-			}
-			else
-			if (e.head)
-			{
-				assert(e.children.length==0);
-				if (e.head == reduction.from)
-					writer(reduction.to);
-				else
-					writer(e.head);
-				writer(e.tail);
-			}
-			else
-				dump(e.children, reduction, writer);
+			assert(e.head.length==0 && e.tail.length==0);
+			writer(applyReductionToPath(e.filename, reduction));
 		}
 		else
-		if (reduction.address.length==1 && reduction.address[0]==i)
+		if (e.head)
 		{
-			final switch (reduction.type)
-			{
-			case Reduction.Type.None:
-			case Reduction.Type.ReplaceWord:
-				assert(0);
-			case Reduction.Type.Remove: // skip this entity
-				continue;
-			case Reduction.Type.Unwrap: // skip head/tail
-				dump(e.children, nullReduction, writer);
-				break;
-			}
+			assert(e.children.length==0);
+			if (e.head == reduction.from)
+				writer(reduction.to);
+			else
+				writer(e.head);
+			writer(e.tail);
 		}
 		else
+			foreach (c; e.children)
+				dump(c, reduction, writer);
+	}
+	else
+	if (e is reduction.target)
+	{
+		final switch (reduction.type)
 		{
-			if (e.head.length) writer(e.head);
-			childReduction.address = reduction.address.length>1 && reduction.address[0]==i ? reduction.address[1..$] : null;
-			dump(e.children, childReduction, writer);
-			if (e.tail.length) writer(e.tail);
+		case Reduction.Type.None:
+		case Reduction.Type.ReplaceWord:
+			assert(0);
+		case Reduction.Type.Remove: // skip this entity
+			return;
+		case Reduction.Type.Unwrap: // skip head/tail
+			foreach (c; e.children)
+				dump(c, nullReduction, writer);
+			break;
 		}
+	}
+	else
+	{
+		if (e.head.length) writer(e.head);
+		foreach (c; e.children)
+			dump(c, reduction, writer);
+		if (e.tail.length) writer(e.tail);
 	}
 }
 
@@ -513,9 +487,8 @@ void save(Reduction reduction, string savedir)
 {
 	enforce(!exists(savedir), "Directory already exists: " ~ savedir);
 	mkdirRecurse(savedir);
-	auto childReduction = reduction;
 
-	void saveFiles(Entity f, size_t[] address)
+	void saveFiles(Entity f)
 	{
 		if (f.filename)
 		{
@@ -524,24 +497,76 @@ void save(Reduction reduction, string savedir)
 				mkdirRecurse(dirname(path));
 
 			auto o = File(path, "wb");
-			childReduction.address = address;
-			dump(f.children, childReduction, &o.write!string);
+			foreach (c; f.children)
+				dump(c, reduction, &o.write!string);
 			o.close();
 		}
 		else
-			foreach (i, c; f.children)
-			{
-				if (address.length==1 && address[0]==i) // skip this file / file group
-				{
-					assert(reduction.type == Reduction.Type.Remove);
-					continue;
-				}
-
-				saveFiles(c, address.length>1 && address[0]==i ? address[1..$] : null);
-			}
+		if (f is reduction.target) // skip this file / file group
+		{
+			assert(reduction.type == Reduction.Type.Remove);
+			return;
+		}
+		else
+			foreach (c; f.children)
+				saveFiles(c);
 	}
 
-	saveFiles(root, reduction.address);
+	saveFiles(root);
+}
+
+Entity entityAt(size_t[] address)
+{
+	Entity e = root;
+	foreach (a; address)
+		e = e.children[a];
+	return e;
+}
+
+/// Try specified reduction. If it succeeds, apply it permanently and save intermediate result.
+bool tryReduction(Reduction r)
+{
+	if (test(r))
+	{
+		applyReduction(r);
+		saveResult();
+		return true;
+	}
+	return false;
+}
+
+/// Permanently apply specified reduction to set.
+void applyReduction(ref Reduction r)
+{
+	final switch (r.type)
+	{
+		case Reduction.Type.None:
+			return;
+		case Reduction.Type.ReplaceWord:
+		{
+			foreach (ref f; root.children)
+			{
+				f.filename = applyReductionToPath(f.filename, r);
+				foreach (ref entity; f.children)
+					if (entity.head == r.from)
+						entity.head = r.to;
+			}
+			return;
+		}
+		case Reduction.Type.Remove:
+			if (r.address.length)
+			{
+				auto p = entityAt(r.address[0..$-1]);
+				p.children = remove(p.children, r.address[$-1]);
+			}
+			else
+				root = new Entity();
+			return;
+		case Reduction.Type.Unwrap:
+			with (entityAt(r.address))
+				head = tail = null;
+			return;
+	}
 }
 
 string applyReductionToPath(string path, Reduction reduction)
@@ -612,7 +637,7 @@ version(HAVE_AE)
 	{
 		static StringBuffer sb;
 		sb.clear();
-		dump(root.children, reduction, &sb.put!string);
+		dump(root, reduction, &sb.put!string);
 		return murmurHash3_128(sb.get());
 	}
 
@@ -629,7 +654,7 @@ else
 		ubyte[16] digest;
 		MD5_CTX context;
 		context.start();
-		dump(root.children, reduction, cast(void delegate(string))&context.update);
+		dump(root, reduction, cast(void delegate(string))&context.update);
 		context.finish(digest);
 		return digest;
 	}
