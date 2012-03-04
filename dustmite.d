@@ -80,7 +80,7 @@ auto nullReduction = Reduction(Reduction.Type.None);
 
 int main(string[] args)
 {
-	bool force, dump, showTimes, stripComments, obfuscate, keepLength, showHelp;
+	bool force, dump, showTimes, stripComments, obfuscate, keepLength, showHelp, noOptimize;
 	string coverageDir;
 	string[] noRemoveStr;
 
@@ -94,7 +94,8 @@ int main(string[] args)
 		"dump", &dump,
 		"times", &showTimes,
 		"cache", &globalCache, // for research
-		"nosave", &noSave, // for research
+		"nosave|no-save", &noSave, // for research
+		"no-optimize", &noOptimize, // for research
 		"h|help", &showHelp
 	);
 
@@ -146,7 +147,7 @@ Supported options:
 	measure!"load"({root = loadFiles(dir, parseOptions);});
 	enforce(root.children.length, "No files in specified directory");
 
-	if (!obfuscate)
+	if (!obfuscate && !noOptimize)
 		optimize(root);
 	applyNoRemoveMagic();
 	applyNoRemoveRegex(noRemoveStr);
