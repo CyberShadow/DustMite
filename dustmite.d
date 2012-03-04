@@ -27,7 +27,7 @@ string dir, resultDir, tester, globalCache;
 size_t maxBreadth;
 Entity root;
 
-struct Times { Duration load, testSave, resultSave, test, clean, cacheHash, misc; }
+struct Times { Duration load, testSave, resultSave, test, clean, cacheHash, globalCache, misc; }
 Times times;
 SysTime lastTime;
 Duration elapsedTime() { auto c = Clock.currTime(); auto d = c - lastTime; lastTime = c; return d; }
@@ -573,6 +573,7 @@ bool tryReduction(Reduction r)
 {
 	if (test(r))
 	{
+		foundAnything = true;
 		debug
 			auto hashBefore = hash(r);
 		applyReduction(r);
@@ -768,18 +769,22 @@ bool test(Reduction reduction)
 		if (globalCache)
 		{
 			string cacheBase = absolutePath(buildPath(globalCache, formatHash(digest))) ~ "-";
-			if (exists(cacheBase~"0"))
+			bool found;
+
+			measure!"globalCache"({ found = exists(cacheBase~"0"); });
+			if (found)
 			{
 				writeln("No (disk cache)");
 				return false;
 			}
-			if (exists(cacheBase~"1"))
+			measure!"globalCache"({ found = exists(cacheBase~"1"); });
+			if (found)
 			{
 				writeln("Yes (disk cache)");
 				return true;
 			}
 			auto result = fallback;
-			std.file.write(cacheBase ~ (result ? "1" : "0"), "");
+			measure!"globalCache"({ std.file.write(cacheBase ~ (result ? "1" : "0"), ""); });
 			return result;
 		}
 		else
@@ -800,10 +805,7 @@ bool test(Reduction reduction)
 		return result;
 	}
 
-	auto result = ramCached(diskCached(doTest()));
-	if (result)
-		foundAnything = true;
-	return result;
+	return ramCached(diskCached(doTest()));
 }
 
 void applyNoRemoveMagic()
