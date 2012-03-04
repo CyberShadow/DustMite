@@ -804,12 +804,11 @@ void applyNoRemoveRegex(string[] noRemoveStr)
 
 void loadCoverage(string dir)
 {
-/*
-	foreach (ref f; root)
+	void scanFile(Entity f)
 	{
 		auto fn = std.path.join(dir, addExt(basename(f.filename), "lst"));
 		if (!exists(fn))
-			continue;
+			return;
 		writeln("Loading coverage file ", fn);
 
 		static bool covered(string line)
@@ -849,8 +848,17 @@ void loadCoverage(string dir)
 		foreach (ref c; f.children)
 			f.noRemove |= cover(c);
 	}
-*/
-	assert(0, "FIXME");
+
+	void scanFiles(Entity e)
+	{
+		if (e.isFile)
+			scanFile(e);
+		else
+			foreach (c; e.children)
+				scanFiles(c);
+	}
+
+	scanFiles(root);
 }
 
 void dumpSet(string fn)
