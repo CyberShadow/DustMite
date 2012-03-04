@@ -101,8 +101,8 @@ int main(string[] args)
 
 	if (showHelp || args.length == 1 || args.length>3)
 	{
-		stderr.write(
-"Usage: "~args[0]~" [OPTION]... PATH TESTER
+		stderr.writef(q"EOS
+Usage: %s [OPTION]... PATH TESTER
 PATH should be a directory containing a clean copy of the file-set to reduce.
 A file path can also be specified. NAME.EXT will be treated like NAME/NAME.EXT.
 TESTER should be a shell command which returns 0 for a correct reduction,
@@ -116,10 +116,29 @@ Supported options:
   --obfuscate        Instead of reducing, obfuscates the input by replacing
                        words with random substitutions
   --keep-length      Preserve word length when obfuscating
+EOS", args[0]);
+
+		if (!showHelp)
+		{
+			stderr.write(q"EOS
+  --help             Show this message and some less interesting options
+EOS");
+		}
+		else
+		{
+			stderr.write(q"EOS
+  --help             Show this message
+Less interesting options:
   --dump             Dump parsed tree to DIR.dump file
   --times            Display verbose spent time breakdown
-");
-		return 64; // EX_USAGE
+  --cache DIR        Use DIR as persistent disk cache
+                       (in addition to memory cache)
+  --no-save          Disable saving in-progress result
+  --no-optimize      Disable tree optimization step
+                       (may be useful with --dump)
+EOS");
+		}
+		return showHelp ? 0 : 64; // EX_USAGE
 	}
 
 	enforce(!(stripComments && coverageDir), "Sorry, --strip-comments is not compatible with --coverage");
