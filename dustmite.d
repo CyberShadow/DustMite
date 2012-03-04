@@ -383,7 +383,7 @@ void reduceInDepth()
 		}
 
 		scan(root, 0);
-	} while (changed); // stop when we couldn't reduce anything this iteration
+	} while (changed && root.children.length); // stop when we couldn't reduce anything this iteration
 }
 
 void reduce()
