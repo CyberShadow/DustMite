@@ -169,12 +169,12 @@ EOS");
 	measure!"load"({root = loadFiles(dir, parseOptions);});
 	enforce(root.children.length, "No files in specified directory");
 
-	if (!obfuscate && !noOptimize)
-		optimize(root);
 	applyNoRemoveMagic();
 	applyNoRemoveRegex(noRemoveStr);
 	if (coverageDir)
 		loadCoverage(coverageDir);
+	if (!obfuscate && !noOptimize)
+		optimize(root);
 	maxBreadth = getMaxBreadth(root);
 	countDescendants(root);
 
@@ -870,7 +870,7 @@ void applyNoRemoveMagic()
 
 void applyNoRemoveRegex(string[] noRemoveStr)
 {
-	auto noRemove = map!regex(noRemoveStr);
+	auto noRemove = array(map!((s) => regex(s, "mg"))(noRemoveStr));
 
 	void mark(Entity e)
 	{
@@ -879,26 +879,71 @@ void applyNoRemoveRegex(string[] noRemoveStr)
 			mark(c);
 	}
 
-	bool scan(Entity e)
+	foreach (f; root.children)
 	{
-		if (canFind!((a){return !match(e.head, a).empty || !match(e.tail, a).empty;})(noRemove))
+		assert(f.isFile);
+		if (canFind!((a){return !match(f.filename, a).empty;})(noRemove))
 		{
-			e.noRemove = true;
-			foreach (c; e.children)
-				mark(c);
-			return true;
+			mark(f);
+			root.noRemove = true;
+			continue;
 		}
-		else
+
+		immutable(char)*[] starts, ends;
+
+		foreach (r; noRemove)
+			foreach (c; match(f.contents, r))
+			{
+				assert(c.hit.ptr >= f.contents.ptr && c.hit.ptr < f.contents.ptr+f.contents.length);
+				starts ~= c.hit.ptr;
+				ends ~= c.hit.ptr + c.hit.length;
+			}
+
+		starts.sort;
+		ends.sort;
+
+		int noRemoveLevel = 0;
+
+		bool scanString(string s)
 		{
-			bool found = false;
+			if (!s.length)
+				return noRemoveLevel > 0;
+
+			auto start = s.ptr;
+			auto end = start + s.length;
+			assert(start >= f.contents.ptr && end <= f.contents.ptr+f.contents.length);
+
+			while (starts.length && starts[0] < end)
+			{
+				noRemoveLevel++;
+				starts = starts[1..$];
+			}
+			bool result = noRemoveLevel > 0;
+			while (ends.length && ends[0] <= end)
+			{
+				noRemoveLevel--;
+				ends = ends[1..$];
+			}
+			return result;
+		}
+
+		bool scan(Entity e)
+		{
+			bool result = false;
+			if (scanString(e.head))
+				result = true;
 			foreach (c; e.children)
 				if (scan(c))
-					e.noRemove = found = true;
-			return found;
+					result = true;
+			if (scanString(e.tail))
+				result = true;
+			if (result)
+				e.noRemove = root.noRemove = true;
+			return result;
 		}
-	}
 
-	scan(root);
+		scan(f);
+	}
 }
 
 void loadCoverage(string dir)

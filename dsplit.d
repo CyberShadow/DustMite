@@ -17,7 +17,7 @@ class Entity
 	Entity[] children;
 	string tail;
 
-	string filename;
+	string filename, contents;
 	@property bool isFile() { return filename != ""; }
 
 	bool isPair;           /// internal hint
@@ -53,7 +53,7 @@ Entity loadFiles(ref string path, ParseOptions options)
 	{
 		auto filePath = path;
 		path = getName(path) is null ? path : getName(path);
-		return new Entity(basename(filePath).replace(`\`, `/`), loadFile(filePath, options), null);
+		return loadFile(basename(filePath).replace(`\`, `/`), filePath, options);
 	}
 	else
 	{
@@ -63,7 +63,7 @@ Entity loadFiles(ref string path, ParseOptions options)
 			{
 				assert(entry.startsWith(path));
 				auto name = entry[path.length+1..$];
-				set.children ~= new Entity(null, loadFile(entry, options), null, name.replace(`\`, `/`));
+				set.children ~= loadFile(name, entry, options);
 			}
 		return set;
 	}
@@ -106,14 +106,16 @@ void optimize(Entity set)
 
 private:
 
-Entity[] loadFile(string path, ParseOptions options)
+Entity loadFile(string name, string path, ParseOptions options)
 {
 	debug writeln("Loading ", path);
-	string contents = cast(string)read(path);
+	auto result = new Entity();
+	result.filename = name.replace(`\`, `/`);
+	result.contents = cast(string)read(path);
 
 	if (options.stripComments)
 		if (getExt(path) == "d" || getExt(path) == "di")
-			contents = stripDComments(contents);
+			result.contents = stripDComments(result.contents);
 
 	final switch (options.mode)
 	{
@@ -122,13 +124,13 @@ Entity[] loadFile(string path, ParseOptions options)
 		{
 		case "d":
 		case "di":
-			return parseD(contents);
+			result.children = parseD(result.contents); return result;
 		// One could add custom splitters for other languages here - for example, a simple line/word/character splitter for most text-based formats
 		default:
-			return [new Entity(contents, null, null)];
+			result.children = [new Entity(result.contents, null, null)]; return result;
 		}
 	case ParseOptions.Mode.Words:
-		return parseToWords(contents);
+		result.children = parseToWords(result.contents); return result;
 	}
 }
 
