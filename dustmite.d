@@ -445,8 +445,8 @@ void obfuscate(bool keepLength)
 		}
 		else
 		{
-			static int index;
-			index++;
+			static int n;
+			int index = n++;
 
 			string result;
 			result ~= first[index % $];
