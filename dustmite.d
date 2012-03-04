@@ -870,7 +870,7 @@ void applyNoRemoveMagic()
 
 void applyNoRemoveRegex(string[] noRemoveStr)
 {
-	auto noRemove = array(map!((s) => regex(s, "mg"))(noRemoveStr));
+	auto noRemove = array(map!((string s) { return regex(s, "mg"); })(noRemoveStr));
 
 	void mark(Entity e)
 	{
