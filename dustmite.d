@@ -439,7 +439,7 @@ void dump(Entity e, ref Reduction reduction, void delegate(string) writer)
 {
 	if (reduction.type == Reduction.Type.ReplaceWord)
 	{
-		if (e.filename)
+		if (e.isFile)
 		{
 			assert(e.head.length==0 && e.tail.length==0);
 			writer(applyReductionToPath(e.filename, reduction));
@@ -476,7 +476,7 @@ void dump(Entity e, ref Reduction reduction, void delegate(string) writer)
 	}
 	else
 	{
-		if (e.filename.length) writer(e.filename);
+		if (e.isFile) writer(e.filename);
 		if (e.head.length) writer(e.head);
 		foreach (c; e.children)
 			dump(c, reduction, writer);
@@ -497,7 +497,7 @@ void save(Reduction reduction, string savedir)
 			return;
 		}
 		else
-		if (f.filename)
+		if (f.isFile)
 		{
 			auto path = std.path.join(savedir, applyReductionToPath(f.filename, reduction));
 			if (!exists(dirname(path)))
@@ -868,8 +868,8 @@ void dumpSet(string fn)
 	void print(Entity e, int depth, bool fileLevel)
 	{
 		auto prefix = replicate("  ", depth);
-		bool isFile = fileLevel && e.filename;
-		bool inFiles = fileLevel && !e.filename;
+		bool isFile = fileLevel && e.isFile;
+		bool inFiles = fileLevel && !e.isFile;
 
 		// if (!fileLevel) { f.writeln(prefix, "[ ... ]"); continue; }
 
