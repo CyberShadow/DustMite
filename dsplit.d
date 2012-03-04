@@ -27,7 +27,7 @@ class Entity
 	Entity[] dependencies;
 
 	int id;                /// For diagnostics
-	int descendants;       /// For progress display
+	size_t descendants;    /// For progress display
 
 	this(string head = null, Entity[] children = null, string tail = null, string filename = null, bool isPair = false)
 	{
