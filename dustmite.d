@@ -964,13 +964,8 @@ void dumpSet(string fn)
 {
 	auto f = File(fn, "wt");
 
-	string printable(string s, bool isFile)
-	{
-		if (isFile)
-			return "/*** " ~ s ~ " ***/";
-		else
-			return s is null ? "null" : `"` ~ s.replace("\\", `\\`).replace("\"", `\"`).replace("\r", `\r`).replace("\n", `\n`) ~ `"`;
-	}
+	string printable(string s) { return s is null ? "null" : `"` ~ s.replace("\\", `\\`).replace("\"", `\"`).replace("\r", `\r`).replace("\n", `\n`) ~ `"`; }
+	string printableFN(string s) { return "/*** " ~ s ~ " ***/"; }
 
 	int counter;
 	void assignID(Entity e)
@@ -991,11 +986,9 @@ void dumpSet(string fn)
 	}
 	scanDependents(root);
 
-	void print(Entity e, int depth, bool fileLevel)
+	void print(Entity e, int depth)
 	{
 		auto prefix = replicate("  ", depth);
-		bool isFile = fileLevel && e.isFile;
-		bool inFiles = fileLevel && !e.isFile;
 
 		// if (!fileLevel) { f.writeln(prefix, "[ ... ]"); continue; }
 
@@ -1011,20 +1004,21 @@ void dumpSet(string fn)
 
 		if (e.children.length == 0)
 		{
-			f.writeln("[", e.noRemove ? "!" : "", " ", e.head ? printable(e.head, isFile) ~ " " : null, e.tail ? printable(e.tail, isFile) ~ " " : null, "]");
+			f.writeln("[", e.noRemove ? "!" : "", " ", e.isFile ? e.filename ? printableFN(e.filename) ~ " " : null : e.head ? printable(e.head) ~ " " : null, e.tail ? printable(e.tail) ~ " " : null, "]");
 		}
 		else
 		{
 			f.writeln("[", e.noRemove ? "!" : "", e.isPair ? " // Pair" : null);
-			if (e.head) f.writeln(prefix, "  ", printable(e.head, isFile));
+			if (e.isFile) f.writeln(prefix, "  ", printableFN(e.filename));
+			if (e.head) f.writeln(prefix, "  ", printable(e.head));
 			foreach (c; e.children)
-				print(c, depth+1, inFiles);
-			if (e.tail) f.writeln(prefix, "  ", printable(e.tail, isFile));
+				print(c, depth+1);
+			if (e.tail) f.writeln(prefix, "  ", printable(e.tail));
 			f.writeln(prefix, "]");
 		}
 	}
 
-	print(root, 0, true);
+	print(root, 0);
 
 	f.close();
 }
