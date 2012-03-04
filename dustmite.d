@@ -409,7 +409,7 @@ void reduceInDepth()
 
 void reduce()
 {
-	//reduceIterative();
+	//reduceCareful();
 	//reduceLookback();
 	reduceInDepth();
 }
