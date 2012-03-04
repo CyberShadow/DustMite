@@ -255,9 +255,9 @@ Entity[] parseD(string s)
 	{
 		// Here be dragons.
 
-		enum MAX_SPLITTER_LEVELS = 4;
+		enum MAX_SPLITTER_LEVELS = 5;
 		struct DSplitter { char open, close, sep; }
-		static const DSplitter[MAX_SPLITTER_LEVELS] splitters = [{'{','}',';'}, {'(',')'}, {'[',']'}, {sep:','}];
+		static const DSplitter[MAX_SPLITTER_LEVELS] splitters = [{'{','}',';'}, {'(',')'}, {'[',']'}, {sep:','}, {sep:' '}];
 
 		Entity[][MAX_SPLITTER_LEVELS] splitterQueue;
 
@@ -366,12 +366,12 @@ void postProcessD(ref Entity[] entities)
 	{
 		// Add dependencies for comma-separated lists.
 
-		if (i+2 <= entities.length && entities[i].children.length == 1 && entities[i].tail.stripD() == ",")
+		if (i+2 <= entities.length && entities[i].children.length >= 1 && entities[i].tail.stripD() == ",")
 		{
 			auto comma = new Entity(entities[i].tail);
 			entities[i].children ~= comma;
 			entities[i].tail = null;
-			comma.dependencies ~= [entities[i].children[0], getHeadEntity(entities[i+1])];
+			comma.dependencies ~= [entities[i].children[$-2], getHeadEntity(entities[i+1])];
 		}
 
 		// Group together consecutive entities which might represent a single language construct
