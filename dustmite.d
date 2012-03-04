@@ -455,28 +455,28 @@ void obfuscate(bool keepLength)
 	}
 }
 
-void dump(Entity e, ref Reduction reduction, void delegate(string) writer)
+void dump(Entity e, ref Reduction reduction, void delegate(string) handleFile, void delegate(string) handleText)
 {
 	if (reduction.type == Reduction.Type.ReplaceWord)
 	{
 		if (e.isFile)
 		{
 			assert(e.head.length==0 && e.tail.length==0);
-			writer(applyReductionToPath(e.filename, reduction));
+			handleFile(applyReductionToPath(e.filename, reduction));
 		}
 		else
 		if (e.head)
 		{
 			assert(e.children.length==0);
 			if (e.head == reduction.from)
-				writer(reduction.to);
+				handleText(reduction.to);
 			else
-				writer(e.head);
-			writer(e.tail);
+				handleText(e.head);
+			handleText(e.tail);
 		}
 		else
 			foreach (c; e.children)
-				dump(c, reduction, writer);
+				dump(c, reduction, handleFile, handleText);
 	}
 	else
 	if (e is reduction.target)
@@ -490,17 +490,23 @@ void dump(Entity e, ref Reduction reduction, void delegate(string) writer)
 			return;
 		case Reduction.Type.Unwrap: // skip head/tail
 			foreach (c; e.children)
-				dump(c, nullReduction, writer);
+				dump(c, nullReduction, handleFile, handleText);
 			break;
 		}
 	}
 	else
+	if (e.isFile)
 	{
-		if (e.isFile) writer(e.filename);
-		if (e.head.length) writer(e.head);
+		handleFile(e.filename);
 		foreach (c; e.children)
-			dump(c, reduction, writer);
-		if (e.tail.length) writer(e.tail);
+			dump(c, reduction, handleFile, handleText);
+	}
+	else
+	{
+		if (e.head.length) handleText(e.head);
+		foreach (c; e.children)
+			dump(c, reduction, handleFile, handleText);
+		if (e.tail.length) handleText(e.tail);
 	}
 }
 
@@ -509,31 +515,18 @@ void save(Reduction reduction, string savedir)
 	enforce(!exists(savedir), "Directory already exists: " ~ savedir);
 	mkdirRecurse(savedir);
 
-	void saveFiles(Entity f)
-	{
-		if (f is reduction.target) // skip this file / file group
-		{
-			assert(reduction.type == Reduction.Type.Remove);
-			return;
-		}
-		else
-		if (f.isFile)
-		{
-			auto path = std.path.join(savedir, applyReductionToPath(f.filename, reduction));
-			if (!exists(dirname(path)))
-				mkdirRecurse(dirname(path));
+	File o;
 
-			auto o = File(path, "wb");
-			foreach (c; f.children)
-				dump(c, reduction, &o.write!string);
-			o.close();
-		}
-		else
-			foreach (c; f.children)
-				saveFiles(c);
+	void handleFile(string fn)
+	{
+		auto path = std.path.join(savedir, fn);
+		if (!exists(dirname(path)))
+			mkdirRecurse(dirname(path));
+
+		o.open(path, "wb");
 	}
 
-	saveFiles(root);
+	dump(root, reduction, &handleFile, &o.write!string);
 }
 
 Entity entityAt(size_t[] address)
@@ -676,7 +669,8 @@ version(HAVE_AE)
 	{
 		static StringBuffer sb;
 		sb.clear();
-		dump(root, reduction, &sb.put!string);
+		auto writer = &sb.put!string;
+		dump(root, reduction, writer, writer);
 		return murmurHash3_128(sb.get());
 	}
 
@@ -693,7 +687,8 @@ else
 		ubyte[16] digest;
 		MD5_CTX context;
 		context.start();
-		dump(root, reduction, cast(void delegate(string))&context.update);
+		auto writer = cast(void delegate(string))&context.update;
+		dump(root, reduction, writer, writer);
 		context.finish(digest);
 		return digest;
 	}
