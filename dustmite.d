@@ -562,6 +562,16 @@ void applyReduction(ref Reduction r)
 			return;
 		}
 		case Reduction.Type.Remove:
+		{
+			static void markRemoved(Entity e)
+			{
+				e.removed = true;
+				foreach (c; e.children)
+					markRemoved(c);
+			}
+
+			markRemoved(entityAt(r.address));
+
 			if (r.address.length)
 			{
 				auto p = entityAt(r.address[0..$-1]);
@@ -570,6 +580,7 @@ void applyReduction(ref Reduction r)
 			else
 				root = new Entity();
 			return;
+		}
 		case Reduction.Type.Unwrap:
 			with (entityAt(r.address))
 				head = tail = null;

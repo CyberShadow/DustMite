@@ -23,6 +23,8 @@ class Entity
 	bool isPair;           /// internal hint
 	bool noRemove;         /// don't try removing this entity (children OK)
 
+	bool removed;          /// For dangling dependencies
+
 	this(string head = null, Entity[] children = null, string tail = null, string filename = null, bool isPair = false)
 	{
 		this.head     = head;
