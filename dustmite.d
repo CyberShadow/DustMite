@@ -496,6 +496,8 @@ void dump(Entity root, ref Reduction reduction, void delegate(string) handleFile
 			{
 				assert(e.head.length==0 && e.tail.length==0);
 				handleFile(applyReductionToPath(e.filename, reduction));
+				foreach (c; e.children)
+					dumpEntity(c);
 			}
 			else
 			if (e.head)
