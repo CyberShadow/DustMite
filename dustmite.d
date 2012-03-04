@@ -26,14 +26,18 @@ alias std.string.join join;
 string dir, resultDir, tester, globalCache;
 size_t maxBreadth;
 Entity root;
-
-struct Times { Duration load, testSave, resultSave, test, clean, cacheHash, globalCache, misc; }
-Times times;
-SysTime lastTime;
-Duration elapsedTime() { auto c = Clock.currTime(); auto d = c - lastTime; lastTime = c; return d; }
-void measure(string what)(void delegate() p) { times.misc += elapsedTime(); p(); mixin("times."~what~" += elapsedTime();"); }
 int tests; bool foundAnything;
 bool noSave;
+
+struct Times { StopWatch total, load, testSave, resultSave, test, clean, cacheHash, globalCache, misc; }
+Times times;
+static this() { times.total.start(); times.misc.start(); }
+void measure(string what)(void delegate() p)
+{
+	times.misc.stop(); mixin("times."~what~".start();");
+	p();
+	mixin("times."~what~".stop();"); times.misc.start();
+}
 
 struct Reduction
 {
@@ -158,8 +162,6 @@ EOS");
 				return 1;
 			}
 
-	auto startTime = lastTime = Clock.currTime();
-
 	ParseOptions parseOptions;
 	parseOptions.stripComments = stripComments;
 	parseOptions.mode = obfuscate ? ParseOptions.Mode.Words : ParseOptions.Mode.Source;
@@ -195,7 +197,7 @@ EOS");
 	else
 		reduce();
 
-	auto duration = Clock.currTime()-startTime;
+	auto duration = cast(Duration)times.total.peek();
 	duration = dur!"msecs"(duration.total!"msecs"); // truncate anything below ms, users aren't interested in that
 	if (foundAnything)
 	{
@@ -208,7 +210,7 @@ EOS");
 
 	if (showTimes)
 		foreach (i, t; times.tupleof)
-			writefln("%s: %s", times.tupleof[i].stringof, times.tupleof[i]);
+			writefln("%s: %s", times.tupleof[i].stringof, cast(Duration)times.tupleof[i].peek());
 
 	return 0;
 }
