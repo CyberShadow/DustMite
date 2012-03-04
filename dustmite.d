@@ -549,10 +549,15 @@ void save(Reduction reduction, string savedir)
 		if (!exists(dirname(path)))
 			mkdirRecurse(dirname(path));
 
+		if (o.isOpen)
+			o.close();
 		o.open(path, "wb");
 	}
 
 	dump(root, reduction, &handleFile, &o.write!string);
+
+	if (o.isOpen)
+		o.close();
 }
 
 Entity entityAt(size_t[] address)
