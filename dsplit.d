@@ -24,6 +24,8 @@ class Entity
 	bool noRemove;         /// don't try removing this entity (children OK)
 
 	bool removed;          /// For dangling dependencies
+	Entity[] dependencies;
+	int id;                /// For diagnostics
 
 	this(string head = null, Entity[] children = null, string tail = null, string filename = null, bool isPair = false)
 	{
@@ -251,6 +253,8 @@ Entity[] parseD(string s)
 
 	Entity[] parseScope(char end)
 	{
+		// Here be dragons.
+
 		enum MAX_SPLITTER_LEVELS = 4;
 		struct DSplitter { char open, close, sep; }
 		static const DSplitter[MAX_SPLITTER_LEVELS] splitters = [{'{','}',';'}, {'(',')'}, {'[',']'}, {sep:','}];
@@ -356,12 +360,23 @@ string stripDComments(string s)
 	return result.data;
 }
 
-/// Group together consecutive entities which might represent a single language construct
-/// There is no penalty for false positives, so accuracy is not very important
 void postProcessD(ref Entity[] entities)
 {
 	for (int i=0; i<entities.length;)
 	{
+		// Add dependencies for comma-separated lists.
+
+		if (i+2 <= entities.length && entities[i].children.length == 1 && entities[i].tail.stripD() == ",")
+		{
+			auto comma = new Entity(entities[i].tail);
+			entities[i].children ~= comma;
+			entities[i].tail = null;
+			comma.dependencies ~= [entities[i].children[0], getHeadEntity(entities[i+1])];
+		}
+
+		// Group together consecutive entities which might represent a single language construct
+		// There is no penalty for false positives, so accuracy is not very important
+
 		if (i+2 <= entities.length && entities.length > 2 && (
 		    (getHeadText(entities[i]).startsWithWord("do") && getHeadText(entities[i+1]).isWord("while"))
 		 || (getHeadText(entities[i]).startsWithWord("try") && getHeadText(entities[i+1]).startsWithWord("catch"))
@@ -370,12 +385,13 @@ void postProcessD(ref Entity[] entities)
 		 || (getHeadText(entities[i+1]).isWord("out"))
 		 || (getHeadText(entities[i+1]).isWord("body"))
 		))
-			entities.replaceInPlace(i, i+2, [new Entity(null, entities[i..i+2].dup, null)]);
-		else
 		{
-			postProcessD(entities[i].children);
-			i++;
-		}
+			entities.replaceInPlace(i, i+2, [new Entity(null, entities[i..i+2].dup, null)]);
+			continue;
+		}	
+
+		postProcessD(entities[i].children);
+		i++;
 	}
 }
 
@@ -458,19 +474,29 @@ bool startsWithComment(string s)
 	return s.startsWith("//") || s.startsWith("/*") || s.startsWith("/+");
 }
 
-string getHeadText(in Entity e)
+Entity getHeadEntity(Entity e)
 {
+	if (e.head.length)
+		return e;
+	foreach (child; e.children)
+	{
+		Entity r = getHeadEntity(child);
+		if (r)
+			return r;
+	}
+	if (e.tail.length)
+		return e;
+	return null;
+}
+
+string getHeadText(Entity e)
+{
+	e = getHeadEntity(e);
+	if (!e)
+		return null;
 	if (e.head)
 		return e.head;
-	foreach (ref child; e.children)
-	{
-		string s = getHeadText(child);
-		if (s)
-			return s;
-	}
-	if (e.tail)
-		return e.tail;
-	return null;
+	return e.tail;
 }
 
 // ParseOptions.Mode.Words

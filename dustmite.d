@@ -455,59 +455,85 @@ void obfuscate(bool keepLength)
 	}
 }
 
-void dump(Entity e, ref Reduction reduction, void delegate(string) handleFile, void delegate(string) handleText)
+bool skipEntity(Entity e)
 {
-	if (reduction.type == Reduction.Type.ReplaceWord)
+	if (e.removed)
+		return true;
+	foreach (dependency; e.dependencies)
+		if (skipEntity(dependency))
+			return true;
+	return false;
+}
+
+void dump(Entity root, ref Reduction reduction, void delegate(string) handleFile, void delegate(string) handleText)
+{
+	void dumpEntity(Entity e)
 	{
+		if (reduction.type == Reduction.Type.ReplaceWord)
+		{
+			if (e.isFile)
+			{
+				assert(e.head.length==0 && e.tail.length==0);
+				handleFile(applyReductionToPath(e.filename, reduction));
+			}
+			else
+			if (e.head)
+			{
+				assert(e.children.length==0);
+				if (e.head == reduction.from)
+					handleText(reduction.to);
+				else
+					handleText(e.head);
+				handleText(e.tail);
+			}
+			else
+				foreach (c; e.children)
+					dumpEntity(c);
+		}
+		else
+		if (e is reduction.target)
+		{
+			final switch (reduction.type)
+			{
+			case Reduction.Type.None:
+			case Reduction.Type.ReplaceWord:
+				assert(0);
+			case Reduction.Type.Remove: // skip this entity
+				return;
+			case Reduction.Type.Unwrap: // skip head/tail
+				foreach (c; e.children)
+					dumpEntity(c);
+				break;
+			}
+		}
+		else
+		if (skipEntity(e))
+			return;
+		else
 		if (e.isFile)
 		{
-			assert(e.head.length==0 && e.tail.length==0);
-			handleFile(applyReductionToPath(e.filename, reduction));
+			handleFile(e.filename);
+			foreach (c; e.children)
+				dumpEntity(c);
 		}
 		else
-		if (e.head)
 		{
-			assert(e.children.length==0);
-			if (e.head == reduction.from)
-				handleText(reduction.to);
-			else
-				handleText(e.head);
-			handleText(e.tail);
-		}
-		else
+			if (e.head.length) handleText(e.head);
 			foreach (c; e.children)
-				dump(c, reduction, handleFile, handleText);
-	}
-	else
-	if (e is reduction.target)
-	{
-		final switch (reduction.type)
-		{
-		case Reduction.Type.None:
-		case Reduction.Type.ReplaceWord:
-			assert(0);
-		case Reduction.Type.Remove: // skip this entity
-			return;
-		case Reduction.Type.Unwrap: // skip head/tail
-			foreach (c; e.children)
-				dump(c, nullReduction, handleFile, handleText);
-			break;
+				dumpEntity(c);
+			if (e.tail.length) handleText(e.tail);
 		}
 	}
-	else
-	if (e.isFile)
-	{
-		handleFile(e.filename);
-		foreach (c; e.children)
-			dump(c, reduction, handleFile, handleText);
-	}
-	else
-	{
-		if (e.head.length) handleText(e.head);
-		foreach (c; e.children)
-			dump(c, reduction, handleFile, handleText);
-		if (e.tail.length) handleText(e.tail);
-	}
+
+	debug verifyNotRemoved(root);
+	if (reduction.type == Reduction.Type.Remove)
+		markRemoved(reduction.target, true); // Needed for dependencies
+
+	dumpEntity(root);
+
+	if (reduction.type == Reduction.Type.Remove)
+		markRemoved(reduction.target, false);
+	debug verifyNotRemoved(root);
 }
 
 void save(Reduction reduction, string savedir)
@@ -556,6 +582,21 @@ bool tryReduction(Reduction r)
 	return false;
 }
 
+void verifyNotRemoved(Entity e)
+{
+	assert(!e.removed);
+	foreach (c; e.children)
+		verifyNotRemoved(c);
+}
+
+void markRemoved(Entity e, bool value)
+{
+	assert(e.removed == !value);
+	e.removed = value;
+	foreach (c; e.children)
+		markRemoved(c, value);
+}
+
 /// Permanently apply specified reduction to set.
 void applyReduction(ref Reduction r)
 {
@@ -576,14 +617,9 @@ void applyReduction(ref Reduction r)
 		}
 		case Reduction.Type.Remove:
 		{
-			static void markRemoved(Entity e)
-			{
-				e.removed = true;
-				foreach (c; e.children)
-					markRemoved(c);
-			}
+			debug verifyNotRemoved(root);
 
-			markRemoved(entityAt(r.address));
+			markRemoved(entityAt(r.address), true);
 
 			if (r.address.length)
 			{
@@ -592,6 +628,8 @@ void applyReduction(ref Reduction r)
 			}
 			else
 				root = new Entity();
+
+			debug verifyNotRemoved(root);
 			return;
 		}
 		case Reduction.Type.Unwrap:
@@ -899,6 +937,25 @@ void dumpSet(string fn)
 			return s is null ? "null" : `"` ~ s.replace("\\", `\\`).replace("\"", `\"`).replace("\r", `\r`).replace("\n", `\n`) ~ `"`;
 	}
 
+	int counter;
+	void assignID(Entity e)
+	{
+		e.id = counter++;
+		foreach (c; e.children)
+			assignID(c);
+	}
+	assignID(root);
+
+	bool[int] dependents;
+	void scanDependents(Entity e)
+	{
+		foreach (d; e.dependencies)
+			dependents[d.id] = true;
+		foreach (c; e.children)
+			scanDependents(c);
+	}
+	scanDependents(root);
+
 	void print(Entity e, int depth, bool fileLevel)
 	{
 		auto prefix = replicate("  ", depth);
@@ -907,13 +964,23 @@ void dumpSet(string fn)
 
 		// if (!fileLevel) { f.writeln(prefix, "[ ... ]"); continue; }
 
+		f.write(prefix);
+		if (e.id in dependents)
+			f.write(e.id, " ");
+		if (e.dependencies.length)
+		{
+			f.write(" => ");
+			foreach (d; e.dependencies)
+				f.write(d.id, " ");
+		}
+
 		if (e.children.length == 0)
 		{
-			f.writeln(prefix, "[", e.noRemove ? "!" : "", " ", e.head ? printable(e.head, isFile) ~ " " : null, e.tail ? printable(e.tail, isFile) ~ " " : null, "]");
+			f.writeln("[", e.noRemove ? "!" : "", " ", e.head ? printable(e.head, isFile) ~ " " : null, e.tail ? printable(e.tail, isFile) ~ " " : null, "]");
 		}
 		else
 		{
-			f.writeln(prefix, "[", e.noRemove ? "!" : "", e.isPair ? " // Pair" : null);
+			f.writeln("[", e.noRemove ? "!" : "", e.isPair ? " // Pair" : null);
 			if (e.head) f.writeln(prefix, "  ", printable(e.head, isFile));
 			foreach (c; e.children)
 				print(c, depth+1, inFiles);
@@ -924,5 +991,12 @@ void dumpSet(string fn)
 
 	print(root, 0, true);
 
+	f.close();
+}
+
+void dumpText(string fn, ref Reduction r = nullReduction)
+{
+	auto f = File(fn, "wt");
+	dump(root, r, (string) {}, &f.write!string);
 	f.close();
 }
