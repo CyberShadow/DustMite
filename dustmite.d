@@ -66,16 +66,17 @@ struct Reduction
 			case Reduction.Type.Unwrap:
 				string[] segments = new string[address.length];
 				Entity e = root;
-				real progress = 0.0, progressFraction = 100.0;
+				size_t progress;
 				bool binary = maxBreadth == 2;
 				foreach (i, a; address)
 				{
 					segments[i] = binary ? text(a) : format("%d/%d", e.children.length-a, e.children.length);
-					progressFraction /= e.children.length;
-					progress += progressFraction * (e.children.length-a-1);
+					foreach (c; e.children[a+1..$])
+						progress += c.descendants;
+					progress++; // account for this node
 					e = e.children[a];
 				}
-				return format("[%5.1f%%] %s [%s]", progress, name, segments.join(binary ? "" : ", "));
+				return format("[%5.1f%%] %s [%s]", progress * 100.0 / root.descendants, name, segments.join(binary ? "" : ", "));
 		}
 	}
 }
@@ -175,6 +176,7 @@ EOS");
 	if (coverageDir)
 		loadCoverage(coverageDir);
 	maxBreadth = getMaxBreadth(root);
+	countDescendants(root);
 
 	if (dump)
 		dumpSet(dir ~ ".dump");
@@ -225,6 +227,23 @@ size_t getMaxBreadth(Entity e)
 			breadth = childBreadth;
 	}
 	return breadth;
+}
+
+size_t countDescendants(Entity e)
+{
+	size_t n = 1;
+	foreach (c; e.children)
+		n += countDescendants(c);
+	return e.descendants = n;
+}
+
+size_t checkDescendants(Entity e)
+{
+	size_t n = 1;
+	foreach (c; e.children)
+		n += countDescendants(c);
+	assert(e.descendants == n);
+	return n;
 }
 
 /// Try reductions at address. Edit set, save result and return true on successful reduction.
@@ -631,6 +650,10 @@ void applyReduction(ref Reduction r)
 
 			if (r.address.length)
 			{
+				auto casualties = entityAt(r.address).descendants;
+				foreach (n; 0..r.address.length)
+					entityAt(r.address[0..n]).descendants -= casualties;
+
 				auto p = entityAt(r.address[0..$-1]);
 				p.children = remove(p.children, r.address[$-1]);
 			}
@@ -638,6 +661,7 @@ void applyReduction(ref Reduction r)
 				root = new Entity();
 
 			debug verifyNotRemoved(root);
+			debug checkDescendants(root);
 			return;
 		}
 		case Reduction.Type.Unwrap:

@@ -25,7 +25,9 @@ class Entity
 
 	bool removed;          /// For dangling dependencies
 	Entity[] dependencies;
+
 	int id;                /// For diagnostics
+	int descendants;       /// For progress display
 
 	this(string head = null, Entity[] children = null, string tail = null, string filename = null, bool isPair = false)
 	{
