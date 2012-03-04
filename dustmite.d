@@ -118,7 +118,7 @@ Supported options:
                        (may be used multiple times)
   --strip-comments   Attempt to remove comments from source code.
   --coverage DIR     Load .lst files corresponding to source files from DIR
-  --obfuscate        Instead of reducing, obfuscates the input by replacing
+  --obfuscate        Instead of reducing, obfuscate the input by replacing
                        words with random substitutions
   --keep-length      Preserve word length when obfuscating
 EOS", args[0]);
@@ -138,7 +138,7 @@ Less interesting options:
   --times            Display verbose spent time breakdown
   --cache DIR        Use DIR as persistent disk cache
                        (in addition to memory cache)
-  --no-save          Disable saving in-progress result
+  --no-save          Disable saving in-progress results
   --no-optimize      Disable tree optimization step
                        (may be useful with --dump)
 EOS");
