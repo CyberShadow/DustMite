@@ -148,8 +148,10 @@ EOS");
 
 	enforce(!(stripComments && coverageDir), "Sorry, --strip-comments is not compatible with --coverage");
 
-	dir = chomp(args[1], sep);
-	if (altsep.length) dir = chomp(args[1], altsep);
+	dir = args[1];
+	if (isDirSeparator(dir[$-1]))
+		dir = dir[0..$-1];
+
 	if (args.length>=3)
 		tester = args[2];
 
@@ -157,7 +159,7 @@ EOS");
 
 	if (!force && isDir(dir))
 		foreach (string path; dirEntries(dir, SpanMode.breadth))
-			if (isDotName(basename(path)) || isDotName(basename(dirname(path))) || getExt(path)=="o" || getExt(path)=="obj" || getExt(path)=="exe")
+			if (isDotName(baseName(path)) || isDotName(baseName(dirName(path))) || extension(path)==".o" || extension(path)==".obj" || extension(path)==".exe")
 			{
 				stderr.writefln("Suspicious file found: %s\nYou should use a clean copy of the source tree.\nIf it was your intention to include this file in the file-set to be reduced,\nre-run dustmite with the --force option.", path);
 				return 1;
@@ -568,9 +570,9 @@ void save(Reduction reduction, string savedir)
 
 	void handleFile(string fn)
 	{
-		auto path = std.path.join(savedir, fn);
-		if (!exists(dirname(path)))
-			mkdirRecurse(dirname(path));
+		auto path = buildPath(savedir, fn);
+		if (!exists(dirName(path)))
+			mkdirRecurse(dirName(path));
 
 		if (o.isOpen)
 			o.close();
@@ -950,7 +952,7 @@ void loadCoverage(string dir)
 {
 	void scanFile(Entity f)
 	{
-		auto fn = std.path.join(dir, addExt(basename(f.filename), "lst"));
+		auto fn = buildPath(dir, setExtension(baseName(f.filename), "lst"));
 		if (!exists(fn))
 			return;
 		writeln("Loading coverage file ", fn);

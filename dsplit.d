@@ -52,8 +52,8 @@ Entity loadFiles(ref string path, ParseOptions options)
 	if (isFile(path))
 	{
 		auto filePath = path;
-		path = getName(path) is null ? path : getName(path);
-		return loadFile(basename(filePath).replace(`\`, `/`), filePath, options);
+		path = stripExtension(path);
+		return loadFile(baseName(filePath).replace(`\`, `/`), filePath, options);
 	}
 	else
 	{
@@ -114,16 +114,16 @@ Entity loadFile(string name, string path, ParseOptions options)
 	result.contents = cast(string)read(path);
 
 	if (options.stripComments)
-		if (getExt(path) == "d" || getExt(path) == "di")
+		if (extension(path) == ".d" || extension(path) == ".di")
 			result.contents = stripDComments(result.contents);
 
 	final switch (options.mode)
 	{
 	case ParseOptions.Mode.Source:
-		switch (getExt(path))
+		switch (extension(path))
 		{
-		case "d":
-		case "di":
+		case ".d":
+		case ".di":
 			result.children = parseD(result.contents); return result;
 		// One could add custom splitters for other languages here - for example, a simple line/word/character splitter for most text-based formats
 		default:
