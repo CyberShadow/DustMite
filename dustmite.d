@@ -143,6 +143,11 @@ Less interesting options:
                        (may be useful with --dump)
 EOS");
 		}
+		stderr.write(q"EOS
+
+Full documentation can be found on the GitHub wiki:
+  https://github.com/CyberShadow/DustMite/wiki
+EOS");
 		return showHelp ? 0 : 64; // EX_USAGE
 	}
 
