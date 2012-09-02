@@ -568,8 +568,7 @@ void dump(Entity root, ref Reduction reduction, void delegate(string) handleFile
 
 void save(Reduction reduction, string savedir)
 {
-	enforce(!exists(savedir), "Directory already exists: " ~ savedir);
-	mkdirRecurse(savedir);
+	safeMkdir(savedir);
 
 	File o;
 
@@ -577,7 +576,7 @@ void save(Reduction reduction, string savedir)
 	{
 		auto path = buildPath(savedir, fn);
 		if (!exists(dirName(path)))
-			mkdirRecurse(dirName(path));
+			safeMkdir(dirName(path));
 
 		if (o.isOpen)
 			o.close();
@@ -702,31 +701,63 @@ string applyReductionToPath(string path, Reduction reduction)
 	return path;
 }
 
-void safeRmdirRecurse(string dir)
+void autoRetry(void delegate() fun, string operation)
 {
 	while (true)
 		try
 		{
-			rmdirRecurse(dir);
+			fun();
 			return;
 		}
 		catch (Exception e)
 		{
-			writeln("Error while rmdir-ing " ~ dir ~ ": " ~ e.msg);
+			writeln("Error while attempting to " ~ operation ~ ": " ~ e.msg);
 			import core.thread;
 			Thread.sleep(dur!"seconds"(1));
 			writeln("Retrying...");
 		}
 }
 
-void safeSave(string savedir)
+/// Alternative way to check for file existence
+/// Files marked for deletion act as inexistant, but still prevent creation and appear in directory listings
+bool exists2(string path)
 {
-	auto tempdir = savedir ~ ".inprogress"; scope(failure) safeRmdirRecurse(tempdir);
-	if (exists(tempdir)) safeRmdirRecurse(tempdir);
-	save(nullReduction, tempdir);
-	if (exists(savedir)) safeRmdirRecurse(savedir);
-	rename(tempdir, savedir);
+	return array(dirEntries(dirName(path), baseName(path), SpanMode.shallow)).length > 0;
 }
+
+void deleteAny(string path)
+{
+	if (exists(path))
+		if (isDir(path))
+			rmdirRecurse(path);
+		else
+			remove(path);
+	enforce(!exists(path) && !exists2(path), "Path still exists"); // Windows only marks locked directories for deletion
+}
+
+void safeDelete(string path) { autoRetry({deleteAny(path);}, "delete " ~ path); }
+void safeRename(string src, string dst) { autoRetry({rename(src, dst);}, "rename " ~ src ~ " to " ~ dst); }
+void safeMkdir(string path) { autoRetry({mkdirRecurse(path);}, "mkdir " ~ path); }
+
+void safeReplace(string path, void delegate(string path) creator)
+{
+	auto tmpPath = path ~ ".inprogress";
+	if (exists(tmpPath)) safeDelete(tmpPath);
+	auto oldPath = path ~ ".old";
+	if (exists(oldPath)) safeDelete(oldPath);
+
+	{
+		scope(failure) safeDelete(tmpPath);
+		creator(tmpPath);
+	}
+
+	if (exists(path)) safeRename(path, oldPath);
+	safeRename(tmpPath, path);
+	if (exists(oldPath)) safeDelete(oldPath);
+}
+
+
+void safeSave(string savedir) { safeReplace(savedir, path => save(nullReduction, path)); }
 
 void saveResult()
 {
@@ -829,7 +860,7 @@ bool test(Reduction reduction)
 	bool doTest()
 	{
 		string testdir = dir ~ ".test";
-		measure!"testSave"({save(reduction, testdir);}); scope(exit) measure!"clean"({safeRmdirRecurse(testdir);});
+		measure!"testSave"({save(reduction, testdir);}); scope(exit) measure!"clean"({safeDelete(testdir);});
 
 		auto lastdir = getcwd(); scope(exit) chdir(lastdir);
 		chdir(testdir);
