@@ -728,10 +728,12 @@ bool exists2(string path)
 void deleteAny(string path)
 {
 	if (exists(path))
+	{
 		if (isDir(path))
 			rmdirRecurse(path);
 		else
 			remove(path);
+	}
 	enforce(!exists(path) && !exists2(path), "Path still exists"); // Windows only marks locked directories for deletion
 }
 
