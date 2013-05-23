@@ -26,6 +26,7 @@ alias std.string.join join;
 string dir, resultDir, tester, globalCache;
 size_t maxBreadth;
 Entity root;
+bool concatPerformed;
 int tests; bool foundAnything;
 bool noSave;
 
@@ -41,10 +42,10 @@ void measure(string what)(void delegate() p)
 
 struct Reduction
 {
-	enum Type { None, Remove, Unwrap, ReplaceWord }
+	enum Type { None, Remove, Unwrap, Concat, ReplaceWord }
 	Type type;
 
-	// Remove / Unwrap
+	// Remove / Unwrap / Concat
 	size_t[] address;
 	Entity target;
 
@@ -64,6 +65,7 @@ struct Reduction
 				return format(`%s [%d/%d: %s -> %s]`, name, index+1, total, from, to);
 			case Reduction.Type.Remove:
 			case Reduction.Type.Unwrap:
+			case Reduction.Type.Concat:
 				string[] segments = new string[address.length];
 				Entity e = root;
 				size_t progress;
@@ -263,6 +265,9 @@ bool testAddress(size_t[] address)
 	else
 	if (e.head.length && e.tail.length && tryReduction(Reduction(Reduction.Type.Unwrap, address, e)))
 		return true;
+	else
+	if (e.isFile && !concatPerformed && tryReduction(Reduction(Reduction.Type.Concat, address, e)))
+		return concatPerformed = true;
 	else
 		return false;
 }
@@ -534,6 +539,20 @@ void dump(Entity root, ref Reduction reduction, void delegate(string) handleFile
 				foreach (c; e.children)
 					dumpEntity(c);
 				break;
+			case Reduction.Type.Concat: // write contents of all files to this one; leave other files empty
+				handleFile(e.filename);
+
+				void dumpFileContent(Entity e)
+				{
+					foreach (f; e.children)
+						if (f.isFile)
+							foreach (c; f.children)
+								dumpEntity(c);
+						else
+							dumpFileContent(f);
+				}
+				dumpFileContent(root);
+				break;
 			}
 		}
 		else
@@ -543,6 +562,8 @@ void dump(Entity root, ref Reduction reduction, void delegate(string) handleFile
 		if (e.isFile)
 		{
 			handleFile(e.filename);
+			if (reduction.type == Reduction.Type.Concat) // not the target - writing an empty file
+				return;
 			foreach (c; e.children)
 				dumpEntity(c);
 		}
@@ -676,6 +697,29 @@ void applyReduction(ref Reduction r)
 			with (entityAt(r.address))
 				head = tail = null;
 			return;
+		case Reduction.Type.Concat:
+		{
+			Entity[] allData;
+			void scan(Entity e)
+			{
+				if (e.isFile)
+				{
+					allData ~= e.children;
+					e.children = null;
+				}
+				else
+					foreach (c; e.children)
+						scan(c);
+			}
+
+			scan(root);
+
+			r.target.children = allData;
+			optimize(r.target);
+			countDescendants(root);
+
+			return;
+		}
 	}
 }
 
