@@ -248,7 +248,7 @@ size_t checkDescendants(Entity e)
 {
 	size_t n = 1;
 	foreach (c; e.children)
-		n += countDescendants(c);
+		n += checkDescendants(c);
 	assert(e.descendants == n);
 	return n;
 }
