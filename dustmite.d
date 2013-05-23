@@ -24,6 +24,8 @@ import dsplit;
 alias std.string.join join;
 
 string dir, resultDir, tester, globalCache;
+string dirSuffix(string suffix) { return (dir.absolutePath().buildNormalizedPath() ~ "." ~ suffix).relativePath(); }
+
 size_t maxBreadth;
 Entity root;
 bool concatPerformed;
@@ -188,7 +190,7 @@ EOS");
 	countDescendants(root);
 
 	if (dump)
-		dumpSet(dir ~ ".dump");
+		dumpSet(dirSuffix("dump"));
 
 	if (tester is null)
 	{
@@ -196,7 +198,7 @@ EOS");
 		return 0;
 	}
 
-	resultDir = dir ~ ".reduced";
+	resultDir = dirSuffix("reduced");
 	enforce(!exists(resultDir), "Result directory already exists");
 
 	if (!test(nullReduction))
@@ -905,7 +907,7 @@ bool test(Reduction reduction)
 
 	bool doTest()
 	{
-		string testdir = dir ~ ".test";
+		string testdir = dirSuffix("test");
 		measure!"testSave"({save(reduction, testdir);}); scope(exit) measure!"clean"({safeDelete(testdir);});
 
 		auto lastdir = getcwd(); scope(exit) chdir(lastdir);
