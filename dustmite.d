@@ -30,7 +30,7 @@ size_t maxBreadth;
 Entity root;
 bool concatPerformed;
 int tests; bool foundAnything;
-bool noSave;
+bool noSave, trace;
 
 struct Times { StopWatch total, load, testSave, resultSave, test, clean, cacheHash, globalCache, misc; }
 Times times;
@@ -103,6 +103,7 @@ int main(string[] args)
 		"dump", &dump,
 		"times", &showTimes,
 		"cache", &globalCache, // for research
+		"trace", &trace, // for debugging
 		"nosave|no-save", &noSave, // for research
 		"no-optimize", &noOptimize, // for research
 		"h|help", &showHelp
@@ -142,6 +143,7 @@ Less interesting options:
   --times            Display verbose spent time breakdown
   --cache DIR        Use DIR as persistent disk cache
                        (in addition to memory cache)
+  --trace            Save all attempted reductions to DIR.trace
   --no-save          Disable saving in-progress results
   --no-optimize      Disable tree optimization step
                        (may be useful with --dump)
@@ -926,6 +928,7 @@ bool test(Reduction reduction)
 	{
 		string testdir = dirSuffix("test");
 		measure!"testSave"({save(reduction, testdir);}); scope(exit) measure!"clean"({safeDelete(testdir);});
+		if (trace) saveTrace(reduction, dirSuffix("trace"));
 
 		auto lastdir = getcwd(); scope(exit) chdir(lastdir);
 		chdir(testdir);
@@ -937,6 +940,15 @@ bool test(Reduction reduction)
 	}
 
 	return ramCached(diskCached(doTest()));
+}
+
+void saveTrace(Reduction reduction, string dir)
+{
+	if (!exists(dir)) mkdir(dir);
+	static size_t count;
+	string countStr = format("%08d", count++);
+	auto traceDir = buildPath(dir, countStr);
+	save(reduction, traceDir);
 }
 
 void applyNoRemoveMagic()
