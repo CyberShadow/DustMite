@@ -982,7 +982,9 @@ void applyNoRemoveRegex(string[] noRemoveStr)
 			mark(c);
 	}
 
-	foreach (f; root.children)
+	auto files = root.isFile ? [root] : root.children;
+
+	foreach (f; files)
 	{
 		assert(f.isFile);
 		if (canFind!((a){return !match(f.filename, a).empty;})(noRemove))
