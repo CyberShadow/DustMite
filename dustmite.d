@@ -882,6 +882,7 @@ bool test(Reduction reduction)
 
 		if (globalCache)
 		{
+			if (!exists(globalCache)) mkdirRecurse(globalCache);
 			string cacheBase = absolutePath(buildPath(globalCache, formatHash(digest))) ~ "-";
 			bool found;
 
