@@ -257,6 +257,19 @@ size_t checkDescendants(Entity e)
 	return n;
 }
 
+size_t countFiles(Entity e)
+{
+	if (e.isFile)
+		return 1;
+	else
+	{
+		size_t n = 0;
+		foreach (c; e.children)
+			n += countFiles(c);
+		return n;
+	}
+}
+
 /// Try reductions at address. Edit set, save result and return true on successful reduction.
 bool testAddress(size_t[] address)
 {
@@ -423,6 +436,9 @@ void reduceInDepth()
 
 void reduce()
 {
+	if (countFiles(root) < 2)
+		concatPerformed = true;
+
 	//reduceCareful();
 	//reduceLookback();
 	reduceInDepth();
