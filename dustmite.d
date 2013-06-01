@@ -190,6 +190,7 @@ EOS");
 		optimize(root);
 	maxBreadth = getMaxBreadth(root);
 	countDescendants(root);
+	assignID(root);
 
 	if (dump)
 		dumpSet(dirSuffix("dump"));
@@ -928,7 +929,6 @@ bool test(Reduction reduction)
 	{
 		string testdir = dirSuffix("test");
 		measure!"testSave"({save(reduction, testdir);}); scope(exit) measure!"clean"({safeDelete(testdir);});
-		if (trace) saveTrace(reduction, dirSuffix("trace"));
 
 		auto lastdir = getcwd(); scope(exit) chdir(lastdir);
 		chdir(testdir);
@@ -939,14 +939,16 @@ bool test(Reduction reduction)
 		return result;
 	}
 
-	return ramCached(diskCached(doTest()));
+	auto result = ramCached(diskCached(doTest()));
+	if (trace) saveTrace(reduction, dirSuffix("trace"), result);
+	return result;
 }
 
-void saveTrace(Reduction reduction, string dir)
+void saveTrace(Reduction reduction, string dir, bool result)
 {
 	if (!exists(dir)) mkdir(dir);
 	static size_t count;
-	string countStr = format("%08d", count++);
+	string countStr = format("%08d-#%08d-%d", count++, reduction.target ? reduction.target.id : 0, result ? 1 : 0);
 	auto traceDir = buildPath(dir, countStr);
 	save(reduction, traceDir);
 }
@@ -1122,21 +1124,20 @@ void loadCoverage(string dir)
 	scanFiles(root);
 }
 
+void assignID(Entity e)
+{
+	static int counter;
+	e.id = ++counter;
+	foreach (c; e.children)
+		assignID(c);
+}
+
 void dumpSet(string fn)
 {
 	auto f = File(fn, "wt");
 
 	string printable(string s) { return s is null ? "null" : `"` ~ s.replace("\\", `\\`).replace("\"", `\"`).replace("\r", `\r`).replace("\n", `\n`) ~ `"`; }
 	string printableFN(string s) { return "/*** " ~ s ~ " ***/"; }
-
-	int counter;
-	void assignID(Entity e)
-	{
-		e.id = counter++;
-		foreach (c; e.children)
-			assignID(c);
-	}
-	assignID(root);
 
 	bool[int] dependents;
 	void scanDependents(Entity e)
@@ -1155,8 +1156,8 @@ void dumpSet(string fn)
 		// if (!fileLevel) { f.writeln(prefix, "[ ... ]"); continue; }
 
 		f.write(prefix);
-		if (e.id in dependents)
-			f.write(e.id, " ");
+		if (e.id in dependents || trace)
+			f.write("#", e.id, " ");
 		if (e.dependencies.length)
 		{
 			f.write(" => ");
