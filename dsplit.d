@@ -134,90 +134,104 @@ Entity loadFile(string name, string path, ParseOptions options)
 	}
 }
 
+class EndOfInput : Throwable { this() { super(null); } }
+void lchop(ref string r, size_t n = 1)
+{
+	if (r.length < n)
+		throw new EndOfInput;
+	r = r[n..$];
+}
+
 string skipSymbol(string s, ref size_t i)
 {
-	auto start = i;
-	switch (s[i])
-	{
-	case '\'':
-		i++;
-		if (s[i] == '\\')
-			i+=2;
-		while (s[i] != '\'')
-			i++;
-		i++;
-		break;
-	case '\\':
-		i+=2;
-		break;
-	case '"':
-		if (i && s[i-1] == 'r')
+	auto r = s[i..$];
+
+	try
+		switch (r[0])
 		{
-			i++;
-			while (s[i] != '"')
-				i++;
-			i++;
-		}
-		else
-		{
-			i++;
-			while (s[i] != '"')
-			{
-				if (s[i] == '\\')
-					i+=2;
-				else
-					i++;
-			}
-			i++;
-		}
-		break;
-	case '`':
-		i++;
-		while (s[i] != '`')
-			i++;
-		i++;
-		break;
-	case '/':
-		i++;
-		if (i==s.length)
+		case '\'':
+			r.lchop();
+			if (r.startsWith('\\'))
+				r.lchop(2);
+			while (!r.startsWith('\''))
+				r.lchop();
+			r.lchop();
 			break;
-		else
-		if (s[i] == '/')
-		{
-			while (i < s.length && s[i] != '\r' && s[i] != '\n')
-				i++;
-		}
-		else
-		if (s[i] == '*')
-		{
-			i+=3;
-			while (s[i-2] != '*' || s[i-1] != '/')
-				i++;
-		}
-		else
-		if (s[i] == '+')
-		{
-			i++;
-			int commentLevel = 1;
-			while (commentLevel)
+		case '\\':
+			r.lchop(2);
+			break;
+		case '"':
+			r.lchop();
+			while (!r.startsWith('"'))
 			{
-				if (s[i] == '/' && s[i+1]=='+')
-					commentLevel++, i+=2;
+				if (r.startsWith('\\'))
+					r.lchop(2);
 				else
-				if (s[i] == '+' && s[i+1]=='/')
-					commentLevel--, i+=2;
-				else
-					i++;
+					r.lchop();
 			}
+			r.lchop();
+			break;
+		case 'r':
+			if (r.startsWith(`r"`))
+			{
+				r.lchop(2);
+				while (!r.startsWith('"'))
+					r.lchop();
+				r.lchop();
+				break;
+			}
+			else
+				goto default;
+		case '`':
+			r.lchop();
+			while (!r.startsWith('`'))
+				r.lchop();
+			r.lchop();
+			break;
+		case '/':
+			r.lchop();
+			if (r.startsWith('/'))
+			{
+				while (!r.startsWith('\r') && !r.startsWith('\n'))
+					r.lchop();
+			}
+			else
+			if (r.startsWith('*'))
+			{
+				r.lchop();
+				while (!r.startsWith("*/"))
+					r.lchop();
+				r.lchop(2);
+			}
+			else
+			if (r.startsWith('+'))
+			{
+				r.lchop();
+				int commentLevel = 1;
+				while (commentLevel)
+				{
+					if (r.startsWith("/+"))
+						commentLevel++, r.lchop(2);
+					else
+					if (r.startsWith("+/"))
+						commentLevel--, r.lchop(2);
+					else
+						r.lchop();
+				}
+			}
+			else
+				r.lchop();
+			break;
+		default:
+			r.lchop();
+			break;
 		}
-		else
-			i++;
-		break;
-	default:
-		i++;
-		break;
-	}
-	return s[start..i];
+	catch (EndOfInput)
+		r = null;
+
+	auto len = s.length - i - r.length;
+	i += len;
+	return s[i-len..i];
 }
 
 /// Moves i forward over first series of EOL characters, or until first non-whitespace character
@@ -404,7 +418,7 @@ void postProcessD(ref Entity[] entities)
 		{
 			entities.replaceInPlace(i, i+2, [new Entity(null, entities[i..i+2].dup, null)]);
 			continue;
-		}	
+		}
 
 		postProcessD(entities[i].children);
 		i++;
