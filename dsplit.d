@@ -4,11 +4,12 @@
 
 module dsplit;
 
+import std.ascii;
+import std.algorithm;
+import std.array;
 import std.file;
 import std.path;
 import std.string;
-import std.ascii;
-import std.array;
 debug import std.stdio;
 
 class Entity
@@ -106,6 +107,8 @@ void optimize(Entity set)
 
 private:
 
+const DExtensions = [".d", ".di"];
+
 Entity loadFile(string name, string path, ParseOptions options)
 {
 	debug writeln("Loading ", path);
@@ -114,24 +117,23 @@ Entity loadFile(string name, string path, ParseOptions options)
 	result.contents = cast(string)read(path);
 
 	if (options.stripComments)
-		if (extension(path) == ".d" || extension(path) == ".di")
+		if (DExtensions.canFind(path.extension.toLower))
 			result.contents = stripDComments(result.contents);
 
 	final switch (options.mode)
 	{
 	case ParseOptions.Mode.Source:
-		switch (extension(path))
-		{
-		case ".d":
-		case ".di":
-			result.children = parseD(result.contents); return result;
+		if (DExtensions.canFind(path.extension.toLower) && !result.contents.startsWith("Ddoc"))
+			result.children = parseD(result.contents);
+		else
 		// One could add custom splitters for other languages here - for example, a simple line/word/character splitter for most text-based formats
-		default:
-			result.children = [new Entity(result.contents, null, null)]; return result;
-		}
+			result.children = [new Entity(result.contents, null, null)];
+		break;
 	case ParseOptions.Mode.Words:
-		result.children = parseToWords(result.contents); return result;
+		result.children = parseToWords(result.contents);
+		break;
 	}
+	return result;
 }
 
 class EndOfInput : Throwable { this() { super(null); } }
