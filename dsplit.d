@@ -107,6 +107,10 @@ void optimize(Entity set)
 
 private:
 
+/// Override std.string nonsense, which does UTF-8 decoding
+bool startsWith(in char[] big, in char[] small) { return big.length >= small.length && big[0..small.length] == small; }
+bool startsWith(in char[] big, char c) { return big.length && big[0] == c; }
+
 const DExtensions = [".d", ".di"];
 
 Entity loadFile(string name, string path, ParseOptions options)

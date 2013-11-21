@@ -21,7 +21,9 @@ import std.random;
 
 import dsplit;
 
+// Issue 314 workarounds
 alias std.string.join join;
+alias std.string.startsWith startsWith;
 
 string dir, resultDir, tester, globalCache;
 string dirSuffix(string suffix) { return (dir.absolutePath().buildNormalizedPath() ~ "." ~ suffix).relativePath(); }
