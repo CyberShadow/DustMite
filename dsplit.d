@@ -384,13 +384,13 @@ string stripDComments(string s)
 	return result.data;
 }
 
-void postProcessD(ref Entity[] entities)
+void postProcessD(ref Entity[] entities, int depth=0)
 {
 	for (int i=0; i<entities.length;)
 	{
 		// Process comma-separated lists. Nest later items and add a dependency for the comma.
 
-		if (i+2 <= entities.length && entities[i].children.length >= 1 && entities[i].tail.stripD() == ",")
+		if (i+2 <= entities.length && entities[i].children.length >= 1 && entities[i].tail.stripD() == "," && depth < 100)
 		{
 			// Put the comma in its own entity, so it can have a dependency
 			auto comma = new Entity(entities[i].tail);
@@ -426,7 +426,7 @@ void postProcessD(ref Entity[] entities)
 			continue;
 		}
 
-		postProcessD(entities[i].children);
+		postProcessD(entities[i].children, depth+1);
 		i++;
 	}
 }
