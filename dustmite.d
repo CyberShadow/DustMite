@@ -1017,7 +1017,7 @@ void applyNoRemoveRegex(string[] noRemoveStr)
 	foreach (f; files)
 	{
 		assert(f.isFile);
-		if (canFind!((a){return !match(f.filename, a).empty;})(noRemove))
+		if (noRemove.any!(a => !match(f.filename, a).empty))
 		{
 			mark(f);
 			root.noRemove = true;
