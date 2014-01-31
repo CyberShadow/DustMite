@@ -366,7 +366,7 @@ Entity[] parseD(string s)
 				auto closePos = i;
 				backToEOL(s, i, start);
 				auto result = terminateLevel(0);
-				i = closePos+1; skipToEOL(s, i);
+				i = closePos+1; skipToEOL(s, i); backToEOL(s, i, closePos+1);
 				innerTail = terminateText();
 				return result;
 			}
