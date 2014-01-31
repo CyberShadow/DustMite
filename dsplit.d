@@ -438,6 +438,10 @@ void postProcessD(ref Entity[] entities, int depth=0)
 			continue;
 		}
 
+		// Unwrap useless nesting
+		while (entities[i].children.length == 1 && entities[i].head.length == 0 && entities[i].tail.length == 0)
+			entities[i] = entities[i].children[0];
+
 		postProcessD(entities[i].children, depth+1);
 		i++;
 	}
