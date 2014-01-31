@@ -229,7 +229,14 @@ string skipSymbol(string s, ref size_t i)
 				r.lchop();
 			break;
 		default:
-			r.lchop();
+			if (isWhite(r[0]))
+			{
+				size_t j = 0;
+				skipToEOL(r, j);
+				r = r[j..$];
+			}
+			else
+				r.lchop();
 			break;
 		}
 	catch (EndOfInput)
@@ -279,9 +286,9 @@ Entity[] parseD(string s)
 	{
 		// Here be dragons.
 
-		enum MAX_SPLITTER_LEVELS = 6;
-		struct DSplitter { char open, close, sep; }
-		static const DSplitter[MAX_SPLITTER_LEVELS] splitters = [{'#','\n'}, {'{','}',';'}, {'(',')'}, {'[',']'}, {sep:','}, {sep:' '}];
+		struct DSplitter { char open, close, sep; bool leading; }
+		static const DSplitter[] splitters = [{'#','\n'}, {'{','}',';'}, {'(',')'}, {'[',']'}, {sep:','}, {sep:' ', leading:true}, {sep:'\t', leading:true}];
+		enum MAX_SPLITTER_LEVELS = splitters.length;
 
 		Entity[][MAX_SPLITTER_LEVELS] splitterQueue;
 
@@ -321,8 +328,13 @@ Entity[] parseD(string s)
 				if (info.sep && c == info.sep)
 				{
 					auto children = terminateLevel(level+1);
+					if (info.leading && children.length == 0)
+						continue;
 					assert(i == start);
-					i++; skipToEOL(s, i);
+					if (!info.leading)
+					{
+						i++; skipToEOL(s, i);
+					}
 					splitterQueue[level] ~= new Entity(null, children, terminateText());
 					continue characterLoop;
 				}
