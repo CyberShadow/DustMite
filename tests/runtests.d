@@ -33,19 +33,31 @@ void main(string[] args)
 			opts = optsFile.readText().splitLines();
 
 		auto dustmite = buildPath("..", "dustmite");
-		auto output = File(test~"/output.txt", "wb");
+		auto outputFile = test~"/output.txt";
+		auto output = File(outputFile, "wb");
 
 		stderr.writefln("runtests: test %s: dumping", test);
 		auto status = spawnProcess([dustmite] ~ opts ~ ["--dump", "--no-optimize", target], stdin, output, output).wait();
 		enforce(status == 0, "Dustmite dump failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
 
-		output = File(test~"/output.txt", "ab"); // Reopen because spawnProcess closes it
+		output = File(outputFile, "ab"); // Reopen because spawnProcess closes it
 		stderr.writefln("runtests: test %s: reducing", test);
 		status = spawnProcess([dustmite] ~ opts ~ ["--times", target, tester], stdin, output, output).wait();
 		enforce(status == 0, "Dustmite run failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
 
 		rename(reducedDir, resultDir);
+		output.close();
+		auto progress = File(test~"/progress.txt", "wb");
+		foreach (line; File(outputFile, "rb").byLine())
+		{
+			line = line.strip();
+			if (line.startsWith("[") || line.startsWith("#") || line.startsWith("ReplaceWord"))
+				progress.writeln(line);
+			else
+			if (line.startsWith("Done in "))
+				progress.writeln(line.split()[0..4].join(" "));
+		}
 	}
 }

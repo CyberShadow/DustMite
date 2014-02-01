@@ -1,0 +1,40 @@
+############### ITERATION 0 ################
+[  0.0%] Remove [001101] => Yes
+[ 19.4%] Remove [001100] => No
+[ 38.9%] Remove [0011000] => No
+[ 38.9%] Remove [00110000] => No
+[ 38.9%] Remove [001100001] => No
+[ 38.9%] Unwrap [001100001] => No
+[ 38.9%] Remove [0011000010] => No
+[ 44.4%] Remove [001100000] => No
+[ 61.1%] Remove [0010] => No
+[ 61.1%] Remove [00101] => No
+[ 61.1%] Unwrap [00101] => No (cached)
+[ 63.9%] Remove [00100] => No
+[ 63.9%] Remove [001001] => No
+[ 66.7%] Remove [001000] => No
+[ 77.8%] Remove [000] => No
+[ 77.8%] Remove [0001] => No
+[ 80.6%] Remove [0000] => No
+[ 80.6%] Remove [00001] => No
+[ 83.3%] Remove [00000] => No
+############### ITERATION 1 ################
+[  0.0%] Remove [001100] => No (cached)
+[ 24.1%] Remove [0011000] => No (cached)
+[ 24.1%] Remove [00110000] => No (cached)
+[ 24.1%] Remove [001100001] => No (cached)
+[ 24.1%] Unwrap [001100001] => No (cached)
+[ 24.1%] Remove [0011000010] => No (cached)
+[ 31.0%] Remove [001100000] => No (cached)
+[ 51.7%] Remove [0010] => No (cached)
+[ 51.7%] Remove [00101] => No (cached)
+[ 51.7%] Unwrap [00101] => No (cached)
+[ 55.2%] Remove [00100] => No (cached)
+[ 55.2%] Remove [001001] => No (cached)
+[ 58.6%] Remove [001000] => No (cached)
+[ 72.4%] Remove [000] => No (cached)
+[ 72.4%] Remove [0001] => No (cached)
+[ 75.9%] Remove [0000] => No (cached)
+[ 75.9%] Remove [00001] => No (cached)
+[ 79.3%] Remove [00000] => No (cached)
+Done in 19 tests
