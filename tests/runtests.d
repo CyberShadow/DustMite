@@ -24,6 +24,8 @@ void main(string[] args)
 		if (tempDir.exists) tempDir.rmdirRecurse();
 		auto reducedDir = target.setExtension("reduced");
 		if (reducedDir.exists) reducedDir.rmdirRecurse();
+		auto resultDir = target.setExtension("result");
+		if (resultDir.exists) resultDir.rmdirRecurse();
 
 		string[] opts;
 		auto optsFile = test~"/opts.txt";
@@ -43,5 +45,7 @@ void main(string[] args)
 		status = spawnProcess([dustmite] ~ opts ~ ["--times", target, tester], stdin, output, output).wait();
 		enforce(status == 0, "Dustmite run failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
+
+		rename(reducedDir, resultDir);
 	}
 }
