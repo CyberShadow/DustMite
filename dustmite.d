@@ -1176,16 +1176,10 @@ void dumpSet(string fn)
 		f.write(prefix);
 		if (e.id in dependents || trace)
 			f.write("#", e.id, " ");
-		if (e.dependencies.length)
-		{
-			f.write(" => ");
-			foreach (d; e.dependencies)
-				f.write(d.id, " ");
-		}
 
 		if (e.children.length == 0)
 		{
-			f.writeln("[", e.noRemove ? "!" : "", " ", e.isFile ? e.filename ? printableFN(e.filename) ~ " " : null : e.head ? printable(e.head) ~ " " : null, e.tail ? printable(e.tail) ~ " " : null, "]");
+			f.write("[", e.noRemove ? "!" : "", " ", e.isFile ? e.filename ? printableFN(e.filename) ~ " " : null : e.head ? printable(e.head) ~ " " : null, e.tail ? printable(e.tail) ~ " " : null, "]");
 		}
 		else
 		{
@@ -1195,8 +1189,15 @@ void dumpSet(string fn)
 			foreach (c; e.children)
 				print(c, depth+1);
 			if (e.tail) f.writeln(prefix, "  ", printable(e.tail));
-			f.writeln(prefix, "]");
+			f.write(prefix, "]");
 		}
+		if (e.dependencies.length)
+		{
+			f.write(" =>");
+			foreach (d; e.dependencies)
+				f.write(" ", d.id);
+		}
+		f.writeln();
 	}
 
 	print(root, 0);
