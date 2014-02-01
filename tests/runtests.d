@@ -25,18 +25,18 @@ void main(string[] args)
 		auto reducedDir = target.setExtension("reduced");
 		if (reducedDir.exists) reducedDir.rmdirRecurse();
 
-		auto dustmite = buildPath("..", "dustmite");
-		auto output = File(test~"/output.txt", "wb");
-
-		stderr.writefln("runtests: test %s: dumping", test);
-		auto status = spawnProcess([dustmite, "--dump", "--no-optimize", target], stdin, output, output).wait();
-		enforce(status == 0, "Dustmite dump failed with status %s".format(status));
-		stderr.writefln("runtests: test %s: done", test);
-
 		string[] opts;
 		auto optsFile = test~"/opts.txt";
 		if (optsFile.exists)
 			opts = optsFile.readText().splitLines();
+
+		auto dustmite = buildPath("..", "dustmite");
+		auto output = File(test~"/output.txt", "wb");
+
+		stderr.writefln("runtests: test %s: dumping", test);
+		auto status = spawnProcess([dustmite] ~ opts ~ ["--dump", "--no-optimize", target], stdin, output, output).wait();
+		enforce(status == 0, "Dustmite dump failed with status %s".format(status));
+		stderr.writefln("runtests: test %s: done", test);
 
 		output = File(test~"/output.txt", "ab"); // Reopen because spawnProcess closes it
 		stderr.writefln("runtests: test %s: reducing", test);
