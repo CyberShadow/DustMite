@@ -464,6 +464,8 @@ void reduce()
 	reduceInDepth();
 }
 
+Mt19937 rng;
+
 void obfuscate(bool keepLength)
 {
 	bool[string] wordSet;
@@ -489,7 +491,7 @@ void obfuscate(bool keepLength)
 		{
 			auto result = new char[length];
 			foreach (i, ref c; result)
-				c = (i==0 ? first : other)[uniform(0, $)];
+				c = (i==0 ? first : other)[uniform(0, $, rng)];
 
 			return assumeUnique(result);
 		}

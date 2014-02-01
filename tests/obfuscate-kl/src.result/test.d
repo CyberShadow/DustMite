@@ -1,6 +1,6 @@
-import OOp66B5cFavz;
+import Aqdyl3XaqZi7;
 
 void main()
 {
-	Za2t();
+	TpQt();
 }
