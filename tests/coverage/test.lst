@@ -1,0 +1,14 @@
+       |int f(int i)
+       |{
+      1|        if (i == 0)
+       |        {
+0000000|                return 0;
+       |        }
+      1|        return i * i;
+       |}
+       |
+       |void main()
+       |{
+      1|        assert(f(5) == 30);
+       |}
+test.d is 75% covered
