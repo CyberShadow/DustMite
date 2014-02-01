@@ -33,14 +33,14 @@ void main(string[] args)
 		enforce(status == 0, "Dustmite dump failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
 
-		string[] testArgs;
-		auto argsFile = test~"/args.txt";
-		if (argsFile.exists)
-			testArgs = argsFile.readText().splitLines();
+		string[] opts;
+		auto optsFile = test~"/opts.txt";
+		if (optsFile.exists)
+			opts = optsFile.readText().splitLines();
 
 		output = File(test~"/output.txt", "ab"); // Reopen because spawnProcess closes it
 		stderr.writefln("runtests: test %s: reducing", test);
-		status = spawnProcess([dustmite] ~ testArgs ~ ["--times", target, tester], stdin, output, output).wait();
+		status = spawnProcess([dustmite] ~ opts ~ ["--times", target, tester], stdin, output, output).wait();
 		enforce(status == 0, "Dustmite run failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
 	}
