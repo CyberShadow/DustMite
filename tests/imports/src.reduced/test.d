@@ -1,4 +1,4 @@
-import std.stdio;
+import std.stdio, std.process;
 
 void main()
 {

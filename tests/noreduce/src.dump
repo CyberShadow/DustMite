@@ -1,52 +1,69 @@
 [!
-  /*** test.d ***/
-  [
-    [ "import std.stdio" ]
-    ";\r\n\r\n"
-  ]
-  [! // Pair
-    [ // Pair
-      [ "void main" ]
-      [ "(" ")\r\n" ]
-    ]
+  [!
+    /*** test.d ***/
     [!
-      "{\r\n"
-      [!
+      [
         [
-          [ // Pair
-            [ "	writeln" ]
-            [
-              "("
-              [ "\"foo\"" ]
-              ")"
-            ]
+          [ "import" ]
+          [ " std" ]
+        ]
+        [ ".stdio" ]
+        ";\r\n\r\n"
+      ]
+      [! // Pair
+        [ // Pair
+          [
+            [ "void" ]
+            [ " main" ]
           ]
-          ";\r\n"
+          [ "(" ")\r\n" ]
         ]
         [!
-          [! // Pair
-            [! "	//DustMiteNoRemoveStart\r\n	writeln" ]
+          "{\r\n"
+          [!
+            [
+              [ // Pair
+                [ "	writeln" ]
+                [
+                  "("
+                  [ "\"foo\"" ]
+                  ")"
+                ]
+              ]
+              ";\r\n"
+            ]
             [!
-              "("
-              [! "\"bar\"" ]
-              ")"
+              [! // Pair
+                [!
+                  [! "	//DustMiteNoRemoveStart\r\n" ]
+                  [! "	writeln" ]
+                ]
+                [!
+                  "("
+                  [! "\"bar\"" ]
+                  ")"
+                ]
+              ]
+              ";\r\n"
+            ]
+            [
+              [ // Pair
+                [
+                  [ "	//DustMiteNoRemoveStop\r\n" ]
+                  [ "	writeln" ]
+                ]
+                [
+                  "("
+                  [ "\"baz\"" ]
+                  ")"
+                ]
+              ]
+              ";\r\n"
             ]
           ]
-          ";\r\n"
+          "}\r\n"
         ]
       ]
-      [
-        [ // Pair
-          [ "	//DustMiteNoRemoveStop\r\n	writeln" ]
-          [
-            "("
-            [ "\"baz\"" ]
-            ")"
-          ]
-        ]
-        ";\r\n"
-      ]
-      "}\r\n"
     ]
   ]
 ]

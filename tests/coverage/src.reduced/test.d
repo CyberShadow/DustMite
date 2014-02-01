@@ -1,8 +1,8 @@
 int f(int i)
 {
-	if (i == 0)
+	if ( 0)
 		return 0;
-	return i * i;
+	return i;
 }
 
 void main()

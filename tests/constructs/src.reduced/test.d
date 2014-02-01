@@ -7,7 +7,6 @@ void main()
 		total++;
 		total++;
 
-		
 		total++;
 	writeln(total==4);
 }
