@@ -1,0 +1,29 @@
+[
+  [
+    /*** secretmodule.d ***/
+    [ "module" " " ]
+    [ "secretmodule" ";\r\n\r\n" ]
+    [ "import" " " ]
+    [ "std" "." ]
+    [ "stdio" ";\r\n\r\n" ]
+    [ "void" " " ]
+    [ "doIt" "()\r\n{\r\n	" ]
+    [ "string" " " ]
+    [ "message1" " = \"" ]
+    [ "Hello" "\";\r\n	" ]
+    [ "string" " " ]
+    [ "message2" " = \"" ]
+    [ "world" "\";\r\n	" ]
+    [ "writeln" "(" ]
+    [ "message1" " ~ \", \" ~ " ]
+    [ "message2" ");\r\n}\r\n" ]
+  ]
+  [
+    /*** test.d ***/
+    [ "import" " " ]
+    [ "secretmodule" ";\r\n\r\n" ]
+    [ "void" " " ]
+    [ "main" "()\r\n{\r\n	" ]
+    [ "doIt" "();\r\n}\r\n" ]
+  ]
+]

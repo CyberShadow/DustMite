@@ -1,0 +1,52 @@
+[!
+  /*** test.d ***/
+  [
+    [ "import std.stdio" ]
+    ";\r\n\r\n"
+  ]
+  [! // Pair
+    [ // Pair
+      [ "void main" ]
+      [ "(" ")\r\n" ]
+    ]
+    [!
+      "{\r\n"
+      [!
+        [
+          [ // Pair
+            [ "	writeln" ]
+            [
+              "("
+              [ "\"foo\"" ]
+              ")"
+            ]
+          ]
+          ";\r\n"
+        ]
+        [!
+          [! // Pair
+            [! "	//DustMiteNoRemoveStart\r\n	writeln" ]
+            [!
+              "("
+              [! "\"bar\"" ]
+              ")"
+            ]
+          ]
+          ";\r\n"
+        ]
+      ]
+      [
+        [ // Pair
+          [ "	//DustMiteNoRemoveStop\r\n	writeln" ]
+          [
+            "("
+            [ "\"baz\"" ]
+            ")"
+          ]
+        ]
+        ";\r\n"
+      ]
+      "}\r\n"
+    ]
+  ]
+]
