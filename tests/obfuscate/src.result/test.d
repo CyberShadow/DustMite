@@ -2,5 +2,5 @@ import A;
 
 void main()
 {
-	F();
+	I();
 }

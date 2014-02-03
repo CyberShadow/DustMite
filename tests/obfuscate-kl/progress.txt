@@ -1,17 +1,20 @@
-ReplaceWord [1/16: secretmodule -> Aqdyl3XaqZi7] => Yes
-ReplaceWord [2/16: module -> CqpVGK] => No
-ReplaceWord [3/16: std -> X9I] => No
-ReplaceWord [4/16: stdio -> JslGO] => No
-ReplaceWord [5/16: void -> YwQp] => No
-ReplaceWord [6/16: doIt -> IqWX] => Yes
-ReplaceWord [7/16: string -> O3xpQt] => No
-ReplaceWord [8/16: message1 -> AeCnpPDc] => Yes
-ReplaceWord [9/16: "Hello" -> JXBgjMz] => No
-ReplaceWord [10/16: message2 -> EB1x4E8B] => Yes
-ReplaceWord [11/16: "world" -> IqtQw2G] => No
-ReplaceWord [12/16: writeln -> NQ5Thjm] => No
-ReplaceWord [13/16: ", " -> M9i4] => No
-ReplaceWord [14/16:
-ReplaceWord [15/16: test -> SI5H] => No
-ReplaceWord [16/16: main -> PkhC] => No
-Done in 17 tests
+ReplaceWord [1/19: secretmodule -> Aqdyl3XaqZi7] => Yes
+ReplaceWord [2/19: module -> CqpVGK] => No
+ReplaceWord [3/19: std -> X9I] => No
+ReplaceWord [4/19: stdio -> JslGO] => No
+ReplaceWord [5/19: struct -> YwQpnq] => No
+ReplaceWord [6/19: SecretUDA -> PXk3xpQtV] => Yes
+ReplaceWord [7/19: @ -> Q] => No
+ReplaceWord [8/19: void -> VnpP] => No
+ReplaceWord [9/19: doIt -> VcuX] => Yes
+ReplaceWord [10/19: string -> WgjMzD] => No
+ReplaceWord [11/19: message1 -> K1x4E8Bo] => Yes
+ReplaceWord [12/19: "Hello" -> EtQw2G7] => No
+ReplaceWord [13/19: message2 -> E5Thjma9] => Yes
+ReplaceWord [14/19: "world" -> Q4qZHI5] => No
+ReplaceWord [15/19: writeln -> A7khCLB] => No
+ReplaceWord [16/19: ", " -> Xkcf] => No
+ReplaceWord [17/19:
+ReplaceWord [18/19: test -> W1Kl] => No
+ReplaceWord [19/19: main -> VYt4] => No
+Done in 20 tests

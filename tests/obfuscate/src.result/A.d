@@ -2,9 +2,12 @@ module A;
 
 import std.stdio;
 
-void F()
+struct F {}
+
+@F
+void I()
 {
-	string H = "Hello";
-	string J = "world";
-	writeln(H ~ ", " ~ J);
+	string K = "Hello";
+	string M = "world";
+	writeln(K ~ ", " ~ M);
 }

@@ -2,9 +2,12 @@ module Aqdyl3XaqZi7;
 
 import std.stdio;
 
-void IqWX()
+struct PXk3xpQtV {}
+
+@PXk3xpQtV
+void VcuX()
 {
-	string AeCnpPDc = "Hello";
-	string EB1x4E8B = "world";
-	writeln(AeCnpPDc ~ ", " ~ EB1x4E8B);
+	string K1x4E8Bo = "Hello";
+	string E5Thjma9 = "world";
+	writeln(K1x4E8Bo ~ ", " ~ E5Thjma9);
 }

@@ -2,6 +2,9 @@ module secretmodule;
 
 import std.stdio;
 
+struct SecretUDA {}
+
+@SecretUDA
 void doIt()
 {
 	string message1 = "Hello";
