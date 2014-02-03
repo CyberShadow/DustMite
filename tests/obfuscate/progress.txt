@@ -1,16 +1,17 @@
-ReplaceWord [1/15: secretmodule -> A] => Yes
-ReplaceWord [2/15: module -> B] => No
-ReplaceWord [3/15: import -> C] => No
-ReplaceWord [4/15: std -> D] => No
-ReplaceWord [5/15: stdio -> E] => No
-ReplaceWord [6/15: void -> F] => No
-ReplaceWord [7/15: doIt -> G] => Yes
-ReplaceWord [8/15: string -> H] => No
-ReplaceWord [9/15: message1 -> I] => Yes
-ReplaceWord [10/15: Hello -> J] => No
-ReplaceWord [11/15: message2 -> K] => Yes
-ReplaceWord [12/15: world -> L] => No
-ReplaceWord [13/15: writeln -> M] => No
-ReplaceWord [14/15: test -> N] => No
-ReplaceWord [15/15: main -> O] => No
-Done in 16 tests
+ReplaceWord [1/16: secretmodule -> A] => Yes
+ReplaceWord [2/16: module -> B] => No
+ReplaceWord [3/16: std -> C] => No
+ReplaceWord [4/16: stdio -> D] => No
+ReplaceWord [5/16: void -> E] => No
+ReplaceWord [6/16: doIt -> F] => Yes
+ReplaceWord [7/16: string -> G] => No
+ReplaceWord [8/16: message1 -> H] => Yes
+ReplaceWord [9/16: "Hello" -> I] => No
+ReplaceWord [10/16: message2 -> J] => Yes
+ReplaceWord [11/16: "world" -> K] => No
+ReplaceWord [12/16: writeln -> L] => No
+ReplaceWord [13/16: ", " -> M] => No
+ReplaceWord [14/16:
+ReplaceWord [15/16: test -> O] => No
+ReplaceWord [16/16: main -> P] => No
+Done in 17 tests

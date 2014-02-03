@@ -1,109 +1,137 @@
 [
   [
     /*** test.d ***/
-    [
+    [ // ;
+      [ "import " /* import */ ]
       [
         [
-          [ "import" ]
-          [ " std" ]
+          [ "std" ]
+          [ "." /* . */ ] => 9
         ]
-        [ ".stdio" ]
-        ";\r\n\r\n"
+        [ "stdio" ] =9
       ]
-      [ // Pair
-        [ // Pair
+      ";\r\n\r\n"
+    ]
+    [ // Pair
+      [
+        [ "void " ]
+        [ "main" ]
+        [ "(" ")\r\n" /* ( */ ]
+      ]
+      [ // {
+        "{\r\n"
+        [ // ;
           [
-            [ "void" ]
-            [ " main" ]
+            [ "	bool " ]
+            [ "pointless" ]
           ]
-          [ "(" ")\r\n" ]
+          "; \r\n"
+        ]
+        [ // ;
+          [
+            [
+              [
+                [ "	int " ]
+                [ "total " ]
+              ]
+              [ "= " /* = */ ] => 27
+            ]
+            [ "1" ] =27
+          ]
+          ";\r\n\r\n"
         ]
         [
-          "{\r\n"
           [
-            [
-              [
-                [ "	bool" ]
-                [ " pointless" ]
-              ]
-              "; // a comment\r\n"
-            ]
-            [
-              [
-                [ "	int" ]
-                [ " total" ]
-                [ " =" ]
-                [ " 1" ]
-              ]
-              ";\r\n\r\n"
-            ]
-            [ // Pair
-              [
-                [ "	/////////////// WHILE ///////////////\r\n" ]
-                [ "	do\r\n" ]
-              ]
-              [
-                "	{\r\n"
+            [ "	\r\n	do\r\n" /* do */ ]
+            [ // {
+              "	{\r\n"
+              [ // ;
                 [
-                  [ // Pair
-                    [ "		writeln" ]
-                    [
-                      "("
-                      [ "\"Doo dee doo\"" ]
-                      ")"
-                    ]
-                  ]
-                  ";\r\n"
-                ]
-                "	}"
-              ]
-            ]
-            [
-              [ // Pair
-                [ " while" ]
-                [
-                  " ("
-                  [ "false" ]
-                  ")"
-                ]
-              ]
-              ";\r\n\r\n"
-            ]
-            [
-              [
-                [ // Pair
-                  [
-                    [ "	do\r\n" ]
-                    [ "		writeln" ]
-                  ]
-                  [
+                  [ "		writeln" ]
+                  [ // (
                     "("
-                    [ "\"Dee doo dee\"" ]
+                    [ "\"Doo dee doo\"" ]
                     ")"
                   ]
                 ]
                 ";\r\n"
               ]
+              "	} "
+            ]
+          ]
+          [
+            [ "while " /* while */ ]
+            [ // ;
+              [ // (
+                "("
+                [ "false" ]
+                ")"
+              ]
+              ";\r\n\r\n"
+            ]
+          ]
+        ]
+        [
+          [
+            [ "	do\r\n" /* do */ ]
+            [ // ;
               [
-                [ // Pair
-                  [ "	while" ]
-                  [
-                    " ("
-                    [ "false" ]
-                    ")"
-                  ]
+                [ "		writeln" ]
+                [ // (
+                  "("
+                  [ "\"Dee doo dee\"" ]
+                  ")"
                 ]
-                ";\r\n\r\n"
+              ]
+              ";\r\n"
+            ]
+          ]
+          [
+            [ "	while " /* while */ ]
+            [ // ;
+              [ // (
+                "("
+                [ "false" ]
+                ")"
+              ]
+              ";\r\n\r\n"
+            ]
+          ]
+        ]
+        [
+          [ "	while " /* while */ ]
+          [ // ;
+            [
+              [ // (
+                "("
+                [ "false" ]
+                ")\r\n"
+              ]
+              [ "		writeln" ]
+              [ // (
+                "("
+                [ "\"Doo dee doo\"" ]
+                ")"
               ]
             ]
-            [
-              [ // Pair
-                [
-                  [ "	///////////// TRY/CATCH /////////////\r\n" ]
-                  [ "	try\r\n" ]
-                  [ "		writeln" ]
-                ]
-                [
+            ";\r\n\r\n"
+          ]
+        ]
+        [
+          [ // while
+            "	while "
+            [ // (
+              "("
+              [ "false" ]
+              ")\r\n"
+            ]
+          ]
+          [ // {
+            "	{\r\n"
+            [ // ;
+              [
+                [ "		writeln" ]
+                [ // (
                   "("
                   [ "\"Doo dee doo\"" ]
                   ")"
@@ -111,82 +139,56 @@
               ]
               ";\r\n"
             ]
-            [
+            "	}\r\n\r\n"
+          ]
+        ]
+        [
+          [
+            [ "	\r\n	try\r\n" /* try */ ]
+            [ // ;
               [
-                [ // Pair
-                  [ "	catch" ]
-                  [
-                    "("
-                    [
-                      [ "Throwable" ]
-                      [ " e" ]
-                    ]
-                    ")\r\n"
-                  ]
+                [ "		writeln" ]
+                [ // (
+                  "("
+                  [ "\"Doo dee doo\"" ]
+                  ")"
                 ]
-                [ // Pair
-                  [ "		writeln" ]
+              ]
+              ";\r\n"
+            ]
+          ]
+          [
+            [ "	catch" /* catch */ ]
+            [ // ;
+              [
+                [ // (
+                  "("
                   [
-                    "("
-                    [ "\"Dee doo dee\"" ]
-                    ")"
+                    [ "Throwable " ]
+                    [ "e" ]
                   ]
+                  ")\r\n"
+                ]
+                [ "		writeln" ]
+                [ // (
+                  "("
+                  [ "\"Dee doo dee\"" ]
+                  ")"
                 ]
               ]
               ";\r\n\r\n"
             ]
-            [
-              [ // Pair
-                [ "	try\r\n" ]
+          ]
+        ]
+        [
+          [
+            [ "	try\r\n" /* try */ ]
+            [ // {
+              "	{\r\n"
+              [ // ;
                 [
-                  "	{\r\n"
-                  [
-                    [ // Pair
-                      [ "		writeln" ]
-                      [
-                        "("
-                        [ "\"Doo dee doo\"" ]
-                        ")"
-                      ]
-                    ]
-                    ";\r\n"
-                  ]
-                  "	}\r\n"
-                ]
-              ]
-              [
-                [
-                  [ // Pair
-                    [ "	catch" ]
-                    [
-                      "("
-                      [
-                        [ "Throwable" ]
-                        [ " e" ]
-                      ]
-                      ")\r\n"
-                    ]
-                  ]
-                  [ // Pair
-                    [ "		writeln" ]
-                    [
-                      "("
-                      [ "\"Dee doo dee\"" ]
-                      ")"
-                    ]
-                  ]
-                ]
-                ";\r\n\r\n"
-              ]
-            ]
-            [
-              [
-                [ // Pair
-                  [
-                    [ "	try\r\n" ]
-                    [ "		writeln" ]
-                  ]
-                  [
+                  [ "		writeln" ]
+                  [ // (
                     "("
                     [ "\"Doo dee doo\"" ]
                     ")"
@@ -194,267 +196,454 @@
                 ]
                 ";\r\n"
               ]
-              [ // Pair
-                [ // Pair
-                  [ "	catch" ]
-                  [
-                    "("
-                    [
-                      [ "Throwable" ]
-                      [ " e" ]
-                    ]
-                    ")\r\n"
-                  ]
-                ]
-                [
-                  "	{\r\n"
-                  [
-                    [ // Pair
-                      [ "		writeln" ]
-                      [
-                        "("
-                        [ "\"Dee doo dee\"" ]
-                        ")"
-                      ]
-                    ]
-                    ";\r\n"
-                  ]
-                  "	}\r\n\r\n"
-                ]
-              ]
+              "	}\r\n"
             ]
-            [
-              [ // Pair
-                [ "	try\r\n" ]
-                [
-                  "	{\r\n"
-                  [
-                    [ // Pair
-                      [ "		writeln" ]
-                      [
-                        "("
-                        [ "\"Doo dee doo\"" ]
-                        ")"
-                      ]
-                    ]
-                    ";\r\n"
-                  ]
-                  "	}\r\n"
-                ]
-              ]
-              [ // Pair
-                [ // Pair
-                  [ "	catch" ]
-                  [
-                    "("
-                    [
-                      [ "Throwable" ]
-                      [ " e" ]
-                    ]
-                    ")\r\n"
-                  ]
-                ]
-                [
-                  "	{\r\n"
-                  [
-                    [ // Pair
-                      [ "		writeln" ]
-                      [
-                        "("
-                        [ "\"Dee doo dee\"" ]
-                        ")"
-                      ]
-                    ]
-                    ";\r\n"
-                  ]
-                  "	}\r\n\r\n"
-                ]
-              ]
-            ]
-            [
+          ]
+          [
+            [ "	catch" /* catch */ ]
+            [ // ;
               [
-                [ // Pair
+                [ // (
+                  "("
                   [
-                    [ // Pair
-                      [
-                        [
-                          [ "	//////// FUNCTION INVARIANTS ////////\r\n\r\n" ]
-                          [ "	void" ]
-                          ""
-                        ]
-                        [ " foo" ]
-                      ]
-                      [ "(" ")\r\n" ]
-                    ]
-                    [ "	in\r\n" ]
+                    [ "Throwable " ]
+                    [ "e" ]
                   ]
-                  [
-                    "	{\r\n"
-                    [
-                      [ // Pair
-                        [ "		writeln" ]
-                        [
-                          "("
-                          [ "\"Doo dee doo\"" ]
-                          ")"
-                        ]
-                      ]
-                      ";\r\n"
-                    ]
-                    "	}\r\n"
-                  ]
-                ]
-                [ // Pair
-                  [ "	out\r\n" ]
-                  [
-                    "	{\r\n"
-                    [
-                      [ // Pair
-                        [ "		writeln" ]
-                        [
-                          "("
-                          [ "\"Dee doo dee\"" ]
-                          ")"
-                        ]
-                      ]
-                      ";\r\n"
-                    ]
-                    "	}\r\n"
-                  ]
-                ]
-              ]
-              [ // Pair
-                [ "	body\r\n" ]
-                [
-                  "	{\r\n"
-                  [
-                    [ // Pair
-                      [ "		writeln" ]
-                      [
-                        "("
-                        [ "\"Dee dee doo\"" ]
-                        ")"
-                      ]
-                    ]
-                    ";\r\n"
-                  ]
-                  "	}\r\n\r\n"
-                ]
-              ]
-            ]
-            [
-              [
-                [ // Pair
-                  [
-                    [ "	///////////// IF / ELSE /////////////\r\n\r\n" ]
-                    [ "	if" ]
-                    ""
-                  ]
-                  [
-                    " ("
-                    [ "false" ]
-                    ")\r\n"
-                  ]
-                ]
-                [ // Pair
-                  [ "		writeln" ]
-                  [
-                    "("
-                    [ "\"Doo dee doo\"" ]
-                    ")"
-                  ]
-                ]
-              ]
-              ";\r\n"
-            ]
-            [
-              [
-                [ "	else" ]
-                [
-                  [ " // a comment\r\n" ]
-                  [ "		total++" ]
-                ]
-              ]
-              ";\r\n"
-            ]
-            [ // Pair
-              [ // Pair
-                [
-                  [ "		\r\n" ]
-                  [ "	if" ]
-                  ""
-                ]
-                [
-                  " ("
-                  [ "false" ]
                   ")\r\n"
                 ]
-              ]
-              [
-                "	{\r\n"
-                [
-                  [ // Pair
-                    [ "		writeln" ]
-                    [
-                      "("
-                      [ "\"Doo dee doo\"" ]
-                      ")"
-                    ]
-                  ]
-                  ";\r\n"
-                ]
-                "	}\r\n"
-              ]
-            ]
-            [
-              [
-                [ "	else" ]
-                [
-                  [ " // a comment\r\n" ]
-                  [ "		total++" ]
+                [ "		writeln" ]
+                [ // (
+                  "("
+                  [ "\"Dee doo dee\"" ]
+                  ")"
                 ]
               ]
               ";\r\n\r\n"
             ]
-            [ // Pair
-              [ // Pair
-                [
-                  [ "	///////////// PROMOTION /////////////\r\n\r\n" ]
-                  [ "	if" ]
-                  ""
-                ]
-                [
-                  " ("
-                  [ "true" ]
-                  ")\r\n"
-                ]
-              ]
+          ]
+        ]
+        [
+          [
+            [ "	try\r\n" /* try */ ]
+            [ // ;
               [
-                "	{\r\n"
-                [
-                  [
-                    [ "		// output should not have {}\r\n" ]
-                    [ "		total++" ]
-                  ]
-                  ";\r\n"
-                ]
-                "	}\r\n\r\n"
-              ]
-            ]
-            [
-              [ // Pair
-                [ "	writeln" ]
-                [
+                [ "		writeln" ]
+                [ // (
                   "("
-                  [ "total==4" ]
+                  [ "\"Doo dee doo\"" ]
                   ")"
                 ]
               ]
               ";\r\n"
             ]
           ]
-          "}\r\n"
+          [
+            [ // catch
+              "	catch"
+              [ // (
+                "("
+                [
+                  [ "Throwable " ]
+                  [ "e" ]
+                ]
+                ")\r\n"
+              ]
+            ]
+            [ // {
+              "	{\r\n"
+              [ // ;
+                [
+                  [ "		writeln" ]
+                  [ // (
+                    "("
+                    [ "\"Dee doo dee\"" ]
+                    ")"
+                  ]
+                ]
+                ";\r\n"
+              ]
+              "	}\r\n\r\n"
+            ]
+          ]
         ]
+        [
+          [
+            [ "	try\r\n" /* try */ ]
+            [ // {
+              "	{\r\n"
+              [ // ;
+                [
+                  [ "		writeln" ]
+                  [ // (
+                    "("
+                    [ "\"Doo dee doo\"" ]
+                    ")"
+                  ]
+                ]
+                ";\r\n"
+              ]
+              "	}\r\n"
+            ]
+          ]
+          [
+            [ // catch
+              "	catch"
+              [ // (
+                "("
+                [
+                  [ "Throwable " ]
+                  [ "e" ]
+                ]
+                ")\r\n"
+              ]
+            ]
+            [ // {
+              "	{\r\n"
+              [ // ;
+                [
+                  [ "		writeln" ]
+                  [ // (
+                    "("
+                    [ "\"Dee doo dee\"" ]
+                    ")"
+                  ]
+                ]
+                ";\r\n"
+              ]
+              "	}\r\n\r\n"
+            ]
+          ]
+        ]
+        [
+          [
+            [ "	try\r\n" /* try */ ]
+            [ // ;
+              [
+                [ "		writeln" ]
+                [ // (
+                  "("
+                  [ "\"Doo dee doo\"" ]
+                  ")"
+                ]
+              ]
+              ";\r\n"
+            ]
+          ]
+          [
+            [ "	catch" /* catch */ ]
+            [ // ;
+              [
+                [ // (
+                  "("
+                  [
+                    [ "Exception " ]
+                    [ "e" ]
+                  ]
+                  ")\r\n"
+                ]
+                [ "		writeln" ]
+                [ // (
+                  "("
+                  [ "\"Dee doo dee\"" ]
+                  ")"
+                ]
+              ]
+              ";\r\n"
+            ]
+          ]
+          [
+            [ "	catch" /* catch */ ]
+            [ // ;
+              [
+                [ // (
+                  "("
+                  [
+                    [ "Throwable " ]
+                    [ "e" ]
+                  ]
+                  ")\r\n"
+                ]
+                [ "		writeln" ]
+                [ // (
+                  "("
+                  [ "\"Dee doo dee\"" ]
+                  ")"
+                ]
+              ]
+              ";\r\n"
+            ]
+          ]
+          [
+            [ "	finally\r\n" /* finally */ ]
+            [ // ;
+              [
+                [ "		writeln" ]
+                [ // (
+                  "("
+                  [ "\"Dee doo dee\"" ]
+                  ")"
+                ]
+              ]
+              ";\r\n\r\n"
+            ]
+          ]
+        ]
+        [
+          [
+            [ "	try\r\n" /* try */ ]
+            [ // {
+              "	{\r\n"
+              [ // ;
+                [
+                  [ "		writeln" ]
+                  [ // (
+                    "("
+                    [ "\"Doo dee doo\"" ]
+                    ")"
+                  ]
+                ]
+                ";\r\n"
+              ]
+              "	}\r\n"
+            ]
+          ]
+          [
+            [ // catch
+              "	catch"
+              [ // (
+                "("
+                [
+                  [ "Exception " ]
+                  [ "e" ]
+                ]
+                ")\r\n"
+              ]
+            ]
+            [ // {
+              "	{\r\n"
+              [ // ;
+                [
+                  [ "		writeln" ]
+                  [ // (
+                    "("
+                    [ "\"Dee doo dee\"" ]
+                    ")"
+                  ]
+                ]
+                ";\r\n"
+              ]
+              "	}\r\n"
+            ]
+          ]
+          [
+            [ // catch
+              "	catch"
+              [ // (
+                "("
+                [
+                  [ "Throwable " ]
+                  [ "e" ]
+                ]
+                ")\r\n"
+              ]
+            ]
+            [ // {
+              "	{\r\n"
+              [ // ;
+                [
+                  [ "		writeln" ]
+                  [ // (
+                    "("
+                    [ "\"Dee doo dee\"" ]
+                    ")"
+                  ]
+                ]
+                ";\r\n"
+              ]
+              "	}\r\n"
+            ]
+          ]
+          [
+            [ "	finally\r\n" /* finally */ ]
+            [ // {
+              "	{\r\n"
+              [ // ;
+                [
+                  [ "		writeln" ]
+                  [ // (
+                    "("
+                    [ "\"Dee doo dee\"" ]
+                    ")"
+                  ]
+                ]
+                ";\r\n"
+              ]
+              "	}\r\n\r\n"
+            ]
+          ]
+        ]
+        [
+          [ "	\r\n\r\n	void " ]
+          [ "foo" ]
+          [ "(" ")\r\n" /* ( */ ]
+        ]
+        [
+          [ "	in\r\n" /* in */ ]
+          [ // {
+            "	{\r\n"
+            [ // ;
+              [
+                [ "		writeln" ]
+                [ // (
+                  "("
+                  [ "\"Doo dee doo\"" ]
+                  ")"
+                ]
+              ]
+              ";\r\n"
+            ]
+            "	}\r\n"
+          ]
+        ]
+        [
+          [ "	out\r\n" /* out */ ]
+          [ // {
+            "	{\r\n"
+            [ // ;
+              [
+                [ "		writeln" ]
+                [ // (
+                  "("
+                  [ "\"Dee doo dee\"" ]
+                  ")"
+                ]
+              ]
+              ";\r\n"
+            ]
+            "	}\r\n"
+          ]
+        ]
+        [
+          [ "	body\r\n" /* body */ ]
+          [ // {
+            "	{\r\n"
+            [ // ;
+              [
+                [ "		writeln" ]
+                [ // (
+                  "("
+                  [ "\"Dee dee doo\"" ]
+                  ")"
+                ]
+              ]
+              ";\r\n"
+            ]
+            "	}\r\n\r\n"
+          ]
+        ]
+        [
+          [ "	\r\n\r\n	if " /* if */ ]
+          [ // ;
+            [
+              [ // (
+                "("
+                [ "false" ]
+                ")\r\n"
+              ]
+              [ "		writeln" ]
+              [ // (
+                "("
+                [ "\"Doo dee doo\"" ]
+                ")"
+              ]
+            ]
+            ";\r\n"
+          ]
+        ]
+        [
+          [ "	else \r\n" /* else */ ]
+          [ // ;
+            [ // ++
+              [ "		total" ]
+              "++"
+            ]
+            ";\r\n"
+          ]
+        ]
+        [
+          [ // if
+            "		\r\n	if "
+            [ // (
+              "("
+              [ "false" ]
+              ")\r\n"
+            ]
+          ]
+          [ // {
+            "	{\r\n"
+            [ // ;
+              [
+                [ "		writeln" ]
+                [ // (
+                  "("
+                  [ "\"Doo dee doo\"" ]
+                  ")"
+                ]
+              ]
+              ";\r\n"
+            ]
+            "	}\r\n"
+          ]
+        ]
+        [
+          [ "	else \r\n" /* else */ ]
+          [ // ;
+            [ // ++
+              [ "		total" ]
+              "++"
+            ]
+            ";\r\n\r\n"
+          ]
+        ]
+        [
+          [ // if
+            "	\r\n\r\n	if "
+            [ // (
+              "("
+              [ "true" ]
+              ")\r\n"
+            ]
+          ]
+          [ // {
+            "	{\r\n"
+            [ // ;
+              [ // ++
+                [ "		\r\n		total" ]
+                "++"
+              ]
+              ";\r\n"
+            ]
+            "	}\r\n\r\n"
+          ]
+        ]
+        [ // ;
+          [
+            [ "	writeln" ]
+            [ // (
+              "("
+              [
+                [
+                  [ "total" ]
+                  [ "==" /* == */ ] => 305
+                ]
+                [ "4" ] =305
+              ]
+              ")"
+            ]
+          ]
+          ";\r\n"
+        ]
+        "}\r\n"
       ]
     ]
   ]

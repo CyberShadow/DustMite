@@ -2,9 +2,9 @@ module Aqdyl3XaqZi7;
 
 import std.stdio;
 
-void TpQt()
+void IqWX()
 {
-	string VcuXBgjM = "Hello";
-	string KE8BoqtQ = "world";
-	writeln(VcuXBgjM ~ ", " ~ KE8BoqtQ);
+	string AeCnpPDc = "Hello";
+	string EB1x4E8B = "world";
+	writeln(AeCnpPDc ~ ", " ~ EB1x4E8B);
 }

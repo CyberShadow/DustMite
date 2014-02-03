@@ -15,6 +15,14 @@ void main()
 		writeln("Dee doo dee");
 	while (false);
 
+	while (false)
+		writeln("Doo dee doo");
+
+	while (false)
+	{
+		writeln("Doo dee doo");
+	}
+
 	///////////// TRY/CATCH /////////////
 	try
 		writeln("Doo dee doo");
@@ -40,6 +48,32 @@ void main()
 		writeln("Doo dee doo");
 	}
 	catch(Throwable e)
+	{
+		writeln("Dee doo dee");
+	}
+
+	try
+		writeln("Doo dee doo");
+	catch(Exception e)
+		writeln("Dee doo dee");
+	catch(Throwable e)
+		writeln("Dee doo dee");
+	finally
+		writeln("Dee doo dee");
+
+	try
+	{
+		writeln("Doo dee doo");
+	}
+	catch(Exception e)
+	{
+		writeln("Dee doo dee");
+	}
+	catch(Throwable e)
+	{
+		writeln("Dee doo dee");
+	}
+	finally
 	{
 		writeln("Dee doo dee");
 	}

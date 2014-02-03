@@ -1,1 +1,4 @@
 *.exe
+*.ilk
+*.suo
+*.pdb

@@ -2,9 +2,9 @@ module A;
 
 import std.stdio;
 
-void G()
+void F()
 {
-	string I = "Hello";
-	string K = "world";
-	writeln(I ~ ", " ~ K);
+	string H = "Hello";
+	string J = "world";
+	writeln(H ~ ", " ~ J);
 }

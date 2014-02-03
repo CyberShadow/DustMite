@@ -19,7 +19,7 @@ import std.conv;
 import std.ascii;
 import std.random;
 
-import dsplit;
+import splitter;
 
 // Issue 314 workarounds
 alias std.string.join join;
@@ -182,7 +182,7 @@ EOS");
 
 	ParseOptions parseOptions;
 	parseOptions.stripComments = stripComments;
-	parseOptions.mode = obfuscate ? ParseOptions.Mode.Words : ParseOptions.Mode.Source;
+	parseOptions.mode = obfuscate ? ParseOptions.Mode.words : ParseOptions.Mode.source;
 	measure!"load"({root = loadFiles(dir, parseOptions);});
 	enforce(root.children.length, "No files in specified directory");
 
@@ -552,13 +552,16 @@ void dump(Entity root, ref Reduction reduction, void delegate(string) handleFile
 					dumpEntity(c);
 			}
 			else
-			if (e.head)
+			if (e.head || e.tail)
 			{
 				assert(e.children.length==0);
-				if (e.head == reduction.from)
-					handleText(reduction.to);
-				else
-					handleText(e.head);
+				if (e.head)
+				{
+					if (e.head == reduction.from)
+						handleText(reduction.to);
+					else
+						handleText(e.head);
+				}
 				handleText(e.tail);
 			}
 			else
@@ -1174,16 +1177,21 @@ void dumpSet(string fn)
 		// if (!fileLevel) { f.writeln(prefix, "[ ... ]"); continue; }
 
 		f.write(prefix);
-		if (e.id in dependents || trace)
-			f.write("#", e.id, " ");
-
 		if (e.children.length == 0)
 		{
-			f.write("[", e.noRemove ? "!" : "", " ", e.isFile ? e.filename ? printableFN(e.filename) ~ " " : null : e.head ? printable(e.head) ~ " " : null, e.tail ? printable(e.tail) ~ " " : null, "]");
+			f.write(
+				"[",
+				e.noRemove ? "!" : "",
+				" ",
+				e.isFile ? e.filename ? printableFN(e.filename) ~ " " : null : e.head ? printable(e.head) ~ " " : null,
+				e.tail ? printable(e.tail) ~ " " : null,
+				e.comment ? "/* " ~ e.comment ~ " */ " : null,
+				"]"
+			);
 		}
 		else
 		{
-			f.writeln("[", e.noRemove ? "!" : "", e.isPair ? " // Pair" : null);
+			f.writeln("[", e.noRemove ? "!" : "", e.comment ? " // " ~ e.comment : null);
 			if (e.isFile) f.writeln(prefix, "  ", printableFN(e.filename));
 			if (e.head) f.writeln(prefix, "  ", printable(e.head));
 			foreach (c; e.children)
@@ -1191,6 +1199,8 @@ void dumpSet(string fn)
 			if (e.tail) f.writeln(prefix, "  ", printable(e.tail));
 			f.write(prefix, "]");
 		}
+		if (e.id in dependents || trace)
+			f.write(" =", e.id);
 		if (e.dependencies.length)
 		{
 			f.write(" =>");

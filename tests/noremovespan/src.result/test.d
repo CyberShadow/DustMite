@@ -1,6 +1,6 @@
 import std.stdio;
 
-void f(string)
+void f(string )
 {
 }
 
