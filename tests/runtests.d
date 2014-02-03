@@ -15,6 +15,8 @@ void main(string[] args)
 		tests = dirEntries("", SpanMode.shallow).filter!(de => de.isDir).map!(de => de.name).array;
 	foreach (test; tests.parallel)
 	{
+		scope(failure) stderr.writefln("runtests: Error with test %s", test);
+
 		auto target = test~"/src";
 		auto tester = ".." ~ dirSeparator ~ "test.cmd";
 		if (!target.exists)
