@@ -806,6 +806,9 @@ struct DSplitter
 				return false;
 			}
 			
+			if (consume(tokenLookup["if"]))
+				consume(tokenLookup["else"]);
+			else
 			if (consume(tokenLookup["do"]))
 				consume(tokenLookup["while"]);
 			else
