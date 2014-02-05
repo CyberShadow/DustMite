@@ -762,16 +762,30 @@ struct DSplitter
 
 	static void postProcessDependency(ref Entity[] entities)
 	{
-		foreach_reverse (i, e; entities)
+		if (entities.length < 2)
 		{
-			if (getSeparatorType(e.token) == SeparatorType.binary && e.children && i+1 < entities.length)
-			{
-				auto children = e.children;
-				e.children = null;
-				entities = entities[0..i] ~ group(group(children) ~ e) ~ group(entities[i+1..$]);
-				e.dependencies ~= entities[i+1];
-				continue;
-			}
+			foreach (e; entities)
+				postProcessDependency(e.children);
+			return;
+		}
+
+		size_t[] points;
+		foreach_reverse (i, e; entities[0..$-1])
+			if (getSeparatorType(e.token) == SeparatorType.binary && e.children)
+				points ~= i;
+
+		if (points.length)
+		{
+			auto i = points[$/2];
+			auto e = entities[i];
+
+			auto head = entities[0..i] ~ group(e.children);
+			e.children = null;
+			auto tail = new Entity(null, group(entities[i+1..$]), null);
+			e.dependencies ~= tail;
+			entities = group(head ~ e) ~ tail;
+			foreach (c; entities)
+				postProcessDependency(c.children);
 		}
 	}
 
