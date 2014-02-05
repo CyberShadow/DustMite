@@ -212,7 +212,7 @@ struct DSplitter
 		{ "(", ")" },
 	];
 
-	static immutable string[] blockKeywords = ["try", "catch", "finally", "while", "do", "in", "out", "body", "if", "else"];
+	static immutable string[] blockKeywords = ["try", "catch", "finally", "while", "do", "in", "out", "body", "if", "static if", "else"];
 
 	/// The order dictates the splitting priority of the separators.
 	static immutable string[][] separators =
@@ -806,7 +806,7 @@ struct DSplitter
 				return false;
 			}
 			
-			if (consume(tokenLookup["if"]))
+			if (consume(tokenLookup["if"]) || consume(tokenLookup["static if"]))
 				consume(tokenLookup["else"]);
 			else
 			if (consume(tokenLookup["do"]))
@@ -839,7 +839,7 @@ struct DSplitter
 
 			if (entities[i].token == tokenLookup["{"])
 			{
-				if (i > lastPair + 1)
+				if (i >= lastPair + 1)
 				{
 					entities = entities[0..lastPair] ~ group(group(entities[lastPair..i]) ~ entities[i]) ~ entities[i+1..$];
 					i = lastPair;
