@@ -93,7 +93,7 @@ auto nullReduction = Reduction(Reduction.Type.None);
 
 int main(string[] args)
 {
-	bool force, dump, showTimes, stripComments, obfuscate, keepLength, showHelp, noOptimize;
+	bool force, dump, dumpHtml, showTimes, stripComments, obfuscate, keepLength, showHelp, noOptimize;
 	string coverageDir;
 	string[] noRemoveStr;
 
@@ -105,6 +105,7 @@ int main(string[] args)
 		"obfuscate", &obfuscate,
 		"keep-length", &keepLength,
 		"dump", &dump,
+		"dump-html", &dumpHtml,
 		"times", &showTimes,
 		"cache", &globalCache, // for research
 		"trace", &trace, // for debugging
@@ -144,6 +145,7 @@ EOS");
   --help             Show this message
 Less interesting options:
   --dump             Dump parsed tree to DIR.dump file
+  --dump-html        Dump parsed tree to DIR.html file
   --times            Display verbose spent time breakdown
   --cache DIR        Use DIR as persistent disk cache
                        (in addition to memory cache)
@@ -199,6 +201,8 @@ EOS");
 
 	if (dump)
 		dumpSet(dirSuffix("dump"));
+	if (dumpHtml)
+		dumpToHtml(dirSuffix("html"));
 
 	if (tester is null)
 	{
@@ -1213,6 +1217,60 @@ void dumpSet(string fn)
 	print(root, 0);
 
 	f.close();
+}
+
+void dumpToHtml(string fn)
+{
+	auto buf = appender!string();
+
+	void dumpText(string s)
+	{
+		foreach (c; s)
+			switch (c)
+			{
+				case '<':
+					buf.put("&lt;");
+					break;
+				case '>':
+					buf.put("&gt;");
+					break;
+				case '&':
+					buf.put("&amp;");
+					break;
+				default:
+					buf.put(c);
+			}
+	}
+
+	void dump(Entity e)
+	{
+		if (e.isFile)
+		{
+			buf.put("<h1>");
+			dumpText(e.filename);
+			buf.put("</h1><pre>");
+			foreach (c; e.children)
+				dump(c);
+			buf.put("</pre>");
+		}
+		else
+		{
+			buf.put("<span>");
+			dumpText(e.head);
+			foreach (c; e.children)
+				dump(c);
+			dumpText(e.tail);
+			buf.put("</span>");
+		}
+	}
+
+	buf.put(q"EOT
+<style> pre span:hover { outline: 1px solid rgba(0,0,0,0.2); background-color: rgba(100,100,100,0.1	); } </style>
+EOT");
+
+	dump(root);
+
+	std.file.write(fn, buf.data());
 }
 
 void dumpText(string fn, ref Reduction r = nullReduction)
