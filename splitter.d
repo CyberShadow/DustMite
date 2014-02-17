@@ -826,6 +826,13 @@ struct DSplitter
 				consume(tokenLookup["finally"]);
 			}
 
+			if (i == j)
+			{
+				j++;
+				while (consume(tokenLookup["in"]) || consume(tokenLookup["out"]) || consume(tokenLookup["body"]))
+					continue;
+			}
+
 			if (j-i > 1)
 			{
 				entities = entities[0..i] ~ group(entities[i..j]) ~ entities[j..$];
