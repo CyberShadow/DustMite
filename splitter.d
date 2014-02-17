@@ -855,6 +855,7 @@ struct DSplitter
 			{
 				if (i >= lastPair + 1)
 				{
+					lastPair = i-1;
 					entities = entities[0..lastPair] ~ group(group(entities[lastPair..i]) ~ entities[i]) ~ entities[i+1..$];
 					i = lastPair;
 					entities[i].isPair = true;
