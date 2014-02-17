@@ -43,6 +43,9 @@ void main(string[] args)
 		enforce(status == 0, "Dustmite dump failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
 
+		if (!tester.exists)
+			continue; // dump only
+
 		output = File(outputFile, "ab"); // Reopen because spawnProcess closes it
 		stderr.writefln("runtests: test %s: reducing", test);
 		status = spawnProcess(["rdmd", dustmite] ~ opts ~ ["--times", target, tester], stdin, output, output).wait();
