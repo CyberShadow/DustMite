@@ -18,9 +18,10 @@ void main(string[] args)
 		scope(failure) stderr.writefln("runtests: Error with test %s", test);
 
 		auto target = test~"/src";
-		auto tester = ".." ~ dirSeparator ~ "test.cmd";
 		if (!target.exists)
 			target = test~"/src.d";
+		auto tester = test~"/test.cmd";
+		auto testerCmd = ".." ~ dirSeparator ~ "test.cmd";
 
 		auto tempDir = target.setExtension("temp");
 		if (tempDir.exists) tempDir.rmdirRecurse();
@@ -48,7 +49,7 @@ void main(string[] args)
 
 		output = File(outputFile, "ab"); // Reopen because spawnProcess closes it
 		stderr.writefln("runtests: test %s: reducing", test);
-		status = spawnProcess(["rdmd", dustmite] ~ opts ~ ["--times", target, tester], stdin, output, output).wait();
+		status = spawnProcess(["rdmd", dustmite] ~ opts ~ ["--times", target, testerCmd], stdin, output, output).wait();
 		enforce(status == 0, "Dustmite run failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
 
