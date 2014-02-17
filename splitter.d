@@ -810,7 +810,7 @@ struct DSplitter
 			{
 				if (j < entities.length
 				 && entities[j].children.length == 2
-				 && entities[j].children[0].token == t)
+				 && firstToken(entities[j].children[0]) == t)
 				{
 				 	j++;
 				 	return true;
@@ -889,6 +889,13 @@ struct DSplitter
 		postProcessBlockKeywords(entities);
 		postProcessBlockStatements(entities);
 		postProcessPairs(entities);
+	}
+
+	static Token firstToken(Entity e)
+	{
+		while (!e.token && e.children.length)
+			e = e.children[0];
+		return e.token;
 	}
 }
 
