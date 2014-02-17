@@ -954,7 +954,7 @@ bool test(Reduction reduction)
 				return true;
 			}
 			auto result = fallback;
-			measure!"globalCache"({ std.file.write(cacheBase ~ (result ? "1" : "0"), ""); });
+			measure!"globalCache"({ autoRetry({ std.file.write(cacheBase ~ (result ? "1" : "0"), ""); }, "save result to disk cache"); });
 			return result;
 		}
 		else
