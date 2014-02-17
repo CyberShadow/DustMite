@@ -34,6 +34,7 @@ size_t origDescendants;
 bool concatPerformed;
 int tests; bool foundAnything;
 bool noSave, trace;
+string strategy = "indepth";
 
 struct Times { StopWatch total, load, testSave, resultSave, test, clean, cacheHash, globalCache, misc; }
 Times times;
@@ -104,6 +105,7 @@ int main(string[] args)
 		"coverage", &coverageDir,
 		"obfuscate", &obfuscate,
 		"keep-length", &keepLength,
+		"strategy", &strategy,
 		"dump", &dump,
 		"dump-html", &dumpHtml,
 		"times", &showTimes,
@@ -144,6 +146,7 @@ EOS");
 			stderr.write(q"EOS
   --help             Show this message
 Less interesting options:
+  --strategy STRAT   Set strategy (careful/lookback/indepth)
   --dump             Dump parsed tree to DIR.dump file
   --dump-html        Dump parsed tree to DIR.html file
   --times            Display verbose spent time breakdown
@@ -463,9 +466,17 @@ void reduce()
 	if (countFiles(root) < 2)
 		concatPerformed = true;
 
-	//reduceCareful();
-	//reduceLookback();
-	reduceInDepth();
+	switch (strategy)
+	{
+		case "careful":
+			return reduceCareful();
+		case "lookback":
+			return reduceLookback();
+		case "indepth":
+			return reduceInDepth();
+		default:
+			throw new Exception("Unknown strategy");
+	}
 }
 
 Mt19937 rng;
