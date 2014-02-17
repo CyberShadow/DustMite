@@ -28,7 +28,6 @@
 [ 40.0%] Remove [10100] => No
 [ 44.6%] Remove [100] => No
 [ 56.9%] Remove [0110] => Yes
-[ 76.9%] Remove [0100] => Yes
 ############### ITERATION 1 ################
 [  0.0%] Remove [1] => No
 [  0.0%] Concat [1] => No
@@ -41,19 +40,19 @@
 [  0.0%] Remove [1110001] => No
 [  0.0%] Unwrap [1110001] => No
 [  0.0%] Remove [11100010] => No
-[  4.9%] Remove [1110000] => No
-[ 17.1%] Remove [110] => No
-[ 17.1%] Remove [1101] => No
-[ 17.1%] Unwrap [1101] => No (cached)
-[ 19.5%] Remove [1100] => No
-[ 19.5%] Remove [11001] => No
-[ 22.0%] Remove [11000] => No
-[ 31.7%] Remove [10] => No
-[ 31.7%] Remove [101] => No
-[ 31.7%] Remove [1011] => No
-[ 31.7%] Remove [10110] => No
-[ 36.6%] Remove [1010] => No
-[ 36.6%] Remove [10101] => No
-[ 39.0%] Remove [10100] => No
-[ 46.3%] Remove [100] => No
-Done in 53 tests
+[  4.5%] Remove [1110000] => No
+[ 15.9%] Remove [110] => No
+[ 15.9%] Remove [1101] => No
+[ 15.9%] Unwrap [1101] => No (cached)
+[ 18.2%] Remove [1100] => No
+[ 18.2%] Remove [11001] => No
+[ 20.5%] Remove [11000] => No
+[ 29.5%] Remove [10] => No
+[ 29.5%] Remove [101] => No
+[ 29.5%] Remove [1011] => No
+[ 29.5%] Remove [10110] => No
+[ 34.1%] Remove [1010] => No
+[ 34.1%] Remove [10101] => No
+[ 36.4%] Remove [10100] => No
+[ 43.2%] Remove [100] => No
+Done in 52 tests

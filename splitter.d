@@ -217,7 +217,7 @@ struct DSplitter
 	/// The order dictates the splitting priority of the separators.
 	static immutable string[][] separators =
 	[
-		[";"] ~ blockKeywords,
+		[";", "{"] ~ blockKeywords,
 		["import"],
 		// From http://wiki.dlang.org/Operator_precedence
 		// Some items are listed twice, DustMite does not distinguish binary/prefix/postfix operators
@@ -240,6 +240,7 @@ struct DSplitter
 		[".", "++", "--" /*, "(", "["*/],
 		// "=>",
 		["!"],
+		["(", "["]
 	];
 
 	enum Token : int
@@ -300,6 +301,7 @@ struct DSplitter
 	enum SeparatorType
 	{
 		none,
+		pair,
 		prefix,
 		postfix,
 		binary,  /// infers dependency
@@ -314,6 +316,8 @@ struct DSplitter
 			case tokenLookup["import"]:
 				return SeparatorType.prefix;
 			default:
+				if (pairTokens.any!(pair => pair.start == t))
+					return SeparatorType.pair;
 				if (blockKeywordTokens.canFind(t))
 					return SeparatorType.prefix;
 				if (separatorTokens.any!(row => row.canFind(t)))
@@ -627,38 +631,27 @@ struct DSplitter
 
 			Entity after;
 
-			foreach (n, pair; pairTokens)
-				if (token == pair.start)
-				{
-					e.head = span;
-					parseScope(e, pair.end);
-					if (token == tokenLookup["{"] && splitterQueue[Level.separator0].length && splitterQueue[Level.separator0][$-1].tail.empty)
-					{
-						level = Level.separator0;
-						//swap(e, after);
-						auto x = new Entity();
-						x.children = terminateLevel(level);
-						splitterQueue[level][$-1].children ~= x;
-					}
-					goto handled;
-				}
-
 			foreach (n, synonyms; separatorTokens)
 				foreach (sep; synonyms)
 					if (token == sep)
 					{
 						level = cast(Level)(Level.separator0 + n);
 						e.children = terminateLevel(level);
-						if (getSeparatorType(token) == SeparatorType.prefix)
+						auto type = getSeparatorType(token);
+						if (type == SeparatorType.prefix || type == SeparatorType.pair)
 						{
+							Entity empty = e;
 							if (e.children.length)
 							{
 								e.token = Token.none;
-								after = new Entity(span);
+								after = empty = new Entity(span);
 								after.token = token;
 							}
 							else
 								e.head = span;
+
+							if (type == SeparatorType.pair)
+								parseScope(empty, pairTokens.find!(pair => pair.start == token).front.end);
 						}
 						else
 							e.tail = span;
@@ -864,6 +857,9 @@ struct DSplitter
 				else
 					lastPair = i + 1;
 			}
+			else
+			if (entities[i].token == tokenLookup[";"])
+				lastPair = i + 1;
 
 			i++;
 		}
