@@ -8,10 +8,15 @@ void fb()
 {
 	total++;
 }
+import std.stdio;
+
 void fc()
 {
 	total++;
 
+	try
+		writeln;
+	catch		writeln;
 }
 void fe()
 {
@@ -26,8 +31,6 @@ void fg()
 		
 		total++;
 }
-import std.stdio;
-
 void main()
 {
 	fa;

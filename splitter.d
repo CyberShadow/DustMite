@@ -788,7 +788,12 @@ struct DSplitter
 		{
 			if (blockKeywordTokens.canFind(entities[i].token) && i+1 < entities.length)
 			{
-				entities = entities[0..i] ~ group(entities[i..i+2]) ~ entities[i+2..$];
+				auto j = i + 1;
+				if (j < entities.length && entities[j].token == tokenLookup["("])
+					j++;
+				j++; // ; or {
+				if (j <= entities.length)
+					entities = entities[0..i] ~ group(group(entities[i..j-1]) ~ entities[j-1..j]) ~ entities[j..$];
 				continue;
 			}
 
