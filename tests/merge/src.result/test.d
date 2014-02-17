@@ -1,3 +1,5 @@
+import std.stdio;
+
 void fa()
 {
 	total++;
@@ -26,8 +28,6 @@ void fg()
 		
 		total++;
 }
-import std.stdio;
-
 void main()
 {
 	fa;

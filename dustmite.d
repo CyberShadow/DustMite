@@ -34,7 +34,7 @@ size_t origDescendants;
 bool concatPerformed;
 int tests; bool foundAnything;
 bool noSave, trace;
-string strategy = "indepth";
+string strategy = "inbreadth";
 
 struct Times { StopWatch total, load, testSave, resultSave, test, clean, cacheHash, globalCache, misc; }
 Times times;
