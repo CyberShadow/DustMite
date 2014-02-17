@@ -146,7 +146,7 @@ EOS");
 			stderr.write(q"EOS
   --help             Show this message
 Less interesting options:
-  --strategy STRAT   Set strategy (careful/lookback/indepth)
+  --strategy STRAT   Set strategy (careful/lookback/pingpong/indepth)
   --dump             Dump parsed tree to DIR.dump file
   --dump-html        Dump parsed tree to DIR.html file
   --times            Display verbose spent time breakdown
@@ -416,6 +416,44 @@ void reduceLookback()
 	} while (iterationChanged); // stop when we couldn't reduce anything this iteration
 }
 
+/// Keep going deeper until we find a successful reduction.
+/// When found, go up a depth level.
+/// Keep going up while we find new reductions. Repeat topmost depth level as necessary.
+/// Once no new reductions are found at higher depths, start going downwards again.
+/// If we reach the bottom (depth with no nodes on it), start a new iteration.
+/// If we finish an iteration without finding any reductions, we're done.
+void reducePingPong()
+{
+	bool iterationChanged;
+	int iterCount;
+	do
+	{
+		iterationChanged = false;
+		startIteration(iterCount++);
+
+		int depth = 0;
+		bool depthTested;
+
+		do
+		{
+			writefln("============= Depth %d =============", depth);
+			bool depthChanged;
+
+			testLevel(depth, depthTested, depthChanged);
+
+			if (depthChanged)
+			{
+				iterationChanged = true;
+				depth--;
+				if (depth < 0)
+					depth = 0;
+			}
+			else
+				depth++;
+		} while (depthTested); // keep going up/down while we found something to test
+	} while (iterationChanged); // stop when we couldn't reduce anything this iteration
+}
+
 /// Look at every entity in the tree.
 /// If we can reduce this entity, continue looking at its siblings.
 /// Otherwise, recurse and look at its children.
@@ -472,6 +510,8 @@ void reduce()
 			return reduceCareful();
 		case "lookback":
 			return reduceLookback();
+		case "pingpong":
+			return reducePingPong();
 		case "indepth":
 			return reduceInDepth();
 		default:
