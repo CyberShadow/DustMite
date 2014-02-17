@@ -315,6 +315,8 @@ struct DSplitter
 				return SeparatorType.postfix;
 			case tokenLookup["import"]:
 				return SeparatorType.prefix;
+			case tokenLookup["else"]:
+				return SeparatorType.binary;
 			default:
 				if (pairTokens.any!(pair => pair.start == t))
 					return SeparatorType.pair;
@@ -782,6 +784,13 @@ struct DSplitter
 		}
 	}
 
+	static void postProcessDependencyBlock(ref Entity[] entities)
+	{
+		foreach (i, e; entities)
+			if (i && !e.token && e.children.length && getSeparatorType(e.children[0].token) == SeparatorType.binary && !e.children[0].children)
+				e.children[0].dependencies ~= entities[i-1];
+	}
+
 	static void postProcessBlockKeywords(ref Entity[] entities)
 	{
 		for (size_t i=0; i<entities.length;)
@@ -887,6 +896,7 @@ struct DSplitter
 		postProcessSimplify(entities);
 		postProcessDependency(entities);
 		postProcessBlockKeywords(entities);
+		postProcessDependencyBlock(entities);
 		postProcessBlockStatements(entities);
 		postProcessPairs(entities);
 	}
