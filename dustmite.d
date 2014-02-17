@@ -146,7 +146,7 @@ EOS");
 			stderr.write(q"EOS
   --help             Show this message
 Less interesting options:
-  --strategy STRAT   Set strategy (careful/lookback/pingpong/indepth)
+  --strategy STRAT   Set strategy (careful/lookback/pingpong/indepth/inbreadth)
   --dump             Dump parsed tree to DIR.dump file
   --dump-html        Dump parsed tree to DIR.html file
   --times            Display verbose spent time breakdown
@@ -454,6 +454,36 @@ void reducePingPong()
 	} while (iterationChanged); // stop when we couldn't reduce anything this iteration
 }
 
+/// Keep going deeper.
+/// If we reach the bottom (depth with no nodes on it), start a new iteration.
+/// If we finish an iteration without finding any reductions, we're done.
+void reduceInBreadth()
+{
+	bool iterationChanged;
+	int iterCount;
+	do
+	{
+		iterationChanged = false;
+		startIteration(iterCount++);
+
+		int depth = 0;
+		bool depthTested;
+
+		do
+		{
+			writefln("============= Depth %d =============", depth);
+			bool depthChanged;
+
+			testLevel(depth, depthTested, depthChanged);
+
+			if (depthChanged)
+				iterationChanged = true;
+
+			depth++;
+		} while (depthTested); // keep going down while we found something to test
+	} while (iterationChanged); // stop when we couldn't reduce anything this iteration
+}
+
 /// Look at every entity in the tree.
 /// If we can reduce this entity, continue looking at its siblings.
 /// Otherwise, recurse and look at its children.
@@ -514,6 +544,8 @@ void reduce()
 			return reducePingPong();
 		case "indepth":
 			return reduceInDepth();
+		case "inbreadth":
+			return reduceInBreadth();
 		default:
 			throw new Exception("Unknown strategy");
 	}
