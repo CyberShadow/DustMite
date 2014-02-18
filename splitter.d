@@ -212,7 +212,8 @@ struct DSplitter
 		{ "(", ")" },
 	];
 
-	static immutable string[] blockKeywords = ["try", "catch", "finally", "while", "do", "in", "out", "body", "if", "static if", "else"];
+	static immutable string[] blockKeywords = ["try", "catch", "finally", "while", "do", "in", "out", "body", "if", "static if", "else", "for", "foreach"];
+	static immutable string[] parenKeywords = ["catch", "while", "if", "static if", "for", "foreach"];
 
 	/// The order dictates the splitting priority of the separators.
 	static immutable string[][] separators =
@@ -297,6 +298,7 @@ struct DSplitter
 	static immutable TokenPair[] pairTokens      = pairs     .arrayMap!makeTokenPair();
 	static immutable Token[][]   separatorTokens = separators.arrayMap!lookupTokens ();
 	static immutable Token[] blockKeywordTokens = blockKeywords.arrayMap!lookupToken();
+	static immutable Token[] parenKeywordTokens = parenKeywords.arrayMap!lookupToken();
 
 	enum SeparatorType
 	{
@@ -889,6 +891,30 @@ struct DSplitter
 		}
 	}
 
+	static void postProcessParens(ref Entity[] entities)
+	{
+		for (size_t i=0; i<entities.length;)
+		{
+			if (parenKeywordTokens.canFind(entities[i].token)
+			 && i+1 < entities.length
+			 && entities[i+1].children.length
+			 && entities[i+1].children[0].children.length
+			 && entities[i+1].children[0].children[0].token == tokenLookup["("]
+			)
+			{
+				auto paren = entities[i+1].children[0].children[0..1];
+				entities[i+1].children[0].children = entities[i+1].children[0].children[1..$];
+				entities = entities[0..i] ~ group(entities[i] ~ paren) ~ entities[i+1..$];
+				continue;
+			}
+
+			i++;
+		}
+
+		foreach (e; entities)
+			postProcessParens(e.children);
+	}
+
 	static void postProcess(ref Entity[] entities)
 	{
 		foreach (e; entities)
@@ -901,6 +927,7 @@ struct DSplitter
 		postProcessDependencyBlock(entities);
 		postProcessBlockStatements(entities);
 		postProcessPairs(entities);
+		postProcessParens(entities);
 	}
 
 	static Token firstToken(Entity e)
