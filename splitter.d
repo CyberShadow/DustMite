@@ -541,6 +541,8 @@ struct DSplitter
 		while (type == Token.whitespace || type == Token.comment);
 		skipToEOL();
 		span = s[spanStart..i];
+		if (type == Token.end && span.length)
+			type = Token.whitespace;
 	}
 
 	/// Moves i forward over first series of EOL characters,
