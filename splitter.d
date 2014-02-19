@@ -893,19 +893,20 @@ struct DSplitter
 
 	static void postProcessParens(ref Entity[] entities)
 	{
-		for (size_t i=0; i<entities.length;)
+		for (size_t i=0; i+1 < entities.length;)
 		{
-			if (parenKeywordTokens.canFind(entities[i].token)
-			 && i+1 < entities.length
-			 && entities[i+1].children.length
-			 && entities[i+1].children[0].children.length
-			 && entities[i+1].children[0].children[0].token == tokenLookup["("]
-			)
+			if (parenKeywordTokens.canFind(entities[i].token))
 			{
-				auto paren = entities[i+1].children[0].children[0..1];
-				entities[i+1].children[0].children = entities[i+1].children[0].children[1..$];
-				entities = entities[0..i] ~ group(entities[i] ~ paren) ~ entities[i+1..$];
-				continue;
+				auto pparen = firstHead(entities[i+1]);
+				if (pparen
+				 && *pparen !is entities[i+1]
+				 && pparen.token == tokenLookup["("])
+				{
+					auto paren = *pparen;
+					*pparen = new Entity();
+					entities = entities[0..i] ~ group([entities[i], paren]) ~ entities[i+1..$];
+					continue;
+				}
 			}
 
 			i++;
@@ -928,6 +929,19 @@ struct DSplitter
 		postProcessBlockStatements(entities);
 		postProcessPairs(entities);
 		postProcessParens(entities);
+	}
+
+	static Entity* firstHead(ref Entity e)
+	{
+		if (e.head.length)
+			return &e;
+		foreach (ref c; e.children)
+		{
+			auto r = firstHead(c);
+			if (r)
+				return r;
+		}
+		return null;
 	}
 
 	static Token firstToken(Entity e)

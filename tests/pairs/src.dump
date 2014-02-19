@@ -76,14 +76,17 @@
           ";\r\n\r\n"
         ]
         [
-          [ "    static if " /* static if */ ]
+          [
+            [ "    static if " /* static if */ ]
+            [ // (
+              "("
+              [ "false" ]
+              ")\r\n"
+            ]
+          ]
           [ // ;
             [
-              [ // (
-                "("
-                [ "false" ]
-                ")\r\n"
-              ]
+              [ ]
               [
                 [ "        enum " ]
                 [ "e" ]
