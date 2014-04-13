@@ -257,7 +257,9 @@ struct DSplitter
 		max = generated0 + tokenLookup.length
 	}
 
-	enum Token[string] tokenLookup = // DMD pr/2824
+	enum Token[string] tokenLookup = buildTokenLookup(); // DMD pr/2824
+
+	private static Token[string] buildTokenLookup()
 	{
 		Token[string] lookup;
 
@@ -281,15 +283,17 @@ struct DSplitter
 				add(sep);
 
 		return lookup;
-	}();
+	}
 
-	static immutable string[Token.max] tokenText =
+	static immutable string[Token.max] tokenText = buildTokenText();
+
+	private static string[Token.max] buildTokenText()
 	{
 		string[Token.max] result;
 		foreach (k, v; tokenLookup)
 			result[v] = k;
 		return result;
-	}();
+	}
 
 	struct TokenPair { Token start, end; }
 	static Token lookupToken(string s) { return tokenLookup[s]; }
