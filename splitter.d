@@ -682,7 +682,7 @@ struct DSplitter
 		parseScope(entity, Token.none);
 		assert(!entity.head && !entity.tail);
 		postProcess(entity.children);
-		return entity.children;
+		return [entity];
 	}
 
 	Entity[] parseToWords(string code)
