@@ -1041,8 +1041,15 @@ bool test(Reduction reduction)
 		auto lastdir = getcwd(); scope(exit) chdir(lastdir);
 		chdir(testdir);
 
+		File nul;
+		version (Windows)
+			nul.open("nul", "w+");
+		else
+			nul.open("/dev/null", "w+");
+		auto pid = spawnShell(tester, nul, nul, nul);
+
 		bool result;
-		measure!"test"({result = system(tester) == 0;});
+		measure!"test"({result = pid.wait() == 0;});
 		writeln(result ? "Yes" : "No");
 		return result;
 	}
