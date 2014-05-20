@@ -115,7 +115,10 @@ void optimize(Entity set)
 	static void group(ref Entity[] set, size_t start, size_t end)
 	{
 		//set = set[0..start] ~ [new Entity(removable, set[start..end])] ~ set[end..$];
-		set.replaceInPlace(start, end, [new Entity(null, set[start..end].dup, null)]);
+		auto children = set[start..end].dup;
+		auto e = new Entity(null, children, null);
+		e.noRemove = children.any!(c => c.noRemove)();
+		set.replaceInPlace(start, end, [e]);
 	}
 
 	static void clusterBy(ref Entity[] set, size_t binSize)
