@@ -100,7 +100,7 @@ int main(string[] args)
 
 	getopt(args,
 		"force", &force,
-		"noremove", &noRemoveStr,
+		"noremove|no-remove", &noRemoveStr,
 		"strip-comments", &stripComments,
 		"coverage", &coverageDir,
 		"obfuscate", &obfuscate,
@@ -112,7 +112,7 @@ int main(string[] args)
 		"cache", &globalCache, // for research
 		"trace", &trace, // for debugging
 		"nosave|no-save", &noSave, // for research
-		"no-optimize", &noOptimize, // for research
+		"nooptimize|no-optimize", &noOptimize, // for research
 		"h|help", &showHelp
 	);
 
@@ -126,7 +126,7 @@ TESTER should be a shell command which returns 0 for a correct reduction,
 and anything else otherwise.
 Supported options:
   --force            Force reduction of unusual files
-  --noremove REGEXP  Do not reduce blocks containing REGEXP
+  --no-remove REGEXP Do not reduce blocks containing REGEXP
                        (may be used multiple times)
   --strip-comments   Attempt to remove comments from source code.
   --coverage DIR     Load .lst files corresponding to source files from DIR
