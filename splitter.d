@@ -9,6 +9,7 @@ import std.algorithm;
 import std.array;
 import std.conv;
 import std.file;
+import std.functional;
 import std.path;
 import std.range;
 import std.string;
@@ -66,9 +67,10 @@ enum Mode
 
 enum Splitter
 {
-	D,         /// Parse D source code
-	words,     /// Split by whitespace
 	files,     /// Load entire files only
+	lines,     /// Split by line ends
+	words,     /// Split by whitespace
+	D,         /// Parse D source code
 }
 immutable string[] splitterNames = [EnumMembers!Splitter].map!(e => e.text().toLower()).array();
 
@@ -175,6 +177,15 @@ Entity loadFile(string name, string path, ParseOptions options)
 		{
 			final switch (rule.splitter)
 			{
+				case Splitter.files:
+					result.children = [new Entity(result.contents, null, null)];
+					return result;
+				case Splitter.lines:
+					result.children = parseToLines(result.contents);
+					return result;
+				case Splitter.words:
+					result.children = parseToWords(result.contents);
+					return result;
 				case Splitter.D:
 				{
 					if (result.contents.startsWith("Ddoc"))
@@ -194,12 +205,6 @@ Entity loadFile(string name, string path, ParseOptions options)
 							return result;
 					}
 				}
-				case Splitter.words:
-					result.children = parseToWords(result.contents);
-					return result;
-				case Splitter.files:
-					result.children = [new Entity(result.contents, null, null)];
-					return result;
 			}
 		}
 	assert(false); // default * rule should match everything
@@ -958,24 +963,33 @@ struct DSplitter
 	}
 }
 
-public Entity[] parseToWords(string text)
+public:
+
+/// Split the text into sequences for each fun is always true, and then always false
+Entity[] parseSplit(alias fun)(string text)
 {
 	Entity[] result;
 	size_t i, wordStart, wordEnd;
 	for (i = 1; i <= text.length; i++)
-		if (i==text.length || (!isAlphaNum(text[i-1]) && isAlphaNum(text[i])))
+		if (i==text.length || (fun(text[i-1]) && fun(text[i])))
 		{
 			if (wordStart != i)
 				result ~= new Entity(text[wordStart..wordEnd], null, text[wordEnd..i]);
 			wordStart = wordEnd = i;
 		}
 		else
-		if ((isAlphaNum(text[i-1]) && !isAlphaNum(text[i])))
+		if ((!fun(text[i-1]) && fun(text[i])))
 			wordEnd = i;
 	return result;
 }
 
+alias parseToWords = parseSplit!isNotAlphaNum;
+alias parseToLines = parseSplit!isNewline;
+
 private:
+
+bool isNewline(char c) { return c == '\r' || c == '\n'; }
+alias isNotAlphaNum = not!isAlphaNum;
 
 // https://d.puremagic.com/issues/show_bug.cgi?id=11824
 auto arrayMap(alias fun, T)(T[] arr)
