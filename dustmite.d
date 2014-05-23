@@ -21,6 +21,8 @@ import std.random;
 
 import splitter;
 
+alias Splitter = splitter.Splitter;
+
 // Issue 314 workarounds
 alias std.string.join join;
 alias std.string.startsWith startsWith;
@@ -96,7 +98,7 @@ int main(string[] args)
 {
 	bool force, dump, dumpHtml, showTimes, stripComments, obfuscate, keepLength, showHelp, noOptimize;
 	string coverageDir;
-	string[] noRemoveStr;
+	string[] noRemoveStr, splitRules;
 
 	getopt(args,
 		"force", &force,
@@ -106,6 +108,7 @@ int main(string[] args)
 		"obfuscate", &obfuscate,
 		"keep-length", &keepLength,
 		"strategy", &strategy,
+		"split", &splitRules,
 		"dump", &dump,
 		"dump-html", &dumpHtml,
 		"times", &showTimes,
@@ -133,7 +136,10 @@ Supported options:
   --obfuscate        Instead of reducing, obfuscate the input by replacing
                        words with random substitutions
   --keep-length      Preserve word length when obfuscating
-EOS", args[0]);
+  --split MASK:MODE  Parse and reduce files specified by MASK using the given
+                       splitter. Can be repeated. MODE must be one of:
+                       %-(%s, %)
+EOS", args[0], splitterNames);
 
 		if (!showHelp)
 		{
@@ -185,9 +191,21 @@ EOS");
 				return 1;
 			}
 
+	ParseRule parseSplitRule(string rule)
+	{
+		auto p = rule.lastIndexOf(':');
+		enforce(p > 0, "Invalid parse rule: " ~ rule);
+		auto pattern = rule[0..p];
+		auto splitterName = rule[p+1..$];
+		auto splitterIndex = splitterNames.countUntil(splitterName);
+		enforce(splitterIndex >= 0, "Unknown splitter: " ~ splitterName);
+		return ParseRule(pattern, cast(Splitter)splitterIndex);
+	}
+
 	ParseOptions parseOptions;
 	parseOptions.stripComments = stripComments;
 	parseOptions.mode = obfuscate ? ParseOptions.Mode.words : ParseOptions.Mode.source;
+	parseOptions.rules = splitRules.map!parseSplitRule().array();
 	measure!"load"({root = loadFiles(dir, parseOptions);});
 	enforce(root.children.length, "No files in specified directory");
 

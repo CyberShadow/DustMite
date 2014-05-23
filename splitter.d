@@ -7,10 +7,12 @@ module splitter;
 import std.ascii;
 import std.algorithm;
 import std.array;
+import std.conv;
 import std.file;
 import std.path;
 import std.range;
 import std.string;
+import std.traits;
 debug import std.stdio;
 
 /// Represents a slice of the original code.
@@ -68,6 +70,7 @@ enum Splitter
 	words,     /// Split by whitespace
 	files,     /// Load entire files only
 }
+immutable string[] splitterNames = [EnumMembers!Splitter].map!(e => e.text().toLower()).array();
 
 struct ParseRule
 {
