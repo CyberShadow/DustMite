@@ -1,20 +1,19 @@
-ReplaceWord [1/19: secretmodule -> A] => Yes
-ReplaceWord [2/19: module -> B] => No
-ReplaceWord [3/19: std -> C] => No
-ReplaceWord [4/19: stdio -> D] => No
-ReplaceWord [5/19: struct -> E] => No
-ReplaceWord [6/19: SecretUDA -> F] => Yes
-ReplaceWord [7/19: @ -> G] => No
-ReplaceWord [8/19: void -> H] => No
-ReplaceWord [9/19: doIt -> I] => Yes
-ReplaceWord [10/19: string -> J] => No
-ReplaceWord [11/19: message1 -> K] => Yes
-ReplaceWord [12/19: "Hello" -> L] => No
-ReplaceWord [13/19: message2 -> M] => Yes
-ReplaceWord [14/19: "world" -> N] => No
-ReplaceWord [15/19: writeln -> O] => No
-ReplaceWord [16/19: ", " -> P] => No
-ReplaceWord [17/19:
-ReplaceWord [18/19: test -> R] => No
-ReplaceWord [19/19: main -> S] => No
-Done in 20 tests
+ReplaceWord [1/18: secretmodule -> A] => Yes
+ReplaceWord [2/18: module -> B] => No
+ReplaceWord [3/18: std -> C] => No
+ReplaceWord [4/18: stdio -> D] => No
+ReplaceWord [5/18: struct -> E] => No
+ReplaceWord [6/18: SecretUDA -> F] => Yes
+ReplaceWord [7/18: @ -> G] => No
+ReplaceWord [8/18: void -> H] => No
+ReplaceWord [9/18: doIt -> I] => Yes
+ReplaceWord [10/18: string -> J] => No
+ReplaceWord [11/18: message1 -> K] => Yes
+ReplaceWord [12/18: "Hello" -> L] => No
+ReplaceWord [13/18: message2 -> M] => Yes
+ReplaceWord [14/18: "world" -> N] => No
+ReplaceWord [15/18: writeln -> O] => No
+ReplaceWord [16/18: ", " -> P] => No
+ReplaceWord [17/18: test -> Q] => No
+ReplaceWord [18/18: main -> R] => No
+Done in 19 tests

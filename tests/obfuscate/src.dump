@@ -20,8 +20,7 @@
     [ "writeln" "(" ]
     [ "message1" " ~ " ]
     [ "\", \"" " ~ " ]
-    [ "message2" ");\r\n}" ]
-    [ "\r\n" ]
+    [ "message2" ");\r\n}\r\n" ]
   ]
   [
     /*** test.d ***/
@@ -29,7 +28,6 @@
     [ "secretmodule" ";\r\n\r\n" ]
     [ "void" " " ]
     [ "main" "()\r\n{\r\n	" ]
-    [ "doIt" "();\r\n}" ]
-    [ "\r\n" ]
+    [ "doIt" "();\r\n}\r\n" ]
   ]
 ]

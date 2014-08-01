@@ -57,6 +57,11 @@ class Entity
 		else
 			return null;
 	}
+
+	override string toString()
+	{
+		return "%(%s%) %s %(%s%)".format([head], children, [tail]);
+	}
 }
 
 enum Mode
@@ -407,58 +412,66 @@ struct DSplitter
 	{
 		if (eos)
 			return Token.end;
+
+		Token result = Token.other;
 		try
 		{
 			auto c = advance();
 			switch (c)
 			{
 			case '\'':
+				result = Token.other;
 				if (consume('\\'))
 					advance();
 				while (advance() != '\'')
 					continue;
-				return Token.other;
+				break;
 			case '\\':  // D1 naked escaped string
+				result = Token.other;
 				advance();
-				return Token.other;
+				break;
 			case '"':
+				result = Token.other;
 				while (peek() != '"')
 				{
 					if (advance() == '\\')
 						advance();
 				}
 				advance();
-				return Token.other;
+				break;
 			case 'r':
 				if (consume(`r"`))
 				{
+					result = Token.other;
 					while (advance() != '"')
 						continue;
-					return Token.other;
+					break;
 				}
 				else
 					goto default;
 			case '`':
+				result = Token.other;
 				while (advance() != '`')
 					continue;
-				return Token.other;
+				break;
 			case '/':
 				if (consume('/'))
 				{
+					result = Token.comment;
 					while (peek() != '\r' && peek() != '\n')
 						advance();
-					return Token.comment;
 				}
 				else
 				if (consume('*'))
 				{
+					result = Token.comment;
 					while (!consume("*/"))
 						advance();
-					return Token.comment;
 				}
 				else
 				if (consume('+'))
 				{
+					result = Token.comment;
 					int commentLevel = 1;
 					while (commentLevel)
 					{
@@ -470,10 +483,10 @@ struct DSplitter
 						else
 							advance();
 					}
-					return Token.comment;
 				}
 				else
 					goto default;
+				break;
 			case '@':
 				if (consume("disable")
 				 || consume("property")
@@ -484,6 +497,7 @@ struct DSplitter
 					return Token.other;
 				goto default;
 			case '#':
+				result = Token.other;
 				do
 				{
 					c = advance();
@@ -491,7 +505,7 @@ struct DSplitter
 						c = advance();
 				}
 				while (c != '\n');
-				return Token.other;
+				break;
 			default:
 				{
 					i--;
@@ -522,26 +536,24 @@ struct DSplitter
 				}
 				if (c.isWhite())
 				{
+					result = Token.whitespace;
 					while (peek().isWhite())
 						advance();
-					return Token.whitespace;
 				}
 				else
 				if (isWordChar(c))
 				{
+					result = Token.other;
 					while (isWordChar(peek()))
 						advance();
-					return Token.other;
 				}
 				else
-					return Token.other;
+					result = Token.other;
 			}
 		}
 		catch (EndOfInput)
-		{
 			i = s.length;
-			return Token.other;
-		}
+		return result;
 	}
 
 	/// Skips leading and trailing whitespace/comments, too.
