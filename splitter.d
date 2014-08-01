@@ -971,7 +971,7 @@ Entity[] parseSplit(alias fun)(string text)
 	Entity[] result;
 	size_t i, wordStart, wordEnd;
 	for (i = 1; i <= text.length; i++)
-		if (i==text.length || (fun(text[i-1]) && fun(text[i])))
+		if (i==text.length || (fun(text[i-1]) && !fun(text[i])))
 		{
 			if (wordStart != i)
 				result ~= new Entity(text[wordStart..wordEnd], null, text[wordEnd..i]);
