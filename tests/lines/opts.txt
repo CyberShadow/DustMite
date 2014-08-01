@@ -1,2 +1,2 @@
 --split
-*.txt:words
+*.txt:lines
