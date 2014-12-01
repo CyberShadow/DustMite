@@ -98,10 +98,11 @@ int main(string[] args)
 {
 	bool force, dump, dumpHtml, showTimes, stripComments, obfuscate, keepLength, showHelp, noOptimize;
 	string coverageDir;
-	string[] noRemoveStr, splitRules;
+	string[] reduceOnly, noRemoveStr, splitRules;
 
 	getopt(args,
 		"force", &force,
+		"reduceonly|reduce-only", &reduceOnly,
 		"noremove|no-remove", &noRemoveStr,
 		"strip-comments", &stripComments,
 		"coverage", &coverageDir,
@@ -130,6 +131,8 @@ TESTER should be a shell command which returns 0 for a correct reduction,
 and anything else otherwise.
 Supported options:
   --force            Force reduction of unusual files
+  --reduce-only MASK Only reduce paths glob-matching MASK
+                       (may be used multiple times)
   --no-remove REGEXP Do not reduce blocks containing REGEXP
                        (may be used multiple times)
   --strip-comments   Attempt to remove comments from source code.
@@ -212,7 +215,7 @@ EOS");
 	enforce(root.children.length, "No files in specified directory");
 
 	applyNoRemoveMagic();
-	applyNoRemoveRegex(noRemoveStr);
+	applyNoRemoveRegex(noRemoveStr, reduceOnly);
 	if (coverageDir)
 		loadCoverage(coverageDir);
 	if (!obfuscate && !noOptimize)
@@ -1126,7 +1129,7 @@ void applyNoRemoveMagic()
 	scan(root);
 }
 
-void applyNoRemoveRegex(string[] noRemoveStr)
+void applyNoRemoveRegex(string[] noRemoveStr, string[] reduceOnly)
 {
 	auto noRemove = array(map!((string s) { return regex(s, "mg"); })(noRemoveStr));
 
@@ -1142,7 +1145,13 @@ void applyNoRemoveRegex(string[] noRemoveStr)
 	foreach (f; files)
 	{
 		assert(f.isFile);
-		if (noRemove.any!(a => !match(f.filename, a).empty))
+
+		if
+		(
+			(reduceOnly.length && !reduceOnly.any!(mask => globMatch(f.filename, mask)))
+		||
+			(noRemove.any!(a => !match(f.filename, a).empty))
+		)
 		{
 			mark(f);
 			root.noRemove = true;
