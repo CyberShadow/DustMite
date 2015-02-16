@@ -123,8 +123,8 @@ int main(string[] args)
 
 	if (showHelp || args.length == 1 || args.length>3)
 	{
-		stderr.writef(q"EOS
-Usage: %s [OPTION]... PATH TESTER
+		stderr.writef(
+`Usage: %s [OPTION]... PATH TESTER
 PATH should be a directory containing a clean copy of the file-set to reduce.
 A file path can also be specified. NAME.EXT will be treated like NAME/NAME.EXT.
 TESTER should be a shell command which returns 0 for a correct reduction,
@@ -144,18 +144,18 @@ Supported options:
                        splitter. Can be repeated. MODE must be one of:
                        %-(%s, %)
   --no-redirect      Don't redirect stdout/stderr streams of test command.
-EOS", args[0], splitterNames);
+`, args[0], splitterNames);
 
 		if (!showHelp)
 		{
-			stderr.write(q"EOS
-  --help             Show this message and some less interesting options
-EOS");
+			stderr.write(
+`  --help             Show this message and some less interesting options
+`);
 		}
 		else
 		{
-			stderr.write(q"EOS
-  --help             Show this message
+			stderr.write(
+`  --help             Show this message
 Less interesting options:
   --strategy STRAT   Set strategy (careful/lookback/pingpong/indepth/inbreadth)
   --dump             Dump parsed tree to DIR.dump file
@@ -167,13 +167,12 @@ Less interesting options:
   --no-save          Disable saving in-progress results
   --no-optimize      Disable tree optimization step
                        (may be useful with --dump)
-EOS");
+`);
 		}
-		stderr.write(q"EOS
-
-Full documentation can be found on the GitHub wiki:
+		stderr.write(
+`Full documentation can be found on the GitHub wiki:
   https://github.com/CyberShadow/DustMite/wiki
-EOS");
+`);
 		return showHelp ? 0 : 64; // EX_USAGE
 	}
 
