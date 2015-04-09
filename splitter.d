@@ -440,7 +440,7 @@ struct DSplitter
 				advance();
 				break;
 			case 'r':
-				if (consume(`r"`))
+				if (consume(`r"`) !is null)
 				{
 					result = Token.other;
 					while (advance() != '"')
@@ -465,7 +465,7 @@ struct DSplitter
 				if (consume('*'))
 				{
 					result = Token.comment;
-					while (!consume("*/"))
+					while (consume("*/") is null)
 						advance();
 				}
 				else
@@ -475,10 +475,10 @@ struct DSplitter
 					int commentLevel = 1;
 					while (commentLevel)
 					{
-						if (consume("/+"))
+						if (consume("/+") !is null)
 							commentLevel++;
 						else
-						if (consume("+/"))
+						if (consume("+/") !is null)
 							commentLevel--;
 						else
 							advance();
@@ -488,11 +488,11 @@ struct DSplitter
 					goto default;
 				break;
 			case '@':
-				if (consume("disable")
-				 || consume("property")
-				 || consume("safe")
-				 || consume("trusted")
-				 || consume("system")
+				if (consume("disable") !is null
+				 || consume("property") !is null
+				 || consume("safe") !is null
+				 || consume("trusted") !is null
+				 || consume("system") !is null
 				)
 					return Token.other;
 				goto default;
@@ -514,7 +514,7 @@ struct DSplitter
 					foreach (Token t; Token.init..Token.max)
 					{
 						auto text = tokenText[t];
-						if (!text)
+						if (text is null)
 							continue;
 						if (!s[i..$].startsWith(text))
 							continue;
@@ -528,7 +528,7 @@ struct DSplitter
 					if (bestLength)
 					{
 						auto consumed = consume(tokenText[best]);
-						assert(consumed);
+						assert(consumed !is null);
 						return best;
 					}
 
@@ -703,7 +703,7 @@ struct DSplitter
 		reset(code);
 		auto entity = new Entity;
 		parseScope(entity, Token.none);
-		assert(!entity.head && !entity.tail);
+		assert(entity.head is null && entity.tail is null);
 		postProcess(entity.children);
 		return [entity];
 	}
@@ -724,7 +724,7 @@ struct DSplitter
 			{
 				if (!result.length)
 					result ~= new Entity();
-				if (!result[$-1].tail)
+				if (result[$-1].tail is null)
 					result[$-1].tail = span;
 				else
 				{
@@ -793,7 +793,7 @@ struct DSplitter
 
 		size_t[] points;
 		foreach_reverse (i, e; entities[0..$-1])
-			if (getSeparatorType(e.token) == SeparatorType.binary && e.children)
+			if (getSeparatorType(e.token) == SeparatorType.binary && e.children !is null)
 				points ~= i;
 
 		if (points.length)
@@ -814,7 +814,7 @@ struct DSplitter
 	static void postProcessDependencyBlock(ref Entity[] entities)
 	{
 		foreach (i, e; entities)
-			if (i && !e.token && e.children.length && getSeparatorType(e.children[0].token) == SeparatorType.binary && !e.children[0].children)
+			if (i && !e.token && e.children.length && getSeparatorType(e.children[0].token) == SeparatorType.binary && e.children[0].children is null)
 				e.children[0].dependencies ~= entities[i-1];
 	}
 
