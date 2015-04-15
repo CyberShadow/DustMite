@@ -374,24 +374,24 @@ struct DSplitter
 	/// ditto
 	char advance() { return advance(1)[0]; }
 
-	/// If pre comes next, advance i through pre and return it.
-	/// Otherwise, return null.
-	string consume(string pre)
+	/// If pre comes next, advance i through pre and return whether it is not an empty string.
+	/// Otherwise, return false.
+	bool consume(string pre)
 	{
 		if (s[i..$].startsWith(pre))
-			return advance(pre.length);
+			return !advance(pre.length).empty;
 		else
-			return null;
+			return false;
 	}
 
 	/// ditto
-	char consume(char pre)
+	bool consume(char pre)
 	{
 		assert(pre);
 		if (s[i..$].startsWith(pre))
-			return advance();
+			return advance() != 0;
 		else
-			return 0;
+			return false;
 	}
 
 	/// Peeks at the next n characters.
@@ -440,7 +440,7 @@ struct DSplitter
 				advance();
 				break;
 			case 'r':
-				if (consume(`r"`) !is null)
+				if (consume(`r"`))
 				{
 					result = Token.other;
 					while (advance() != '"')
@@ -465,7 +465,7 @@ struct DSplitter
 				if (consume('*'))
 				{
 					result = Token.comment;
-					while (consume("*/") is null)
+					while (!consume("*/"))
 						advance();
 				}
 				else
@@ -475,10 +475,10 @@ struct DSplitter
 					int commentLevel = 1;
 					while (commentLevel)
 					{
-						if (consume("/+") !is null)
+						if (consume("/+"))
 							commentLevel++;
 						else
-						if (consume("+/") !is null)
+						if (consume("+/"))
 							commentLevel--;
 						else
 							advance();
@@ -488,11 +488,11 @@ struct DSplitter
 					goto default;
 				break;
 			case '@':
-				if (consume("disable") !is null
-				 || consume("property") !is null
-				 || consume("safe") !is null
-				 || consume("trusted") !is null
-				 || consume("system") !is null
+				if (consume("disable")
+				 || consume("property")
+				 || consume("safe")
+				 || consume("trusted")
+				 || consume("system")
 				)
 					return Token.other;
 				goto default;
@@ -528,7 +528,7 @@ struct DSplitter
 					if (bestLength)
 					{
 						auto consumed = consume(tokenText[best]);
-						assert(consumed !is null);
+						assert(consumed);
 						return best;
 					}
 
