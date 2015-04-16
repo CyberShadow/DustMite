@@ -514,7 +514,7 @@ struct DSplitter
 					foreach (Token t; Token.init..Token.max)
 					{
 						auto text = tokenText[t];
-						if (text is null)
+						if (text.empty)
 							continue;
 						if (!s[i..$].startsWith(text))
 							continue;
@@ -703,7 +703,7 @@ struct DSplitter
 		reset(code);
 		auto entity = new Entity;
 		parseScope(entity, Token.none);
-		assert(entity.head is null && entity.tail is null);
+		assert(entity.head.empty && entity.tail.empty);
 		postProcess(entity.children);
 		return [entity];
 	}
@@ -724,7 +724,7 @@ struct DSplitter
 			{
 				if (!result.length)
 					result ~= new Entity();
-				if (result[$-1].tail is null)
+				if (result[$-1].tail.empty)
 					result[$-1].tail = span;
 				else
 				{
@@ -793,7 +793,7 @@ struct DSplitter
 
 		size_t[] points;
 		foreach_reverse (i, e; entities[0..$-1])
-			if (getSeparatorType(e.token) == SeparatorType.binary && e.children !is null)
+			if (getSeparatorType(e.token) == SeparatorType.binary && !e.children.empty)
 				points ~= i;
 
 		if (points.length)
@@ -814,7 +814,7 @@ struct DSplitter
 	static void postProcessDependencyBlock(ref Entity[] entities)
 	{
 		foreach (i, e; entities)
-			if (i && !e.token && e.children.length && getSeparatorType(e.children[0].token) == SeparatorType.binary && e.children[0].children is null)
+			if (i && !e.token && e.children.length && getSeparatorType(e.children[0].token) == SeparatorType.binary && e.children[0].children.empty)
 				e.children[0].dependencies ~= entities[i-1];
 	}
 
