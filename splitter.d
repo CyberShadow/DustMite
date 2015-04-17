@@ -374,24 +374,24 @@ struct DSplitter
 	/// ditto
 	char advance() { return advance(1)[0]; }
 
-	/// If pre comes next, advance i through pre and return it.
-	/// Otherwise, return null.
-	string consume(string pre)
+	/// If pre comes next, advance i through pre and return whether it is not an empty string.
+	/// Otherwise, return false.
+	bool consume(string pre)
 	{
 		if (s[i..$].startsWith(pre))
-			return advance(pre.length);
+			return !advance(pre.length).empty;
 		else
-			return null;
+			return false;
 	}
 
 	/// ditto
-	char consume(char pre)
+	bool consume(char pre)
 	{
 		assert(pre);
 		if (s[i..$].startsWith(pre))
-			return advance();
+			return advance() != 0;
 		else
-			return 0;
+			return false;
 	}
 
 	/// Peeks at the next n characters.
@@ -514,7 +514,7 @@ struct DSplitter
 					foreach (Token t; Token.init..Token.max)
 					{
 						auto text = tokenText[t];
-						if (!text)
+						if (!text.ptr)
 							continue;
 						if (!s[i..$].startsWith(text))
 							continue;
@@ -703,7 +703,7 @@ struct DSplitter
 		reset(code);
 		auto entity = new Entity;
 		parseScope(entity, Token.none);
-		assert(!entity.head && !entity.tail);
+		assert(!entity.head.ptr && !entity.tail.ptr);
 		postProcess(entity.children);
 		return [entity];
 	}
@@ -724,7 +724,7 @@ struct DSplitter
 			{
 				if (!result.length)
 					result ~= new Entity();
-				if (!result[$-1].tail)
+				if (!result[$-1].tail.ptr)
 					result[$-1].tail = span;
 				else
 				{
@@ -793,7 +793,7 @@ struct DSplitter
 
 		size_t[] points;
 		foreach_reverse (i, e; entities[0..$-1])
-			if (getSeparatorType(e.token) == SeparatorType.binary && e.children)
+			if (getSeparatorType(e.token) == SeparatorType.binary && e.children.ptr)
 				points ~= i;
 
 		if (points.length)
@@ -814,7 +814,7 @@ struct DSplitter
 	static void postProcessDependencyBlock(ref Entity[] entities)
 	{
 		foreach (i, e; entities)
-			if (i && !e.token && e.children.length && getSeparatorType(e.children[0].token) == SeparatorType.binary && !e.children[0].children)
+			if (i && !e.token && e.children.length && getSeparatorType(e.children[0].token) == SeparatorType.binary && !e.children[0].children.ptr)
 				e.children[0].dependencies ~= entities[i-1];
 	}
 

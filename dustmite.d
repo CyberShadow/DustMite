@@ -177,7 +177,7 @@ EOS");
 		return showHelp ? 0 : 64; // EX_USAGE
 	}
 
-	enforce(!(stripComments && coverageDir), "Sorry, --strip-comments is not compatible with --coverage");
+	enforce(!(stripComments && coverageDir.ptr), "Sorry, --strip-comments is not compatible with --coverage");
 
 	dir = args[1];
 	if (isDirSeparator(dir[$-1]))
@@ -216,7 +216,7 @@ EOS");
 
 	applyNoRemoveMagic();
 	applyNoRemoveRegex(noRemoveStr, reduceOnly);
-	if (coverageDir)
+	if (coverageDir.ptr)
 		loadCoverage(coverageDir);
 	if (!obfuscate && !noOptimize)
 		optimize(root);
@@ -662,10 +662,10 @@ void dump(Entity root, ref Reduction reduction, void delegate(string) handleFile
 					dumpEntity(c);
 			}
 			else
-			if (e.head || e.tail)
+			if (e.head.ptr || e.tail.ptr)
 			{
 				assert(e.children.length==0);
-				if (e.head)
+				if (e.head.ptr)
 				{
 					if (e.head == reduction.from)
 						handleText(reduction.to);
@@ -1030,7 +1030,7 @@ bool test(Reduction reduction)
 	{
 		tests++;
 
-		if (globalCache)
+		if (globalCache.ptr)
 		{
 			if (!exists(globalCache)) mkdirRecurse(globalCache);
 			string cacheBase = absolutePath(buildPath(globalCache, formatHash(digest))) ~ "-";
@@ -1312,20 +1312,20 @@ void dumpSet(string fn)
 				"[",
 				e.noRemove ? "!" : "",
 				" ",
-				e.isFile ? e.filename ? printableFN(e.filename) ~ " " : null : e.head ? printable(e.head) ~ " " : null,
-				e.tail ? printable(e.tail) ~ " " : null,
-				e.comment ? "/* " ~ e.comment ~ " */ " : null,
+				e.isFile ? e.filename.ptr ? printableFN(e.filename) ~ " " : null : e.head.ptr ? printable(e.head) ~ " " : null,
+				e.tail.ptr ? printable(e.tail) ~ " " : null,
+				e.comment.ptr ? "/* " ~ e.comment ~ " */ " : null,
 				"]"
 			);
 		}
 		else
 		{
-			f.writeln("[", e.noRemove ? "!" : "", e.comment ? " // " ~ e.comment : null);
+			f.writeln("[", e.noRemove ? "!" : "", e.comment.ptr ? " // " ~ e.comment : null);
 			if (e.isFile) f.writeln(prefix, "  ", printableFN(e.filename));
-			if (e.head) f.writeln(prefix, "  ", printable(e.head));
+			if (e.head.ptr) f.writeln(prefix, "  ", printable(e.head));
 			foreach (c; e.children)
 				print(c, depth+1);
-			if (e.tail) f.writeln(prefix, "  ", printable(e.tail));
+			if (e.tail.ptr) f.writeln(prefix, "  ", printable(e.tail));
 			f.write(prefix, "]");
 		}
 		if (e.id in dependents || trace)
