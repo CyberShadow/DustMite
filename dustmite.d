@@ -252,9 +252,14 @@ EOS");
 	duration = dur!"msecs"(duration.total!"msecs"); // truncate anything below ms, users aren't interested in that
 	if (foundAnything)
 	{
-		if (noSave)
-			measure!"resultSave"({safeSave(resultDir);});
-		writefln("Done in %s tests and %s; reduced version is in %s", tests, duration, resultDir);
+		if (root.children.length)
+		{
+			if (noSave)
+				measure!"resultSave"({safeSave(resultDir);});
+			writefln("Done in %s tests and %s; reduced version is in %s", tests, duration, resultDir);
+		}
+		else
+			writefln("Done in %s tests and %s; reduced to empty set", tests, duration);
 	}
 	else
 		writefln("Done in %s tests and %s; no reductions found", tests, duration);
