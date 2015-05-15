@@ -291,7 +291,7 @@ size_t checkDescendants(Entity e)
 	size_t n = 1;
 	foreach (c; e.children)
 		n += checkDescendants(c);
-	assert(e.descendants == n);
+	assert(e.descendants == n, "Wrong descendant count: expected %d, found %d".format(e.descendants, n));
 	return n;
 }
 
@@ -840,7 +840,10 @@ void applyReduction(ref Reduction r)
 				p.children = remove(p.children, r.address[$-1]);
 			}
 			else
+			{
 				root = new Entity();
+				root.descendants = 1;
+			}
 
 			debug verifyNotRemoved(root);
 			debug checkDescendants(root);
