@@ -313,6 +313,9 @@ bool testAddress(size_t[] address)
 {
 	auto e = entityAt(address);
 
+	if (e is root && !root.children.length)
+		return false;
+	else
 	if (tryReduction(Reduction(Reduction.Type.Remove, address, e)))
 		return true;
 	else
