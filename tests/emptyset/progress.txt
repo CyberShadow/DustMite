@@ -1,4 +1,4 @@
 ############### ITERATION 0 ################
-[  0.0%] Remove [] => Yes
+[ 0.0%] Remove [] => Yes
 ############### ITERATION 1 ################
 Done in 2 tests

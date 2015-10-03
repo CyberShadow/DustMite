@@ -87,7 +87,8 @@ struct Reduction
 					e = e.children[a];
 				}
 				progress += e.descendants;
-				return format("[%5.1f%%] %s [%s]", (origDescendants-progress) * 100.0 / origDescendants, name, segments.join(binary ? "" : ", "));
+				auto progressPM = (origDescendants-progress) * 1000 / origDescendants; // per-mille
+				return format("[%2d.%d%%] %s [%s]", progressPM/10, progressPM%10, name, segments.join(binary ? "" : ", "));
 		}
 	}
 }

@@ -1,8 +1,8 @@
 ############### ITERATION 0 ################
-[  0.0%] Remove [] => No
-[  0.0%] Remove [0] => No (cached)
-[  0.0%] Remove [00] => Yes
+[ 0.0%] Remove [] => No
+[ 0.0%] Remove [0] => No (cached)
+[ 0.0%] Remove [00] => Yes
 ############### ITERATION 1 ################
-[  0.0%] Remove [] => No (cached)
-[  0.0%] Remove [0] => No (cached)
+[ 0.0%] Remove [] => No (cached)
+[ 0.0%] Remove [0] => No (cached)
 Done in 3 tests
