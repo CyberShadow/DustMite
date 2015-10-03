@@ -1,0 +1,1 @@
+dmd -c test.d

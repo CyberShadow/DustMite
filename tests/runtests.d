@@ -12,7 +12,7 @@ void main(string[] args)
 {
 	auto tests = args[1..$];
 	if (tests.empty)
-		tests = dirEntries("", SpanMode.shallow).filter!(de => de.isDir).map!(de => de.name).array;
+		tests = dirEntries(".", SpanMode.shallow).filter!(de => de.isDir).map!(de => de.name).array;
 	foreach (test; tests.parallel)
 	{
 		scope(failure) stderr.writefln("runtests: Error with test %s", test);
@@ -20,8 +20,12 @@ void main(string[] args)
 		auto target = test~"/src";
 		if (!target.exists)
 			target = test~"/src.d";
-		auto tester = test~"/test.cmd";
-		auto testerCmd = ".." ~ dirSeparator ~ "test.cmd";
+		version (Windows)
+			enum testFile = "test.cmd";
+		else
+			enum testFile = "test.sh";
+		auto tester = test~"/" ~ testFile;
+		auto testerCmd = ".." ~ dirSeparator ~ testFile;
 
 		auto tempDir = target.setExtension("temp");
 		if (tempDir.exists) tempDir.rmdirRecurse();
