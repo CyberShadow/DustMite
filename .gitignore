@@ -2,4 +2,5 @@
 *.ilk
 *.suo
 *.pdb
+*.o
 dustmite
