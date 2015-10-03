@@ -609,7 +609,7 @@ void obfuscate(bool keepLength)
 		{
 			auto result = new char[length];
 			foreach (i, ref c; result)
-				c = (i==0 ? first : other)[uniform(0, $, rng)];
+				c = (i==0 ? first : other)[uniform(0, cast(uint)$, rng)];
 
 			return assumeUnique(result);
 		}
