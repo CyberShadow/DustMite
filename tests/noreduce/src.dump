@@ -13,7 +13,7 @@
             [ "stdio" ]
           ] =10
         ]
-        ";\r\n\r\n"
+        ";\n\n"
       ]
       [! // Pair
         [
@@ -21,10 +21,10 @@
             [ "void " ]
             [ "main" ]
           ]
-          [ "(" ")\r\n" /* ( */ ]
+          [ "(" ")\n" /* ( */ ]
         ]
         [! // {
-          "{\r\n"
+          "{\n"
           [ // ;
             [
               [ "	writeln" ]
@@ -34,31 +34,31 @@
                 ")"
               ]
             ]
-            ";\r\n"
+            ";\n"
           ]
           [! // ;
             [!
-              [! "	//DustMiteNoRemoveStart\r\n	writeln" ]
+              [! "	//DustMiteNoRemoveStart\n	writeln" ]
               [! // (
                 "("
                 [! "\"bar\"" ]
                 ")"
               ]
             ]
-            ";\r\n"
+            ";\n"
           ]
           [ // ;
             [
-              [ "	//DustMiteNoRemoveStop\r\n	writeln" ]
+              [ "	//DustMiteNoRemoveStop\n	writeln" ]
               [ // (
                 "("
                 [ "\"baz\"" ]
                 ")"
               ]
             ]
-            ";\r\n"
+            ";\n"
           ]
-          "}\r\n"
+          "}\n"
         ]
       ]
     ]
