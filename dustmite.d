@@ -1295,7 +1295,7 @@ void assignID(Entity e)
 
 void dumpSet(string fn)
 {
-	auto f = File(fn, "wt");
+	auto f = File(fn, "wb");
 
 	string printable(string s) { return s is null ? "null" : `"` ~ s.replace("\\", `\\`).replace("\"", `\"`).replace("\r", `\r`).replace("\n", `\n`) ~ `"`; }
 	string printableFN(string s) { return "/*** " ~ s ~ " ***/"; }
