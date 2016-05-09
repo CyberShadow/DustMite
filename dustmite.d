@@ -241,7 +241,19 @@ EOS");
 	enforce(!exists(resultDir), "Result directory already exists");
 
 	if (!test(nullReduction))
-		throw new Exception("Initial test fails" ~ (noRedirect ? "" : " (try --no-redirect)"));
+	{
+		version (Posix)
+		{
+			auto testerFile = dir.buildNormalizedPath(tester);
+			if (testerFile.exists && (testerFile.getAttributes() & octal!111) == 0)
+				writeln("Hint: test program seems to be a non-executable file, try: chmod +x " ~ testerFile.escapeShellFileName());
+		}
+		if (!testerFile.exists && tester.exists)
+			writeln("Hint: test program path should be relative to the source directory, try " ~
+				tester.absolutePath.relativePath(dir.absolutePath).escapeShellFileName() ~
+				" instead of " ~ tester.escapeShellFileName());
+		throw new Exception("Initial test fails" ~ (noRedirect ? "" : " (try using --no-redirect for details)"));
+	}
 
 	foundAnything = false;
 	if (obfuscate)
