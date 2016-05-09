@@ -171,7 +171,7 @@ immutable ParseRule[] defaultRules =
 
 Entity loadFile(string name, string path, ParseOptions options)
 {
-	debug writeln("Loading ", path);
+	stderr.writeln("Loading ", path);
 	auto result = new Entity();
 	result.filename = name.replace(`\`, `/`);
 	result.contents = cast(string)read(path);
