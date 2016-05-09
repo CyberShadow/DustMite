@@ -241,7 +241,7 @@ EOS");
 	enforce(!exists(resultDir), "Result directory already exists");
 
 	if (!test(nullReduction))
-		throw new Exception("Initial test fails");
+		throw new Exception("Initial test fails" ~ (noRedirect ? "" : " (try --no-redirect)"));
 
 	foundAnything = false;
 	if (obfuscate)
