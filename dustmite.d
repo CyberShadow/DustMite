@@ -38,6 +38,9 @@ int tests; bool foundAnything;
 bool noSave, trace, noRedirect;
 string strategy = "inbreadth";
 
+version (Posix)
+	version = lookahead;
+
 struct Times { StopWatch total, load, testSave, resultSave, test, clean, cacheHash, globalCache, misc; }
 Times times;
 static this() { times.total.start(); times.misc.start(); }
@@ -100,6 +103,7 @@ int main(string[] args)
 	bool force, dump, dumpHtml, showTimes, stripComments, obfuscate, keepLength, showHelp, noOptimize;
 	string coverageDir;
 	string[] reduceOnly, noRemoveStr, splitRules;
+	uint lookaheadCount;
 
 	getopt(args,
 		"force", &force,
@@ -119,7 +123,8 @@ int main(string[] args)
 		"trace", &trace, // for debugging
 		"nosave|no-save", &noSave, // for research
 		"nooptimize|no-optimize", &noOptimize, // for research
-		"h|help", &showHelp
+		"h|help", &showHelp,
+		"j|lookahead", &lookaheadCount,
 	);
 
 	if (showHelp || args.length == 1 || args.length>3)
@@ -145,6 +150,7 @@ Supported options:
                        splitter. Can be repeated. MODE must be one of:
                        %-(%s, %)
   --no-redirect      Don't redirect stdout/stderr streams of test command.
+  -j N               Use N look-ahead forks (POSIX-only)
 EOS", args[0], splitterNames);
 
 		if (!showHelp)
@@ -254,6 +260,11 @@ EOS");
 				" instead of " ~ tester.escapeShellFileName());
 		throw new Exception("Initial test fails" ~ (noRedirect ? "" : " (try using --no-redirect for details)"));
 	}
+
+	version (lookahead)
+		lookaheadProcesses = new Lookahead[lookaheadCount];
+	else
+		enforce(lookaheadCount == 0, "Look-ahead is not supported on this system.");
 
 	foundAnything = false;
 	if (obfuscate)
@@ -1028,15 +1039,40 @@ else
 	alias toHexString formatHash;
 }
 
+version (lookahead)
+{
+	import core.stdc.stdlib : exit;
+	import core.sys.posix.unistd : dup2;
+
+	struct Lookahead
+	{
+		HASH hash;
+		Pid pid;
+		File output;
+	}
+	Lookahead[] lookaheadProcesses;
+
+	bool[HASH] lookaheadResults;
+
+	bool inLookahead;
+	int lookaheadRemaining;
+	File lookaheadOutput;
+
+	bool lookaheadPredict() { return false; }
+}
+
 bool[HASH] cache;
 
 bool test(Reduction reduction)
 {
+	version (lookahead) if (inLookahead) write("[L] ");
 	write(reduction, " => "); stdout.flush();
 
 	HASH digest;
 	measure!"cacheHash"({ digest = hash(reduction); });
 
+	debug (lookahead) { writef("{%s} ", formatHash(digest)); stdout.flush(); }
+	
 	bool ramCached(lazy bool fallback)
 	{
 		auto cacheResult = digest in cache;
@@ -1080,9 +1116,141 @@ bool test(Reduction reduction)
 			return fallback;
 	}
 
+	bool lookahead(lazy bool fallback)
+	{
+		version (lookahead)
+		{
+			if (inLookahead)
+			{
+			lookahead:
+				if (lookaheadRemaining == 0)
+				{
+					lookaheadOutput.rawWrite(digest[]);
+					lookaheadOutput.flush();
+					auto nextResult = fallback;
+					lookaheadOutput.writeln(nextResult);
+					lookaheadOutput.flush();
+					exit(0);
+					assert(false);
+				}
+				else
+				{
+					auto predictedResult = lookaheadPredict();
+					writeln(predictedResult ? "Yes" : "No", " (predicting)");
+					lookaheadRemaining--;
+					return predictedResult;
+				}
+			}
+			else
+			{
+				bool reap(ref Lookahead process, int exitCode, out bool reapResult)
+				{
+					process.pid = null;
+					if (exitCode == 0)
+					{
+						try
+							reapResult = process.output.readln().chomp().to!bool;
+						catch (Exception e)
+						{
+							debug (lookahead)
+								writefln("Error parsing {%s} lookahead result: %s", formatHash(process.hash), e.toString());
+							return false;
+						}
+						debug (lookahead)
+							writefln("Parsed {%s} lookahead result: %s", formatHash(process.hash), reapResult);
+						process.output.close();
+						lookaheadResults[digest] = reapResult;
+						return true;
+					}
+					else
+					{
+						debug (lookahead)
+							writefln("Lookahead process for {%s} exited with exit code %d", formatHash(process.hash), exitCode);
+						return false;
+					}
+				}
+
+				// First, handle existing lookahead jobs.
+
+				lookaheadRemaining = 1;
+				foreach (ref process; lookaheadProcesses)
+				{
+					if (process.pid) // Collect result, if terminated.
+					{
+						auto tryWaitResult = process.pid.tryWait();
+						if (tryWaitResult.terminated)
+						{
+							bool reapResult;
+							reap(process, tryWaitResult.status, reapResult);
+						}
+					}
+
+					if (!process.pid) // Start a new lookahead fork.
+					{
+						auto p = pipe();
+						process.pid = fork(); // Are you watching closely?
+						if (process.pid)
+						{
+							// Parent
+							process.output = p.readEnd;
+							p.writeEnd.close();
+							process.output.rawRead(process.hash[]);
+							debug (lookahead)
+								writefln("Started {%s} lookahead", formatHash(process.hash));
+						}
+						else
+						{
+							// Child
+							inLookahead = true;
+							lookaheadOutput = p.writeEnd;
+							p.readEnd.close();
+							debug (lookahead) {} else
+							{
+								auto devNull = File("/dev/null", "wb");
+								dup2(devNull.fileno, stdout.fileno);
+								dup2(devNull.fileno, stderr.fileno);
+							}
+
+							goto lookahead;
+						}
+						lookaheadRemaining++;
+					}
+				}
+
+				// Now, find a result for the current test.
+
+				auto plookaheadResult = digest in lookaheadResults;
+				if (plookaheadResult)
+				{
+					writeln(*plookaheadResult ? "Yes" : "No", " (lookahead)");
+					return *plookaheadResult;
+				}
+
+				foreach (ref process; lookaheadProcesses)
+					if (process.pid && process.hash == digest)
+					{
+						debug (lookahead)
+							writefln("Found existing lookahead process for {%s}, waiting", formatHash(process.hash));
+						auto exitCode = process.pid.wait();
+						bool reapResult;
+						if (reap(process, exitCode, reapResult))
+						{
+							writeln(reapResult ? "Yes" : "No", " (lookahead-wait)");
+							return reapResult;
+						}
+					}
+			}
+		}
+
+		return fallback;
+	}
+
 	bool doTest()
 	{
 		string testdir = dirSuffix("test");
+		version (lookahead)
+			if (inLookahead)
+				testdir ~= ".%d".format(thisProcessID);
 		measure!"testSave"({save(reduction, testdir);}); scope(exit) measure!"clean"({safeDelete(testdir);});
 
 		auto lastdir = getcwd(); scope(exit) chdir(lastdir);
@@ -1103,11 +1271,12 @@ bool test(Reduction reduction)
 
 		bool result;
 		measure!"test"({result = pid.wait() == 0;});
+		version (lookahead) if (inLookahead) write("[L] ");
 		writeln(result ? "Yes" : "No");
 		return result;
 	}
 
-	auto result = ramCached(diskCached(doTest()));
+	auto result = ramCached(diskCached(lookahead(doTest())));
 	if (trace) saveTrace(reduction, dirSuffix("trace"), result);
 	return result;
 }
