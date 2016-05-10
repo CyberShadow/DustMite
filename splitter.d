@@ -14,7 +14,7 @@ import std.path;
 import std.range;
 import std.string;
 import std.traits;
-debug import std.stdio;
+import std.stdio : stderr;
 
 /// Represents a slice of the original code.
 class Entity
