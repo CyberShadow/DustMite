@@ -13,6 +13,15 @@ void main(string[] args)
 	auto tests = args[1..$];
 	if (tests.empty)
 		tests = dirEntries(".", SpanMode.shallow).filter!(de => de.isDir).map!(de => de.name).array;
+
+	auto dustmite = buildPath("..", "dustmite");
+	immutable flags = ["-g", "-debug"];
+	stderr.writeln("Building...");
+	{
+		auto status = spawnProcess(["rdmd", "--build-only"] ~ flags ~ [dustmite]).wait();
+		enforce(status == 0, "Dustmite build failed with status %s".format(status));
+	}
+
 	foreach (test; tests.parallel)
 	{
 		scope(failure) stderr.writefln("runtests: Error with test %s", test);
@@ -39,12 +48,11 @@ void main(string[] args)
 		if (optsFile.exists)
 			opts = optsFile.readText().splitLines();
 
-		auto dustmite = buildPath("..", "dustmite");
 		auto outputFile = test~"/output.txt";
 		auto output = File(outputFile, "wb");
 
 		stderr.writefln("runtests: test %s: dumping", test);
-		auto status = spawnProcess(["rdmd", "-g", dustmite] ~ opts ~ ["--dump", "--no-optimize", target], stdin, output, output).wait();
+		auto status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ ["--dump", "--no-optimize", target], stdin, output, output).wait();
 		enforce(status == 0, "Dustmite dump failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
 
@@ -53,7 +61,7 @@ void main(string[] args)
 
 		output = File(outputFile, "ab"); // Reopen because spawnProcess closes it
 		stderr.writefln("runtests: test %s: reducing", test);
-		status = spawnProcess(["rdmd", "-g", dustmite] ~ opts ~ ["--times", target, testerCmd], stdin, output, output).wait();
+		status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ ["--times", target, testerCmd], stdin, output, output).wait();
 		enforce(status == 0, "Dustmite run failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
 
