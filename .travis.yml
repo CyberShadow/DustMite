@@ -1,0 +1,2 @@
+language: d
+script: cd tests && rdmd runtests.d && git status
