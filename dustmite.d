@@ -353,51 +353,6 @@ void resetProgress()
 	origDescendants = root.descendants;
 }
 
-void testLevel(int testDepth, out bool tested, out bool changed)
-{
-	tested = changed = false;
-	resetProgress();
-
-	enum MAX_DEPTH = 1024;
-	size_t[MAX_DEPTH] address;
-
-	void scan(Entity e, int depth)
-	{
-		if (depth < testDepth)
-		{
-			// recurse
-			foreach_reverse (i, c; e.children)
-			{
-				address[depth] = i;
-				scan(c, depth+1);
-			}
-		}
-		else
-		if (e.noRemove)
-		{
-			// skip, but don't stop going deeper
-			tested = true;
-		}
-		else
-		{
-			// test
-			tested = true;
-			if (testAddress(address[0..depth]))
-				changed = true;
-		}
-	}
-
-	scan(root, 0);
-
-	//writefln("Scan results: tested=%s, changed=%s", tested, changed);
-}
-
-void startIteration(int iterCount)
-{
-	writefln("############### ITERATION %d ################", iterCount);
-	resetProgress();
-}
-
 class Strategy
 {
 	uint progressGeneration = 0;
@@ -642,26 +597,6 @@ class CarefulStrategy : LevelStrategy
 	}
 }
 
-void reduceCareful()
-{
-	bool tested;
-	int iterCount;
-	do
-	{
-		startIteration(iterCount++);
-		bool changed;
-		int depth = 0;
-		do
-		{
-			writefln("============= Depth %d =============", depth);
-
-			testLevel(depth, tested, changed);
-
-			depth++;
-		} while (tested && !changed); // go deeper while we found something to test, but no results
-	} while (tested); // stop when we didn't find anything to test
-}
-
 /// Keep going deeper until we find a successful reduction.
 /// When found, go up a depth level.
 /// Keep going up while we find new reductions. Repeat topmost depth level as necessary.
@@ -711,40 +646,6 @@ class LookbackStrategy : LevelStrategy
 		}
 	}
 }
-void reduceLookback()
-{
-	bool iterationChanged;
-	int iterCount;
-	do
-	{
-		iterationChanged = false;
-		startIteration(iterCount++);
-
-		int depth = 0, maxDepth = 0;
-		bool depthTested;
-
-		do
-		{
-			writefln("============= Depth %d =============", depth);
-			bool depthChanged;
-
-			testLevel(depth, depthTested, depthChanged);
-
-			if (depthChanged)
-			{
-				iterationChanged = true;
-				depth--;
-				if (depth < 0)
-					depth = 0;
-			}
-			else
-			{
-				maxDepth++;
-				depth = maxDepth;
-			}
-		} while (depthTested); // keep going up/down while we found something to test
-	} while (iterationChanged); // stop when we couldn't reduce anything this iteration
-}
 
 /// Keep going deeper until we find a successful reduction.
 /// When found, go up a depth level.
@@ -777,38 +678,6 @@ class PingPongStrategy : LevelStrategy
 	}
 }
 
-void reducePingPong()
-{
-	bool iterationChanged;
-	int iterCount;
-	do
-	{
-		iterationChanged = false;
-		startIteration(iterCount++);
-
-		int depth = 0;
-		bool depthTested;
-
-		do
-		{
-			writefln("============= Depth %d =============", depth);
-			bool depthChanged;
-
-			testLevel(depth, depthTested, depthChanged);
-
-			if (depthChanged)
-			{
-				iterationChanged = true;
-				depth--;
-				if (depth < 0)
-					depth = 0;
-			}
-			else
-				depth++;
-		} while (depthTested); // keep going up/down while we found something to test
-	} while (iterationChanged); // stop when we couldn't reduce anything this iteration
-}
-
 /// Keep going deeper.
 /// If we reach the bottom (depth with no nodes on it), start a new iteration.
 /// If we finish an iteration without finding any reductions, we're done.
@@ -830,33 +699,6 @@ class InBreadthStrategy : LevelStrategy
 			}
 		}
 	}
-}
-
-void reduceInBreadth()
-{
-	bool iterationChanged;
-	int iterCount;
-	do
-	{
-		iterationChanged = false;
-		startIteration(iterCount++);
-
-		int depth = 0;
-		bool depthTested;
-
-		do
-		{
-			writefln("============= Depth %d =============", depth);
-			bool depthChanged;
-
-			testLevel(depth, depthTested, depthChanged);
-
-			if (depthChanged)
-				iterationChanged = true;
-
-			depth++;
-		} while (depthTested); // keep going down while we found something to test
-	} while (iterationChanged); // stop when we couldn't reduce anything this iteration
 }
 
 /// Look at every entity in the tree.
@@ -885,46 +727,6 @@ class InDepthStrategy : IterativeStrategy
 	}
 }
 
-void reduceInDepth()
-{
-	bool changed;
-	int iterCount;
-	do
-	{
-		changed = false;
-		startIteration(iterCount++);
-
-		enum MAX_DEPTH = 1024;
-		size_t[MAX_DEPTH] address;
-
-		void scan(Entity e, int depth)
-		{
-			if (e.noRemove)
-			{
-				// skip, but don't stop going deeper
-			}
-			else
-			{
-				// test
-				if (testAddress(address[0..depth]))
-				{
-					changed = true;
-					return;
-				}
-			}
-
-			// recurse
-			foreach_reverse (i, c; e.children)
-			{
-				address[depth] = i;
-				scan(c, depth+1);
-			}
-		}
-
-		scan(root, 0);
-	} while (changed && root.children.length); // stop when we couldn't reduce anything this iteration
-}
-
 void reduceByStrategy(Strategy strategy)
 {
 	int lastIteration = -1;
@@ -937,7 +739,7 @@ void reduceByStrategy(Strategy strategy)
 
 		if (lastIteration != strategy.getIteration())
 		{
-			startIteration(strategy.getIteration());
+			writefln("############### ITERATION %d ################", strategy.getIteration());
 			lastIteration = strategy.getIteration();
 		}
 		if (lastDepth != strategy.getDepth())
