@@ -99,6 +99,7 @@ int main(string[] args)
 	bool force, dump, dumpHtml, showTimes, stripComments, obfuscate, keepLength, showHelp, noOptimize;
 	string coverageDir;
 	string[] reduceOnly, noRemoveStr, splitRules;
+	uint lookaheadCount;
 
 	getopt(args,
 		"force", &force,
@@ -118,7 +119,8 @@ int main(string[] args)
 		"trace", &trace, // for debugging
 		"nosave|no-save", &noSave, // for research
 		"nooptimize|no-optimize", &noOptimize, // for research
-		"h|help", &showHelp
+		"h|help", &showHelp,
+		"j|lookahead", &lookaheadCount,
 	);
 
 	if (showHelp || args.length == 1 || args.length>3)
@@ -144,6 +146,7 @@ Supported options:
                        splitter. Can be repeated. MODE must be one of:
                        %-(%s, %)
   --no-redirect      Don't redirect stdout/stderr streams of test command.
+  -j N               Use N look-ahead processes
 EOS", args[0], splitterNames);
 
 		if (!showHelp)
@@ -253,6 +256,8 @@ EOS");
 				" instead of " ~ tester.escapeShellFileName());
 		throw new Exception("Initial test fails" ~ (noRedirect ? "" : " (try using --no-redirect for details)"));
 	}
+
+	lookaheadProcesses = new Lookahead[lookaheadCount];
 
 	foundAnything = false;
 	if (obfuscate)
@@ -818,13 +823,15 @@ class InDepthStrategy : IterativeStrategy
 	}
 }
 
+ReductionIterator iter;
+
 void reduceByStrategy(Strategy strategy)
 {
 	int lastIteration = -1;
 	int lastDepth = -1;
 	int lastProgressGeneration = -1;
 
-	auto iter = ReductionIterator(strategy);
+	iter = ReductionIterator(strategy);
 
 	while (!iter.done)
 	{
@@ -1302,6 +1309,23 @@ else
 	alias toHexString formatHash;
 }
 
+struct Lookahead
+{
+	Pid pid;
+	string testdir;
+	HASH digest;
+}
+Lookahead[] lookaheadProcesses;
+
+bool[HASH] lookaheadResults;
+
+bool lookaheadPredict() { return false; }
+
+version (Windows)
+	enum nullFileName = "nul";
+else
+	enum nullFileName = "/dev/null";
+
 bool[HASH] cache;
 
 bool test(Reduction reduction)
@@ -1354,6 +1378,75 @@ bool test(Reduction reduction)
 			return fallback;
 	}
 
+	bool lookahead(lazy bool fallback)
+	{
+		if (iter.strategy)
+		{
+			// First, handle existing lookahead jobs.
+
+			auto lookaheadIter = iter;
+			if (!lookaheadIter.done)
+				lookaheadIter.next(lookaheadPredict());
+
+			bool reap(ref Lookahead process, int status)
+			{
+				safeDelete(process.testdir);
+				process.pid = null;
+				return lookaheadResults[process.digest] = status == 0;
+			}
+
+			foreach (ref process; lookaheadProcesses)
+			{
+				if (!process.pid && !lookaheadIter.done)
+				{
+					auto reduction = lookaheadIter.front;
+					process.digest = hash(reduction);
+
+					static int counter;
+					process.testdir = dirSuffix("lookahead.%d".format(counter++));
+					save(reduction, process.testdir);
+
+					auto nul = File(nullFileName, "w+");
+					process.pid = spawnShell(tester, nul, nul, nul, null, Config.none, process.testdir);
+
+					lookaheadIter.next(lookaheadPredict());
+				}
+
+				if (process.pid)
+				{
+					auto waitResult = process.pid.tryWait();
+					if (waitResult.terminated)
+						reap(process, waitResult.status);
+				}
+			}
+
+			// Now, find a result for the current test.
+
+			auto plookaheadResult = digest in lookaheadResults;
+			if (plookaheadResult)
+			{
+				writeln(*plookaheadResult ? "Yes" : "No", " (lookahead)");
+				return *plookaheadResult;
+			}
+
+			foreach (ref process; lookaheadProcesses)
+			{
+				if (process.pid && process.digest == digest)
+				{
+					// Current test is already being tested in the background, wait for its result.
+
+					auto exitCode = process.pid.wait();
+
+					auto result = reap(process, exitCode);
+					writeln(result ? "Yes" : "No", " (lookahead-wait)");
+					return result;
+				}
+			}
+		}
+
+		return fallback;
+	}
+
 	bool doTest()
 	{
 		string testdir = dirSuffix("test");
@@ -1364,11 +1457,7 @@ bool test(Reduction reduction)
 			pid = spawnShell(tester);
 		else
 		{
-			File nul;
-			version (Windows)
-				nul.open("nul", "w+");
-			else
-				nul.open("/dev/null", "w+");
+			auto nul = File(nullFileName, "w+");
 			pid = spawnShell(tester, nul, nul, nul, null, Config.none, testdir);
 		}
 
@@ -1378,7 +1467,7 @@ bool test(Reduction reduction)
 		return result;
 	}
 
-	auto result = ramCached(diskCached(doTest()));
+	auto result = ramCached(diskCached(lookahead(doTest())));
 	if (trace) saveTrace(reduction, dirSuffix("trace"), result);
 	return result;
 }
