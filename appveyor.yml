@@ -1,0 +1,5 @@
+install:
+  - cinst dmd --version=2.071.0
+  - dmd.exe --version
+build_script:
+  - cd tests && rdmd runtests.d && git diff --exit-code
