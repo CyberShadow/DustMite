@@ -256,9 +256,9 @@ EOS");
 
 	if (!test(nullReduction))
 	{
+		auto testerFile = dir.buildNormalizedPath(tester);
 		version (Posix)
 		{
-			auto testerFile = dir.buildNormalizedPath(tester);
 			if (testerFile.exists && (testerFile.getAttributes() & octal!111) == 0)
 				writeln("Hint: test program seems to be a non-executable file, try: chmod +x " ~ testerFile.escapeShellFileName());
 		}
