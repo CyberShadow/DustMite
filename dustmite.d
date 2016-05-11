@@ -1359,9 +1359,6 @@ bool test(Reduction reduction)
 		string testdir = dirSuffix("test");
 		measure!"testSave"({save(reduction, testdir);}); scope(exit) measure!"clean"({safeDelete(testdir);});
 
-		auto lastdir = getcwd(); scope(exit) chdir(lastdir);
-		chdir(testdir);
-
 		Pid pid;
 		if (noRedirect)
 			pid = spawnShell(tester);
@@ -1372,7 +1369,7 @@ bool test(Reduction reduction)
 				nul.open("nul", "w+");
 			else
 				nul.open("/dev/null", "w+");
-			pid = spawnShell(tester, nul, nul, nul);
+			pid = spawnShell(tester, nul, nul, nul, null, Config.none, testdir);
 		}
 
 		bool result;
