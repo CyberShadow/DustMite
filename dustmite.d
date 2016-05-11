@@ -1394,11 +1394,7 @@ bool test(Reduction reduction)
 	{
 		if (iter.strategy)
 		{
-			// First, handle existing lookahead jobs.
-
-			auto lookaheadIter = iter;
-			if (!lookaheadIter.done)
-				lookaheadIter.next(lookaheadPredict());
+			// Handle existing lookahead jobs
 
 			bool reap(ref Lookahead process, int status)
 			{
@@ -1406,6 +1402,22 @@ bool test(Reduction reduction)
 				process.pid = null;
 				return lookaheadResults[process.digest] = status == 0;
 			}
+
+			foreach (ref process; lookaheadProcesses)
+			{
+				if (process.pid)
+				{
+					auto waitResult = process.pid.tryWait();
+					if (waitResult.terminated)
+						reap(process, waitResult.status);
+				}
+			}
+
+			// Start new lookahead jobs
+
+			auto lookaheadIter = iter;
+			if (!lookaheadIter.done)
+				lookaheadIter.next(lookaheadPredict());
 
 			foreach (ref process; lookaheadProcesses)
 			{
@@ -1418,7 +1430,15 @@ bool test(Reduction reduction)
 
 						if (digest in cache || digest in lookaheadResults || lookaheadProcesses[].canFind!(p => p.digest == digest))
 						{
-							lookaheadIter.next(lookaheadPredict());
+							bool prediction;
+							if (digest in cache)
+								prediction = cache[digest];
+							else
+							if (digest in lookaheadResults)
+								prediction = lookaheadResults[digest];
+							else
+								prediction = lookaheadPredict();
+							lookaheadIter.next(prediction);
 							if (lookaheadIter.done)
 								break;
 							continue;
@@ -1437,16 +1457,9 @@ bool test(Reduction reduction)
 						break;
 					}
 				}
-
-				if (process.pid)
-				{
-					auto waitResult = process.pid.tryWait();
-					if (waitResult.terminated)
-						reap(process, waitResult.status);
-				}
 			}
 
-			// Now, find a result for the current test.
+			// Find a result for the current test.
 
 			auto plookaheadResult = digest in lookaheadResults;
 			if (plookaheadResult)
