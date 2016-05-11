@@ -13,6 +13,7 @@ import std.exception;
 import std.file;
 import std.getopt;
 import std.path;
+import std.parallelism : totalCPUs;
 import std.process;
 import std.random;
 import std.regex;
@@ -101,6 +102,18 @@ int main(string[] args)
 	string[] reduceOnly, noRemoveStr, splitRules;
 	uint lookaheadCount;
 
+	args = args.filter!(
+		(arg)
+		{
+			if (arg.startsWith("-j"))
+			{
+				arg = arg[2..$];
+				lookaheadCount = arg.length ? arg.to!uint : totalCPUs;
+				return false;
+			}
+			return true;
+		}).array();
+
 	getopt(args,
 		"force", &force,
 		"reduceonly|reduce-only", &reduceOnly,
@@ -120,7 +133,6 @@ int main(string[] args)
 		"nosave|no-save", &noSave, // for research
 		"nooptimize|no-optimize", &noOptimize, // for research
 		"h|help", &showHelp,
-		"j|lookahead", &lookaheadCount,
 	);
 
 	if (showHelp || args.length == 1 || args.length>3)
@@ -146,8 +158,8 @@ Supported options:
                        splitter. Can be repeated. MODE must be one of:
                        %-(%s, %)
   --no-redirect      Don't redirect stdout/stderr streams of test command.
-  -j N               Use N look-ahead processes
-EOS", args[0], splitterNames);
+  -j[N]              Use N look-ahead processes (%d by default)
+EOS", args[0], splitterNames, totalCPUs);
 
 		if (!showHelp)
 		{
