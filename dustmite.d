@@ -330,6 +330,8 @@ size_t countFiles(Entity e)
 bool testAddress(size_t[] address)
 {
 	auto e = entityAt(address);
+	if (e.noRemove)
+		return false;
 
 	if (e is root && !root.children.length)
 		return false;
@@ -396,9 +398,250 @@ void startIteration(int iterCount)
 	resetProgress();
 }
 
+class Strategy
+{
+	uint progressGeneration = 0;
+	bool done = false;
+
+	void copy(Strategy result) const
+	{
+		result.progressGeneration = this.progressGeneration;
+		result.done = this.done;
+	}
+
+	abstract @property size_t[] front();
+	abstract void next(bool success);
+	int getIteration() { return -1; }
+	int getDepth() { return -1; }
+
+	final Strategy dup()
+	{
+		auto result = cast(Strategy)this.classinfo.create();
+		copy(result);
+		return result;
+	}
+}
+
+class SimpleStrategy : Strategy
+{
+	size_t[] address;
+
+	override void copy(Strategy target) const
+	{
+		super.copy(target);
+		auto result = cast(SimpleStrategy)target;
+		result.address = this.address.dup;
+	}
+
+	override @property size_t[] front()
+	{
+		assert(!done, "Done");
+		return address;
+	}
+
+	override void next(bool success)
+	{
+		assert(!done, "Done");
+	}
+}
+
+class IterativeStrategy : SimpleStrategy
+{
+	int iteration = 0;
+	bool iterationChanged;
+
+	override int getIteration() { return iteration; }
+
+	override void copy(Strategy target) const
+	{
+		super.copy(target);
+		auto result = cast(IterativeStrategy)target;
+		result.iteration = this.iteration;
+		result.iterationChanged = this.iterationChanged;
+	}
+
+	override void next(bool success)
+	{
+		super.next(success);
+		iterationChanged |= success;
+	}
+
+	void nextIteration()
+	{
+		assert(iterationChanged, "Starting new iteration after no changes");
+		iteration++;
+		iterationChanged = false;
+		address = null;
+		progressGeneration++;
+	}
+}
+
+/// Find the first address at the depth of address.length,
+/// and populate address[] accordingly.
+/// Return false if no address at that level could be found.
+bool findAddressAtLevel(size_t[] address, Entity root)
+{
+	if (!address.length)
+		return true;
+	foreach_reverse (i, child; root.children)
+	{
+		if (findAddressAtLevel(address[1..$], child))
+		{
+			address[0] = i;
+			return true;
+		}
+	}
+	return false;
+}
+
+/// Find the next address at the depth of address.length,
+/// and update address[] accordingly.
+/// Return false if no more addresses at that level could be found.
+bool nextAddressInLevel(size_t[] address, lazy Entity root)
+{
+	if (!address.length)
+		return false;
+	if (nextAddressInLevel(address[1..$], root.children[address[0]]))
+		return true;
+	if (!address[0])
+		return false;
+
+	foreach_reverse (i; 0..address[0])
+	{
+		if (findAddressAtLevel(address[1..$], root.children[i]))
+		{
+			address[0] = i;
+			return true;
+		}
+	}
+	return false;
+}
+
+/// Find the next address, starting from the given one
+/// (going depth-first). Update address accordingly.
+/// If descend is false, then skip addresses under the given one.
+/// Return false if no more addresses could be found.
+bool nextAddress(ref size_t[] address, lazy Entity root, bool descend)
+{
+	if (!address.length)
+	{
+		if (descend && root.children.length)
+		{
+			address ~= [root.children.length-1];
+			return true;
+		}
+		return false;
+	}
+
+	auto cdr = address[1..$];
+	if (nextAddress(cdr, root.children[address[0]], descend))
+	{
+		address = address[0] ~ cdr;
+		return true;
+	}
+
+	if (address[0])
+	{
+		address = [address[0] - 1];
+		return true;
+	}
+
+	return false;
+}
+
+void validateAddress(size_t[] address, Entity root = root)
+{
+	if (!address.length)
+		return;
+	assert(address[0] < root.children.length);
+	validateAddress(address[1..$], root.children[address[0]]);
+}
+
+class LevelStrategy : IterativeStrategy
+{
+	bool levelChanged;
+	bool invalid;
+
+	override int getDepth() { return cast(int)address.length; }
+
+	override void copy(Strategy target) const
+	{
+		super.copy(target);
+		auto result = cast(LevelStrategy)target;
+		result.levelChanged = this.levelChanged;
+		result.invalid = this.invalid;
+	}
+
+	override void next(bool success)
+	{
+		super.next(success);
+		levelChanged |= success;
+	}
+
+	override void nextIteration()
+	{
+		super.nextIteration();
+		invalid = false;
+		levelChanged = false;
+	}
+
+	final bool nextInLevel()
+	{
+		assert(!invalid, "Choose a level!");
+		if (nextAddressInLevel(address, root))
+			return true;
+		else
+		{
+			invalid = true;
+			return false;
+		}
+	}
+
+	final @property size_t currentLevel() const { return address.length; }
+
+	final bool setLevel(size_t level)
+	{
+		address.length = level;
+		if (findAddressAtLevel(address, root))
+		{
+			invalid = false;
+			levelChanged = false;
+			progressGeneration++;
+			return true;
+		}
+		else
+			return false;
+	}
+}
+
 /// Keep going deeper until we find a successful reduction.
 /// When found, finish tests at current depth and restart from top depth (new iteration).
 /// If we reach the bottom (depth with no nodes on it), we're done.
+class CarefulStrategy : LevelStrategy
+{
+	override void next(bool success)
+	{
+		super.next(success);
+
+		if (!nextInLevel())
+		{
+			// End of level
+			if (levelChanged)
+			{
+				nextIteration();
+			}
+			else
+			if (!setLevel(currentLevel + 1))
+			{
+				if (iterationChanged)
+					nextIteration();
+				else
+					done = true;
+			}
+		}
+	}
+}
+
 void reduceCareful()
 {
 	bool tested;
@@ -425,6 +668,49 @@ void reduceCareful()
 /// Once no new reductions are found at higher depths, jump to the next unvisited depth in this iteration.
 /// If we reach the bottom (depth with no nodes on it), start a new iteration.
 /// If we finish an iteration without finding any reductions, we're done.
+class LookbackStrategy : LevelStrategy
+{
+	size_t maxLevel = 0;
+
+	override void copy(Strategy target) const
+	{
+		super.copy(target);
+		auto result = cast(LookbackStrategy)target;
+		result.maxLevel = this.maxLevel;
+	}
+
+	override void nextIteration()
+	{
+		super.nextIteration();
+		maxLevel = 0;
+	}
+
+	override void next(bool success)
+	{
+		super.next(success);
+
+		if (!nextInLevel())
+		{
+			// End of level
+			if (levelChanged)
+			{
+				setLevel(currentLevel ? currentLevel - 1 : 0);
+			}
+			else
+			if (setLevel(maxLevel + 1))
+			{
+				maxLevel = currentLevel;
+			}
+			else
+			{
+				if (iterationChanged)
+					nextIteration();
+				else
+					done = true;
+			}
+		}
+	}
+}
 void reduceLookback()
 {
 	bool iterationChanged;
@@ -466,6 +752,31 @@ void reduceLookback()
 /// Once no new reductions are found at higher depths, start going downwards again.
 /// If we reach the bottom (depth with no nodes on it), start a new iteration.
 /// If we finish an iteration without finding any reductions, we're done.
+class PingPongStrategy : LevelStrategy
+{
+	override void next(bool success)
+	{
+		super.next(success);
+
+		if (!nextInLevel())
+		{
+			// End of level
+			if (levelChanged)
+			{
+				setLevel(currentLevel ? currentLevel - 1 : 0);
+			}
+			else
+			if (!setLevel(currentLevel + 1))
+			{
+				if (iterationChanged)
+					nextIteration();
+				else
+					done = true;
+			}
+		}
+	}
+}
+
 void reducePingPong()
 {
 	bool iterationChanged;
@@ -501,6 +812,26 @@ void reducePingPong()
 /// Keep going deeper.
 /// If we reach the bottom (depth with no nodes on it), start a new iteration.
 /// If we finish an iteration without finding any reductions, we're done.
+class InBreadthStrategy : LevelStrategy
+{
+	override void next(bool success)
+	{
+		super.next(success);
+
+		if (!nextInLevel())
+		{
+			// End of level
+			if (!setLevel(currentLevel + 1))
+			{
+				if (iterationChanged)
+					nextIteration();
+				else
+					done = true;
+			}
+		}
+	}
+}
+
 void reduceInBreadth()
 {
 	bool iterationChanged;
@@ -533,6 +864,27 @@ void reduceInBreadth()
 /// Otherwise, recurse and look at its children.
 /// End an iteration once we looked at an entire tree.
 /// If we finish an iteration without finding any reductions, we're done.
+class InDepthStrategy : IterativeStrategy
+{
+	final bool nextAddress(bool descend)
+	{
+		return .nextAddress(address, root, descend);
+	}
+
+	override void next(bool success)
+	{
+		super.next(success);
+
+		if (!nextAddress(!success))
+		{
+			if (iterationChanged)
+				nextIteration();
+			else
+				done = true;
+		}
+	}
+}
+
 void reduceInDepth()
 {
 	bool changed;
@@ -573,6 +925,38 @@ void reduceInDepth()
 	} while (changed && root.children.length); // stop when we couldn't reduce anything this iteration
 }
 
+void reduceByStrategy(Strategy strategy)
+{
+	int lastIteration = -1;
+	int lastDepth = -1;
+	int lastProgressGeneration = -1;
+
+	while (!strategy.done)
+	{
+		auto address = strategy.front;
+
+		if (lastIteration != strategy.getIteration())
+		{
+			startIteration(strategy.getIteration());
+			lastIteration = strategy.getIteration();
+		}
+		if (lastDepth != strategy.getDepth())
+		{
+			writefln("============= Depth %d =============", strategy.getDepth());
+			lastDepth = strategy.getDepth();
+		}
+		if (lastProgressGeneration != strategy.progressGeneration)
+		{
+			resetProgress();
+			lastProgressGeneration = strategy.progressGeneration;
+		}
+
+		auto result = testAddress(address);
+
+		strategy.next(result);
+	}
+}
+
 void reduce()
 {
 	if (countFiles(root) < 2)
@@ -581,15 +965,15 @@ void reduce()
 	switch (strategy)
 	{
 		case "careful":
-			return reduceCareful();
+			return reduceByStrategy(new CarefulStrategy());
 		case "lookback":
-			return reduceLookback();
+			return reduceByStrategy(new LookbackStrategy());
 		case "pingpong":
-			return reducePingPong();
+			return reduceByStrategy(new PingPongStrategy());
 		case "indepth":
-			return reduceInDepth();
+			return reduceByStrategy(new InDepthStrategy());
 		case "inbreadth":
-			return reduceInBreadth();
+			return reduceByStrategy(new InBreadthStrategy());
 		default:
 			throw new Exception("Unknown strategy");
 	}
