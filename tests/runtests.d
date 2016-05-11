@@ -63,7 +63,7 @@ void main(string[] args)
 		foreach (line; File(outputFile, "rb").byLine())
 		{
 			line = line.strip();
-			if (line.startsWith("[") || line.startsWith("#") || line.startsWith("ReplaceWord"))
+			if (line.startsWith("[") || line.startsWith("#") || line.startsWith("=") || line.startsWith("ReplaceWord"))
 				progress.writeln(line);
 			else
 			if (line.startsWith("Done in "))

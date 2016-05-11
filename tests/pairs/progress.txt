@@ -1,67 +1,91 @@
 ############### ITERATION 0 ################
+============= Depth 0 =============
 [ 0.0%] Remove [] => No
+============= Depth 1 =============
 [ 0.0%] Remove [0] => No (cached)
+============= Depth 2 =============
 [ 0.0%] Remove [00] => No
+============= Depth 3 =============
 [ 0.0%] Remove [001] => No
 [59.3%] Remove [000] => No
+============= Depth 4 =============
 [ 0.0%] Remove [0011] => No
 [45.0%] Remove [0010] => Yes
 [59.3%] Remove [0001] => Yes
 [80.2%] Remove [0000] => No
+============= Depth 5 =============
 [ 0.0%] Remove [00101] => No
 [20.0%] Remove [00100] => Yes
 [70.0%] Remove [00001] => Yes
 [78.3%] Remove [00000] => No
+============= Depth 6 =============
 [ 0.0%] Remove [001001] => No
 [ 0.0%] Unwrap [001001] => No
 [22.2%] Remove [001000] => No
 [51.8%] Remove [000001] => No
 [74.0%] Remove [000000] => No
+============= Depth 7 =============
 [ 0.0%] Remove [0010010] => No
 [22.2%] Remove [0010001] => No
 [22.2%] Unwrap [0010001] => No (cached)
 [25.9%] Remove [0010000] => No
 [51.8%] Remove [0000011] => No
 [59.2%] Remove [0000010] => No
+============= Depth 8 =============
 [ 0.0%] Remove [00100100] => No
 [25.9%] Remove [00100001] => No
 [29.6%] Remove [00100000] => No
 [51.8%] Remove [00000110] => No
 [59.2%] Remove [00000101] => No
 [62.9%] Remove [00000100] => No
+============= Depth 9 =============
 [ 0.0%] Remove [001001001] => No
 [ 0.0%] Unwrap [001001001] => No
 [ 7.4%] Remove [001001000] => No
+============= Depth 10 =============
 [ 0.0%] Remove [0010010010] => No
+============= Depth 11 =============
 ############### ITERATION 1 ################
+============= Depth 0 =============
 [ 0.0%] Remove [] => No (cached)
+============= Depth 1 =============
 [ 0.0%] Remove [0] => No (cached)
+============= Depth 2 =============
 [ 0.0%] Remove [00] => No (cached)
+============= Depth 3 =============
 [ 0.0%] Remove [001] => No
 [51.8%] Remove [000] => No (cached)
+============= Depth 4 =============
 [ 0.0%] Remove [0010] => No (cached)
 [51.8%] Remove [0000] => No (cached)
+============= Depth 5 =============
 [ 0.0%] Remove [00100] => No (cached)
 [51.8%] Remove [00000] => No (cached)
+============= Depth 6 =============
 [ 0.0%] Remove [001001] => No (cached)
 [ 0.0%] Unwrap [001001] => No (cached)
 [22.2%] Remove [001000] => No (cached)
 [51.8%] Remove [000001] => No (cached)
 [74.0%] Remove [000000] => No (cached)
+============= Depth 7 =============
 [ 0.0%] Remove [0010010] => No (cached)
 [22.2%] Remove [0010001] => No (cached)
 [22.2%] Unwrap [0010001] => No (cached)
 [25.9%] Remove [0010000] => No (cached)
 [51.8%] Remove [0000011] => No (cached)
 [59.2%] Remove [0000010] => No (cached)
+============= Depth 8 =============
 [ 0.0%] Remove [00100100] => No (cached)
 [25.9%] Remove [00100001] => No (cached)
 [29.6%] Remove [00100000] => No (cached)
 [51.8%] Remove [00000110] => No (cached)
 [59.2%] Remove [00000101] => No (cached)
 [62.9%] Remove [00000100] => No (cached)
+============= Depth 9 =============
 [ 0.0%] Remove [001001001] => No (cached)
 [ 0.0%] Unwrap [001001001] => No (cached)
 [ 7.4%] Remove [001001000] => No (cached)
+============= Depth 10 =============
 [ 0.0%] Remove [0010010010] => No (cached)
+============= Depth 11 =============
 Done in 34 tests
