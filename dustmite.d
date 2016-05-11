@@ -231,6 +231,7 @@ EOS");
 
 	applyNoRemoveMagic();
 	applyNoRemoveRegex(noRemoveStr, reduceOnly);
+	applyNoRemoveDeps();
 	if (coverageDir)
 		loadCoverage(coverageDir);
 	if (!obfuscate && !noOptimize)
@@ -1636,6 +1637,36 @@ void applyNoRemoveRegex(string[] noRemoveStr, string[] reduceOnly)
 
 		scan(f);
 	}
+}
+
+void applyNoRemoveDeps()
+{
+	static void applyDeps(Entity e)
+	{
+		e.noRemove = true;
+		foreach (d; e.dependencies)
+			applyDeps(d);
+	}
+
+	static void scan(Entity e)
+	{
+		if (e.noRemove)
+			applyDeps(e);
+		foreach (c; e.children)
+			scan(c);
+	}
+
+	scan(root);
+
+	// Propagate upwards
+	static bool fill(Entity e)
+	{
+		foreach (c; e.children)
+			e.noRemove |= fill(c);
+		return e.noRemove;
+	}
+
+	fill(root);
 }
 
 void loadCoverage(string dir)
