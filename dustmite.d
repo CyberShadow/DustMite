@@ -1399,17 +1399,31 @@ bool test(Reduction reduction)
 			{
 				if (!process.pid && !lookaheadIter.done)
 				{
-					auto reduction = lookaheadIter.front;
-					process.digest = hash(reduction);
+					while (true)
+					{
+						auto reduction = lookaheadIter.front;
+						auto digest = hash(reduction);
 
-					static int counter;
-					process.testdir = dirSuffix("lookahead.%d".format(counter++));
-					save(reduction, process.testdir);
+						if (digest in cache || digest in lookaheadResults || lookaheadProcesses[].canFind!(p => p.digest == digest))
+						{
+							lookaheadIter.next(lookaheadPredict());
+							if (lookaheadIter.done)
+								break;
+							continue;
+						}
 
-					auto nul = File(nullFileName, "w+");
-					process.pid = spawnShell(tester, nul, nul, nul, null, Config.none, process.testdir);
+						process.digest = digest;
 
-					lookaheadIter.next(lookaheadPredict());
+						static int counter;
+						process.testdir = dirSuffix("lookahead.%d".format(counter++));
+						save(reduction, process.testdir);
+
+						auto nul = File(nullFileName, "w+");
+						process.pid = spawnShell(tester, nul, nul, nul, null, Config.none, process.testdir);
+
+						lookaheadIter.next(lookaheadPredict());
+						break;
+					}
 				}
 
 				if (process.pid)
