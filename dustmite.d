@@ -4,20 +4,20 @@
 
 module dustmite;
 
-import std.stdio;
-import std.file;
-import std.path;
-import std.string;
-import std.getopt;
-import std.array;
-import std.process;
 import std.algorithm;
-import std.exception;
-import std.datetime;
-import std.regex;
-import std.conv;
+import std.array;
 import std.ascii;
+import std.conv;
+import std.datetime;
+import std.exception;
+import std.file;
+import std.getopt;
+import std.path;
+import std.process;
 import std.random;
+import std.regex;
+import std.stdio;
+import std.string;
 
 import splitter;
 
