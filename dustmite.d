@@ -33,7 +33,6 @@ string dirSuffix(string suffix) { return (dir.absolutePath().buildNormalizedPath
 size_t maxBreadth;
 Entity root;
 size_t origDescendants;
-bool concatPerformed;
 int tests; bool foundAnything;
 bool noSave, trace, noRedirect;
 string strategy = "inbreadth";
@@ -326,26 +325,118 @@ size_t countFiles(Entity e)
 	}
 }
 
-/// Try reductions at address. Edit set, save result and return true on successful reduction.
-bool testAddress(size_t[] address)
-{
-	auto e = entityAt(address);
-	if (e.noRemove)
-		return false;
 
-	if (e is root && !root.children.length)
-		return false;
-	else
-	if (tryReduction(Reduction(Reduction.Type.Remove, address, e)))
-		return true;
-	else
-	if (e.head.length && e.tail.length && tryReduction(Reduction(Reduction.Type.Unwrap, address, e)))
-		return true;
-	else
-	if (e.isFile && !concatPerformed && tryReduction(Reduction(Reduction.Type.Concat, address, e)))
-		return concatPerformed = true;
-	else
-		return false;
+struct ReductionIterator
+{
+	Strategy strategy;
+
+	bool done = false;
+	bool concatPerformed;
+
+	Reduction.Type type = Reduction.Type.None;
+	Entity e;
+
+	this(Strategy strategy)
+	{
+		this.strategy = strategy;
+		next(false);
+
+		if (countFiles(root) < 2)
+			concatPerformed = true;
+	}
+
+	this(this)
+	{
+		strategy = strategy.dup;
+	}
+
+	@property Reduction front() { return Reduction(type, strategy.front, e); }
+
+	void next(bool success)
+	{
+		while (true)
+		{
+			final switch (type)
+			{
+				case Reduction.Type.None:
+					if (strategy.done)
+					{
+						done = true;
+						return;
+					}
+
+					e = entityAt(strategy.front);
+
+					if (e.noRemove)
+					{
+						strategy.next(false);
+						continue;
+					}
+
+					if (e is root && !root.children.length)
+					{
+						strategy.next(false);
+						continue;
+					}
+
+					// Try next reduction type
+					type = Reduction.Type.Remove;
+					return;
+
+				case Reduction.Type.Remove:
+					if (success)
+					{
+						// Next node
+						type = Reduction.Type.None;
+						strategy.next(true);
+						continue;
+					}
+
+					// Try next reduction type
+					type = Reduction.Type.Unwrap;
+
+					if (e.head.length && e.tail.length)
+						return; // Try this
+					else
+					{
+						success = false; // Skip
+						continue;
+					}
+
+				case Reduction.Type.Unwrap:
+					if (success)
+					{
+						// Next node
+						type = Reduction.Type.None;
+						strategy.next(true);
+						continue;
+					}
+
+					// Try next reduction type
+					type = Reduction.Type.Concat;
+
+					if (e.isFile && !concatPerformed)
+						return; // Try this
+					else
+					{
+						success = false; // Skip
+						continue;
+					}
+
+				case Reduction.Type.Concat:
+					if (success)
+						concatPerformed = true;
+
+					// Next node
+					type = Reduction.Type.None;
+					strategy.next(success);
+					continue;
+
+				case Reduction.Type.ReplaceWord:
+					assert(false);
+			}
+		}
+	}
 }
 
 void resetProgress()
@@ -733,10 +824,10 @@ void reduceByStrategy(Strategy strategy)
 	int lastDepth = -1;
 	int lastProgressGeneration = -1;
 
-	while (!strategy.done)
-	{
-		auto address = strategy.front;
+	auto iter = ReductionIterator(strategy);
 
+	while (!iter.done)
+	{
 		if (lastIteration != strategy.getIteration())
 		{
 			writefln("############### ITERATION %d ################", strategy.getIteration());
@@ -753,17 +844,14 @@ void reduceByStrategy(Strategy strategy)
 			lastProgressGeneration = strategy.progressGeneration;
 		}
 
-		auto result = testAddress(address);
+		auto result = tryReduction(iter.front);
 
-		strategy.next(result);
+		iter.next(result);
 	}
 }
 
 void reduce()
 {
-	if (countFiles(root) < 2)
-		concatPerformed = true;
-
 	switch (strategy)
 	{
 		case "careful":
