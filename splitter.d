@@ -951,8 +951,6 @@ struct DSplitter
 		foreach (c; s[1..$])
 			if (!isAlphaNum(c))
 				return false;
-		if (s in tokenLookup)
-			return false;
 		return true;
 	}
 
@@ -1015,7 +1013,7 @@ struct DSplitter
 		void visit(Entity entity)
 		{
 			auto id = entity.head.strip();
-			if (isValidIdentifier(id) && !entity.tail && !entity.children)
+			if (entity.token == Token.other && isValidIdentifier(id) && !entity.tail && !entity.children)
 				lastID = id;
 			else
 			if (lastID && entity.token == tokenLookup["("])
