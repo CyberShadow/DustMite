@@ -7,7 +7,7 @@ void a()
 	total++;
 }
 
-void b()(int )
+void b(int )
 {
 	total++;
 }
@@ -34,7 +34,7 @@ void d3(int baz)
 void main()
 {
 	a;
-	b!()(3);
+	b(3);
 	c;
 
 	d1(1);

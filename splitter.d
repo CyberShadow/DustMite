@@ -813,6 +813,18 @@ struct DSplitter
 		}
 	}
 
+	static void postProcessTemplates(ref Entity[] entities)
+	{
+		foreach_reverse (i, e; entities[0..$-1])
+			if (e.token == tokenLookup["!"] && entities[i+1].children.length && entities[i+1].children[0].token == tokenLookup["("])
+			{
+				auto dependency = new Entity;
+				e.dependencies ~= dependency;
+				entities[i+1].children[0].dependencies ~= dependency;
+				entities = entities[0..i+1] ~ dependency ~ entities[i+1..$];
+			}
+	}
+
 	static void postProcessDependencyBlock(ref Entity[] entities)
 	{
 		foreach (i, e; entities)
@@ -996,6 +1008,7 @@ struct DSplitter
 				postProcessRecursive(e.children);
 
 		postProcessSimplify(entities);
+		postProcessTemplates(entities);
 		postProcessDependency(entities);
 		postProcessBlockKeywords(entities);
 		postProcessDependencyBlock(entities);
