@@ -2,4 +2,4 @@ install:
   - cinst dmd --version=2.071.0
   - dmd.exe --version
 build_script:
-  - cd tests && rdmd runtests.d && git diff --exit-code
+  - cd tests && rdmd runtests.d args c++ constructs coverage empty emptyset enum eol expression functplparam imports imports-only lines list noreduce noremove noremove2 noremovefile noremovespan obfuscate obfuscate-kl one pairs reduceonly words && git diff --exit-code
