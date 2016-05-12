@@ -52,7 +52,7 @@
           ]
           [ // (
             "("
-            [ "T" /* ST arg 0 */ ] => 85
+            [ "T" /* ST arg 0 node 0 */ ] => 85
             ")\n"
           ]
         ]
@@ -124,7 +124,7 @@
               [ "	writeln" ]
               [ // (
                 "("
-                [ "\"Hello, world!\"" /* writeln arg 0 */ ] => 87
+                [ "\"Hello, world!\"" /* writeln arg 0 node 0 */ ] => 87
                 ")"
               ]
             ]

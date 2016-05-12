@@ -31,14 +31,14 @@
 [97.9%] Remove [0000000] => No
 ============= Depth 8 =============
 [ 0.5%] Remove [00010101] => No (cached)
-[ 2.3%] Remove [00010100] => No
+[ 2.3%] Remove [00010100] => No (cached)
 [ 3.5%] Remove [00000100] => No
 [97.9%] Remove [00000001] => No
 [98.0%] Remove [00000000] => No
 ============= Depth 9 =============
 [ 0.5%] Remove [000101010] => No
 [ 2.3%] Remove [000101001] => No
-[ 2.5%] Remove [000101000] => No (cached)
+[ 2.5%] Remove [000101000] => No
 [ 3.5%] Remove [000001001] => Yes
 [50.4%] Remove [000001000] => No (cached)
 [98.0%] Remove [000000001] => No
@@ -163,14 +163,14 @@
 [86.0%] Remove [0000000] => No
 ============= Depth 8 =============
 [ 4.0%] Remove [00010101] => No (cached)
-[16.0%] Remove [00010100] => No
+[16.0%] Remove [00010100] => No (cached)
 [24.0%] Remove [00000100] => No (cached)
 [86.0%] Remove [00000001] => No
 [87.0%] Remove [00000000] => No
 ============= Depth 9 =============
 [ 4.0%] Remove [000101010] => No
 [16.0%] Remove [000101001] => No
-[17.0%] Remove [000101000] => No (cached)
+[17.0%] Remove [000101000] => No
 [24.0%] Remove [000001000] => No (cached)
 [87.0%] Remove [000000001] => No
 [87.0%] Unwrap [000000001] => No (cached)

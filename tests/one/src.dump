@@ -56,7 +56,7 @@
                   [ "		writeln" ]
                   [ // (
                     "("
-                    [ "\"Doo dee doo\"" /* writeln arg 0 */ ] => 233
+                    [ "\"Doo dee doo\"" /* writeln arg 0 node 0 */ ] => 233
                     ")"
                   ]
                 ]
@@ -88,7 +88,7 @@
                 [ "		writeln" ]
                 [ // (
                   "("
-                  [ "\"Dee doo dee\"" /* writeln arg 0 */ ] => 233
+                  [ "\"Dee doo dee\"" /* writeln arg 0 node 0 */ ] => 233
                   ")"
                 ]
               ]
@@ -118,7 +118,7 @@
                 [ "		writeln" ]
                 [ // (
                   "("
-                  [ "\"Doo dee doo\"" /* writeln arg 0 */ ] => 233
+                  [ "\"Doo dee doo\"" /* writeln arg 0 node 0 */ ] => 233
                   ")"
                 ]
               ]
@@ -143,7 +143,7 @@
                 [ "		writeln" ]
                 [ // (
                   "("
-                  [ "\"Dee doo dee\"" /* writeln arg 0 */ ] => 233
+                  [ "\"Dee doo dee\"" /* writeln arg 0 node 0 */ ] => 233
                   ")"
                 ]
               ]
@@ -161,7 +161,7 @@
                   [ "		writeln" ]
                   [ // (
                     "("
-                    [ "\"Doo dee doo\"" /* writeln arg 0 */ ] => 233
+                    [ "\"Doo dee doo\"" /* writeln arg 0 node 0 */ ] => 233
                     ")"
                   ]
                 ]
@@ -188,7 +188,7 @@
                 [ "		writeln" ]
                 [ // (
                   "("
-                  [ "\"Dee doo dee\"" /* writeln arg 0 */ ] => 233
+                  [ "\"Dee doo dee\"" /* writeln arg 0 node 0 */ ] => 233
                   ")"
                 ]
               ]
@@ -204,7 +204,7 @@
                 [ "		writeln" ]
                 [ // (
                   "("
-                  [ "\"Doo dee doo\"" /* writeln arg 0 */ ] => 233
+                  [ "\"Doo dee doo\"" /* writeln arg 0 node 0 */ ] => 233
                   ")"
                 ]
               ]
@@ -230,7 +230,7 @@
                   [ "		writeln" ]
                   [ // (
                     "("
-                    [ "\"Dee doo dee\"" /* writeln arg 0 */ ] => 233
+                    [ "\"Dee doo dee\"" /* writeln arg 0 node 0 */ ] => 233
                     ")"
                   ]
                 ]
@@ -250,7 +250,7 @@
                   [ "		writeln" ]
                   [ // (
                     "("
-                    [ "\"Doo dee doo\"" /* writeln arg 0 */ ] => 233
+                    [ "\"Doo dee doo\"" /* writeln arg 0 node 0 */ ] => 233
                     ")"
                   ]
                 ]
@@ -278,7 +278,7 @@
                   [ "		writeln" ]
                   [ // (
                     "("
-                    [ "\"Dee doo dee\"" /* writeln arg 0 */ ] => 233
+                    [ "\"Dee doo dee\"" /* writeln arg 0 node 0 */ ] => 233
                     ")"
                   ]
                 ]
@@ -305,7 +305,7 @@
                   [ "		writeln" ]
                   [ // (
                     "("
-                    [ "\"Doo dee doo\"" /* writeln arg 0 */ ] => 233
+                    [ "\"Doo dee doo\"" /* writeln arg 0 node 0 */ ] => 233
                     ")"
                   ]
                 ]
@@ -323,7 +323,7 @@
                   [ "		writeln" ]
                   [ // (
                     "("
-                    [ "\"Dee doo dee\"" /* writeln arg 0 */ ] => 233
+                    [ "\"Dee doo dee\"" /* writeln arg 0 node 0 */ ] => 233
                     ")"
                   ]
                 ]
@@ -341,7 +341,7 @@
                   [ "		writeln" ]
                   [ // (
                     "("
-                    [ "\"Dee dee doo\"" /* writeln arg 0 */ ] => 233
+                    [ "\"Dee dee doo\"" /* writeln arg 0 node 0 */ ] => 233
                     ")"
                   ]
                 ]
@@ -367,7 +367,7 @@
                 [ "		writeln" ]
                 [ // (
                   "("
-                  [ "\"Doo dee doo\"" /* writeln arg 0 */ ] => 233
+                  [ "\"Doo dee doo\"" /* writeln arg 0 node 0 */ ] => 233
                   ")"
                 ]
               ]
@@ -402,7 +402,7 @@
                   [ "		writeln" ]
                   [ // (
                     "("
-                    [ "\"Doo dee doo\"" /* writeln arg 0 */ ] => 233
+                    [ "\"Doo dee doo\"" /* writeln arg 0 node 0 */ ] => 233
                     ")"
                   ]
                 ]
@@ -448,7 +448,7 @@
             [ "	writeln" ]
             [ // (
               "("
-              [ // writeln arg 0
+              [ // writeln arg 0 node 0
                 [
                   [ "total" ]
                   [ "==" /* == */ ] => 229

@@ -10,7 +10,7 @@
           ]
           [ // (
             "("
-            [ // f arg 0
+            [ // f arg 0 node 0
               [ "int " ]
               [ "i" ]
             ] => 60
@@ -81,7 +81,7 @@
               [! "	assert" ]
               [! // (
                 "("
-                [! // assert arg 0
+                [! // assert arg 0 node 0
                   [!
                     [!
                       [! "f" ]

@@ -1050,11 +1050,11 @@
           [ // (
             "("
             [
-              [
-                [ "msg" /* pragma arg 0 */ ] => 675
+              [ // pragma arg 0 node 0
+                [ "msg" ]
                 [ ", " /* , */ ] => 661
-              ]
-              [ // pragma arg 1
+              ] => 675
+              [ // pragma arg 1 node 0
                 [
                   [
                     [

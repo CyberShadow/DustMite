@@ -969,7 +969,8 @@ struct DSplitter
 		if (a.length)
 		{
 			index0 = a[0] + 1;
-			children0 = nodesBetween(root.children[a[0]], a[1..$], null);
+			if (a.length > 1)
+				children0 = nodesBetween(root.children[a[0]], a[1..$], null);
 		}
 		else
 			index0 = 0;
@@ -977,7 +978,8 @@ struct DSplitter
 		if (b.length)
 		{
 			index1 = b[0];
-			children1 = nodesBetween(root.children[b[0]], null, b[1..$]);
+			if (b.length > 1)
+				children1 = nodesBetween(root.children[b[0]], null, b[1..$]);
 		}
 		else
 			index1 = root.children.length;
@@ -1019,14 +1021,28 @@ struct DSplitter
 			if (lastID && entity.token == tokenLookup["("])
 			{
 				size_t[] stack;
-				size_t[][] commas;
+				struct Comma { size_t[] addr, after; }
+				Comma[] commas;
+
+				bool afterComma;
 
 				// Find all top-level commas
 				void visit2(size_t i, Entity entity)
 				{
 					stack ~= i;
+					if (afterComma)
+					{
+						commas[$-1].after = stack;
+						//entity.comments ~= "After-comma %d".format(commas.length);
+						afterComma = false;
+					}
+
 					if (entity.token == tokenLookup[","])
-						commas ~= stack;
+					{
+						commas ~= Comma(stack);
+						//entity.comments ~= "Comma %d".format(commas.length);
+						afterComma = true;
+					}
 					else
 					if (entity.head.length || entity.tail.length)
 						{}
@@ -1041,20 +1057,23 @@ struct DSplitter
 
 				// Find all nodes between commas, effectively obtaining the arguments
 				size_t[] last = null;
-				commas ~= [[]];
+				commas ~= [Comma()];
 				Entity[][] args;
-				foreach (comma; commas)
+				foreach (i, comma; commas)
 				{
-					args ~= nodesBetween(entity, last, comma);
-					last = comma;
+					//Entity entityAt(Entity root, size_t[] address) { return address.length ? entityAt(root.children[address[0]], address[1..$]) : root; }
+					//entityAt(entity, last).comments ~= "nodesBetween-left %d".format(i);
+					//entityAt(entity, comma.after).comments ~= "nodesBetween-right %d".format(i);
+					args ~= nodesBetween(entity, last, comma.after);
+					last = comma.addr;
 				}
 
 				// Register the arguments
 				foreach (i, arg; args)
 				{
 					debug
-						foreach (e; arg)
-							e.comments ~= "%s arg %d".format(lastID, i);
+						foreach (j, e; arg)
+							e.comments ~= "%s arg %d node %d".format(lastID, i, j);
 
 					if (arg.length == 1)
 					{

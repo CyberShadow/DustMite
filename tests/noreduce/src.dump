@@ -30,7 +30,7 @@
               [ "	writeln" ]
               [ // (
                 "("
-                [ "\"foo\"" /* writeln arg 0 */ ] => 36
+                [ "\"foo\"" /* writeln arg 0 node 0 */ ] => 36
                 ")"
               ]
             ]

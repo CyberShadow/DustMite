@@ -30,7 +30,7 @@
               [ "	writeln" ]
               [ // (
                 "("
-                [ "\"foo\"" /* writeln arg 0 */ ] => 36
+                [ "\"foo\"" /* writeln arg 0 node 0 */ ] => 36
                 ")"
               ]
             ]
@@ -41,7 +41,7 @@
               [ "	writeln" ]
               [! // (
                 "( "
-                [! "/*canttouchthis*/ \"bar\"" /* writeln arg 0 */ ] => 36
+                [! "/*canttouchthis*/ \"bar\"" /* writeln arg 0 node 0 */ ] => 36
                 ")"
               ]
             ]
@@ -52,7 +52,7 @@
               [ "	writeln" ]
               [ // (
                 "("
-                [ "\"baz\"" /* writeln arg 0 */ ] => 36
+                [ "\"baz\"" /* writeln arg 0 node 0 */ ] => 36
                 ")"
               ]
             ]

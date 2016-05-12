@@ -7,11 +7,11 @@
         [ // (
           "("
           [
-            [
-              [ "msg" /* pragma arg 0 */ ] => 66
+            [ // pragma arg 0 node 0
+              [ "msg" ]
               [ ", " /* , */ ] => 11
-            ]
-            [ // pragma arg 1
+            ] => 66
+            [ // pragma arg 1 node 0
               [
                 [
                   [

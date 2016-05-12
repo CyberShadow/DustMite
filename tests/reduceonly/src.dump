@@ -30,7 +30,7 @@
               [! "writeln" ]
               [! // (
                 "("
-                [! // writeln arg 0
+                [! // writeln arg 0 node 0
                   [!
                     [! "__MODULE__ " ]
                     [! "~ " /* ~ */ ] => 27
@@ -92,7 +92,7 @@
               [! "writeln" ]
               [! // (
                 "("
-                [! // writeln arg 0
+                [! // writeln arg 0 node 0
                   [!
                     [! "__MODULE__ " ]
                     [! "~ " /* ~ */ ] => 62
@@ -154,7 +154,7 @@
               [! "writeln" ]
               [! // (
                 "("
-                [! // writeln arg 0
+                [! // writeln arg 0 node 0
                   [!
                     [! "__MODULE__ " ]
                     [! "~ " /* ~ */ ] => 97

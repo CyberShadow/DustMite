@@ -17,7 +17,7 @@
               [ "	writeln" ]
               [ // (
                 "("
-                [ "\"Hello, world!\"" /* writeln arg 0 */ ] => 26
+                [ "\"Hello, world!\"" /* writeln arg 0 node 0 */ ] => 26
                 ")"
               ]
             ]

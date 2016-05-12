@@ -23,7 +23,7 @@
           ]
           [! // (
             "("
-            [! // f arg 0
+            [! // f arg 0 node 0
               [! "string " ]
               [ "s" ]
             ] => 46
@@ -47,7 +47,7 @@
               [ "	writeln" ]
               [ // (
                 "("
-                [ "\"foo\"" /* writeln arg 0 */ ] => 48
+                [ "\"foo\"" /* writeln arg 0 node 0 */ ] => 48
                 ")"
               ]
             ]
@@ -58,7 +58,7 @@
               [ "	writeln" ]
               [ // (
                 "("
-                [ "\"bar\"" /* writeln arg 0 */ ] => 48
+                [ "\"bar\"" /* writeln arg 0 node 0 */ ] => 48
                 ")"
               ]
             ]
@@ -69,7 +69,7 @@
               [ "	writeln" ]
               [ // (
                 "("
-                [ "\"baz\"" /* writeln arg 0 */ ] => 48
+                [ "\"baz\"" /* writeln arg 0 node 0 */ ] => 48
                 ")"
               ]
             ]

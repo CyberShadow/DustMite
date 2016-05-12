@@ -126,7 +126,7 @@
               [! "	writeln" ]
               [! // (
                 "("
-                [! "\"Hello, world!\"" /* writeln arg 0 */ ] => 86
+                [! "\"Hello, world!\"" /* writeln arg 0 node 0 */ ] => 86
                 ")"
               ]
             ]
