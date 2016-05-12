@@ -951,6 +951,8 @@ struct DSplitter
 		foreach (c; s[1..$])
 			if (!isAlphaNum(c))
 				return false;
+		if (s in tokenLookup)
+			return false;
 		return true;
 	}
 

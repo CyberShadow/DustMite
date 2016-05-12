@@ -5,96 +5,88 @@
 [ 0.0%] Remove [0] => No
 ============= Depth 2 =============
 [ 0.0%] Remove [01] => No
-[ 4.2%] Remove [00] => No (cached)
+[ 1.2%] Remove [00] => No (cached)
 ============= Depth 3 =============
-[ 0.0%] Remove [011] => No
-[ 1.9%] Remove [010] => No
-[ 4.2%] Remove [001] => No
-[95.7%] Remove [000] => No
+[ 0.0%] Remove [010] => No (cached)
+[ 1.2%] Remove [001] => No
+[95.6%] Remove [000] => No
 ============= Depth 4 =============
-[ 0.0%] Remove [0111] => No
-[ 0.7%] Remove [0110] => No
-[ 1.9%] Remove [0101] => No
-[ 2.7%] Remove [0100] => No
-[ 4.2%] Remove [0011] => No
-[ 4.2%] Unwrap [0011] => No
-[93.4%] Remove [0010] => No
-[95.7%] Remove [0001] => No
+[ 0.0%] Remove [0100] => No (cached)
+[ 1.2%] Remove [0011] => No
+[ 1.2%] Unwrap [0011] => No
+[93.2%] Remove [0010] => No
+[95.6%] Remove [0001] => No
 [98.0%] Remove [0000] => No
 ============= Depth 5 =============
-[ 0.0%] Remove [01110] => No (cached)
-[ 0.7%] Remove [01100] => No (cached)
-[ 1.9%] Remove [01010] => No (cached)
-[ 2.7%] Remove [01000] => No (cached)
-[ 4.2%] Remove [00111] => No
-[39.1%] Remove [00110] => No
-[93.4%] Remove [00101] => No
-[93.4%] Unwrap [00101] => No (cached)
-[93.7%] Remove [00100] => No
-[95.7%] Remove [00011] => No
-[96.5%] Remove [00010] => No
+[ 1.2%] Remove [00111] => No
+[37.2%] Remove [00110] => No
+[93.2%] Remove [00101] => No
+[93.2%] Unwrap [00101] => No (cached)
+[93.6%] Remove [00100] => No
+[95.6%] Remove [00011] => No
+[96.4%] Remove [00010] => No
 ============= Depth 6 =============
-[ 4.2%] Remove [001111] => No
-[ 8.1%] Remove [001110] => No
-[39.1%] Remove [001101] => Yes
-[74.4%] Remove [001100] => No (cached)
-[93.7%] Remove [001001] => No
-[94.1%] Remove [001000] => No
-[95.7%] Remove [000110] => No
-[96.5%] Remove [000101] => No
+[ 1.2%] Remove [001111] => No
+[ 5.2%] Remove [001110] => No
+[37.2%] Remove [001101] => Yes
+[73.6%] Remove [001100] => No (cached)
+[93.6%] Remove [001001] => No
+[94.0%] Remove [001000] => No
+[95.6%] Remove [000110] => No
+[96.4%] Remove [000101] => No
 [96.8%] Remove [000100] => No
 ============= Depth 7 =============
-[ 6.5%] Remove [0011110] => No
-[12.5%] Remove [0011101] => No
-[28.7%] Remove [0011100] => No
-[60.4%] Remove [0011001] => Yes
-[79.6%] Remove [0011000] => No (cached)
+[ 1.8%] Remove [0011110] => No
+[ 8.1%] Remove [0011101] => No
+[25.1%] Remove [0011100] => No
+[58.4%] Remove [0011001] => Yes
+[78.6%] Remove [0011000] => No (cached)
 ============= Depth 8 =============
-[ 8.1%] Remove [00111101] => No
-[ 8.1%] Unwrap [00111101] => No
-[13.3%] Remove [00111100] => No
-[15.5%] Remove [00111011] => No
-[22.2%] Remove [00111010] => No
-[35.5%] Remove [00111001] => No
-[48.8%] Remove [00111000] => Yes
-[74.8%] Remove [00110001] => No
-[81.4%] Remove [00110000] => Yes
+[ 2.3%] Remove [00111101] => No
+[ 2.3%] Unwrap [00111101] => No
+[ 7.8%] Remove [00111100] => No
+[10.2%] Remove [00111011] => No
+[17.3%] Remove [00111010] => No
+[31.4%] Remove [00111001] => No
+[45.6%] Remove [00111000] => Yes
+[73.2%] Remove [00110001] => No
+[80.3%] Remove [00110000] => Yes
 ============= Depth 9 =============
-[11.1%] Remove [001111010] => No
-[21.2%] Remove [001110111] => No
-[21.2%] Unwrap [001110111] => Yes
-[25.2%] Remove [001110110] => Yes
-[30.3%] Remove [001110101] => No
-[35.3%] Remove [001110100] => Yes
-[48.4%] Remove [001110001] => No
-[53.5%] Remove [001110000] => Yes
-[69.6%] Remove [001100000] => No
+[ 3.2%] Remove [001111010] => No
+[14.2%] Remove [001110111] => No
+[14.2%] Unwrap [001110111] => Yes
+[18.6%] Remove [001110110] => Yes
+[24.1%] Remove [001110101] => No
+[29.6%] Remove [001110100] => Yes
+[43.9%] Remove [001110001] => No
+[49.4%] Remove [001110000] => Yes
+[67.0%] Remove [001100000] => No
 ============= Depth 10 =============
-[15.2%] Remove [0011110101] => No
-[18.0%] Remove [0011110100] => No
-[29.1%] Remove [0011101100] => No
-[36.1%] Remove [0011101001] => No
-[40.2%] Remove [0011101000] => Yes (cached)
-[45.8%] Remove [0011100001] => No
-[50.0%] Remove [0011100000] => Yes (cached)
-[58.3%] Remove [0011000001] => No
-[61.1%] Remove [0011000000] => No
+[ 4.6%] Remove [0011110101] => No
+[ 7.8%] Remove [0011110100] => No
+[20.3%] Remove [0011101100] => No
+[28.1%] Remove [0011101001] => No
+[32.8%] Remove [0011101000] => Yes (cached)
+[39.0%] Remove [0011100001] => No
+[43.7%] Remove [0011100000] => Yes (cached)
+[53.1%] Remove [0011000001] => No
+[56.2%] Remove [0011000000] => No
 ============= Depth 11 =============
-[15.7%] Remove [00111101010] => No
-[18.5%] Remove [00111101001] => No
-[20.0%] Remove [00111101000] => No
-[30.0%] Remove [00111011000] => No
-[37.1%] Remove [00111010000] => No
-[45.7%] Remove [00111000000] => No
-[57.1%] Remove [00110000010] => No
-[60.0%] Remove [00110000001] => No
-[61.4%] Remove [00110000000] => No
+[ 4.8%] Remove [00111101010] => No
+[ 8.0%] Remove [00111101001] => No
+[ 9.6%] Remove [00111101000] => No
+[20.9%] Remove [00111011000] => No
+[29.0%] Remove [00111010000] => No
+[38.7%] Remove [00111000000] => No
+[51.6%] Remove [00110000010] => No
+[54.8%] Remove [00110000001] => No
+[56.4%] Remove [00110000000] => No
 ============= Depth 12 =============
-[30.0%] Remove [001110110000] => No
-[37.1%] Remove [001110100000] => No
-[45.7%] Remove [001110000000] => No
-[61.4%] Remove [001100000001] => No
-[62.8%] Remove [001100000000] => No
+[20.9%] Remove [001110110000] => No
+[29.0%] Remove [001110100000] => No
+[38.7%] Remove [001110000000] => No
+[56.4%] Remove [001100000001] => No
+[58.0%] Remove [001100000000] => No
 ############### ITERATION 1 ################
 ============= Depth 0 =============
 [ 0.0%] Remove [] => No (cached)
@@ -102,159 +94,76 @@
 [ 0.0%] Remove [0] => No (cached)
 ============= Depth 2 =============
 [ 0.0%] Remove [01] => No
-[15.7%] Remove [00] => No (cached)
-============= Depth 3 =============
-[ 0.0%] Remove [011] => No (cached)
-[ 7.1%] Remove [010] => Yes (cached)
-[15.7%] Remove [001] => No (cached)
-[84.2%] Remove [000] => No
-============= Depth 4 =============
-[ 0.0%] Remove [0101] => No (cached)
-[ 3.0%] Remove [0100] => Yes (cached)
-[ 9.2%] Remove [0011] => No (cached)
-[ 9.2%] Unwrap [0011] => No
-[73.8%] Remove [0010] => No
-[83.0%] Remove [0001] => No
-[92.3%] Remove [0000] => No
-============= Depth 5 =============
-[ 0.0%] Remove [01000] => No (cached)
-[ 6.3%] Remove [00111] => No
-[52.3%] Remove [00110] => No
-[73.0%] Remove [00101] => No
-[73.0%] Unwrap [00101] => No (cached)
-[74.6%] Remove [00100] => No
-[82.5%] Remove [00011] => No
-[85.7%] Remove [00010] => No
-============= Depth 6 =============
-[ 6.3%] Remove [001111] => No
-[22.2%] Remove [001110] => No
-[52.3%] Remove [001100] => No (cached)
-[74.6%] Remove [001001] => No
-[76.1%] Remove [001000] => No
-[82.5%] Remove [000110] => No
-[85.7%] Remove [000101] => No
-[87.3%] Remove [000100] => No
-============= Depth 7 =============
-[ 6.3%] Remove [0011110] => No
-[22.2%] Remove [0011101] => No
-[39.6%] Remove [0011100] => No (cached)
-[52.3%] Remove [0011000] => No (cached)
-============= Depth 8 =============
-[ 6.3%] Remove [00111101] => No
-[ 6.3%] Unwrap [00111101] => No
-[17.4%] Remove [00111100] => No
-[22.2%] Remove [00111011] => No (cached)
-[30.1%] Remove [00111010] => No (cached)
-[39.6%] Remove [00111000] => No (cached)
-[52.3%] Remove [00110000] => No (cached)
-============= Depth 9 =============
-[ 6.3%] Remove [001111010] => No (cached)
-[22.2%] Remove [001110110] => No (cached)
-[30.1%] Remove [001110100] => No (cached)
-[39.6%] Remove [001110000] => No (cached)
-[52.3%] Remove [001100000] => No (cached)
-============= Depth 10 =============
-[ 6.3%] Remove [0011110101] => No (cached)
-[ 9.5%] Remove [0011110100] => No (cached)
-[22.2%] Remove [0011101100] => No (cached)
-[30.1%] Remove [0011101000] => No (cached)
-[39.6%] Remove [0011100000] => No (cached)
-[52.3%] Remove [0011000001] => No (cached)
-[55.5%] Remove [0011000000] => No (cached)
-============= Depth 11 =============
-[ 6.3%] Remove [00111101010] => No (cached)
-[ 9.5%] Remove [00111101001] => No (cached)
-[11.1%] Remove [00111101000] => No (cached)
-[22.2%] Remove [00111011000] => No (cached)
-[30.1%] Remove [00111010000] => No (cached)
-[39.6%] Remove [00111000000] => No (cached)
-[52.3%] Remove [00110000010] => No (cached)
-[55.5%] Remove [00110000001] => No (cached)
-[57.1%] Remove [00110000000] => No (cached)
-============= Depth 12 =============
-[22.2%] Remove [001110110000] => No (cached)
-[30.1%] Remove [001110100000] => No (cached)
-[39.6%] Remove [001110000000] => No (cached)
-[57.1%] Remove [001100000001] => No (cached)
-[58.7%] Remove [001100000000] => No (cached)
-############### ITERATION 2 ################
-============= Depth 0 =============
-[ 0.0%] Remove [] => No (cached)
-============= Depth 1 =============
-[ 0.0%] Remove [0] => No (cached)
-============= Depth 2 =============
-[ 0.0%] Remove [01] => No (cached)
-[ 6.3%] Remove [00] => No (cached)
+[ 4.8%] Remove [00] => No (cached)
 ============= Depth 3 =============
 [ 0.0%] Remove [010] => No (cached)
-[ 6.3%] Remove [001] => No (cached)
-[82.5%] Remove [000] => No (cached)
+[ 4.8%] Remove [001] => No (cached)
+[82.2%] Remove [000] => No
 ============= Depth 4 =============
 [ 0.0%] Remove [0100] => No (cached)
-[ 6.3%] Remove [0011] => No (cached)
-[ 6.3%] Unwrap [0011] => No (cached)
-[73.0%] Remove [0010] => No (cached)
-[82.5%] Remove [0001] => No (cached)
-[92.0%] Remove [0000] => No (cached)
+[ 4.8%] Remove [0011] => No (cached)
+[ 4.8%] Unwrap [0011] => No
+[72.5%] Remove [0010] => No
+[82.2%] Remove [0001] => No
+[91.9%] Remove [0000] => No
 ============= Depth 5 =============
-[ 0.0%] Remove [01000] => No (cached)
-[ 6.3%] Remove [00111] => No (cached)
-[52.3%] Remove [00110] => No (cached)
-[73.0%] Remove [00101] => No (cached)
-[73.0%] Unwrap [00101] => No (cached)
-[74.6%] Remove [00100] => No (cached)
-[82.5%] Remove [00011] => No (cached)
-[85.7%] Remove [00010] => No (cached)
+[ 4.8%] Remove [00111] => No
+[51.6%] Remove [00110] => No
+[72.5%] Remove [00101] => No
+[72.5%] Unwrap [00101] => No (cached)
+[74.1%] Remove [00100] => No
+[82.2%] Remove [00011] => No
+[85.4%] Remove [00010] => No
 ============= Depth 6 =============
-[ 6.3%] Remove [001111] => No (cached)
-[22.2%] Remove [001110] => No (cached)
-[52.3%] Remove [001100] => No (cached)
-[74.6%] Remove [001001] => No (cached)
-[76.1%] Remove [001000] => No (cached)
-[82.5%] Remove [000110] => No (cached)
-[85.7%] Remove [000101] => No (cached)
-[87.3%] Remove [000100] => No (cached)
+[ 4.8%] Remove [001111] => No
+[20.9%] Remove [001110] => No
+[51.6%] Remove [001100] => No (cached)
+[74.1%] Remove [001001] => No
+[75.8%] Remove [001000] => No
+[82.2%] Remove [000110] => No
+[85.4%] Remove [000101] => No
+[87.0%] Remove [000100] => No
 ============= Depth 7 =============
-[ 6.3%] Remove [0011110] => No (cached)
-[22.2%] Remove [0011101] => No (cached)
-[39.6%] Remove [0011100] => No (cached)
-[52.3%] Remove [0011000] => No (cached)
+[ 4.8%] Remove [0011110] => No
+[20.9%] Remove [0011101] => No
+[38.7%] Remove [0011100] => No (cached)
+[51.6%] Remove [0011000] => No (cached)
 ============= Depth 8 =============
-[ 6.3%] Remove [00111101] => No (cached)
-[ 6.3%] Unwrap [00111101] => No (cached)
-[17.4%] Remove [00111100] => No (cached)
-[22.2%] Remove [00111011] => No (cached)
-[30.1%] Remove [00111010] => No (cached)
-[39.6%] Remove [00111000] => No (cached)
-[52.3%] Remove [00110000] => No (cached)
+[ 4.8%] Remove [00111101] => No
+[ 4.8%] Unwrap [00111101] => No
+[16.1%] Remove [00111100] => No
+[20.9%] Remove [00111011] => No (cached)
+[29.0%] Remove [00111010] => No (cached)
+[38.7%] Remove [00111000] => No (cached)
+[51.6%] Remove [00110000] => No (cached)
 ============= Depth 9 =============
-[ 6.3%] Remove [001111010] => No (cached)
-[22.2%] Remove [001110110] => No (cached)
-[30.1%] Remove [001110100] => No (cached)
-[39.6%] Remove [001110000] => No (cached)
-[52.3%] Remove [001100000] => No (cached)
+[ 4.8%] Remove [001111010] => No (cached)
+[20.9%] Remove [001110110] => No (cached)
+[29.0%] Remove [001110100] => No (cached)
+[38.7%] Remove [001110000] => No (cached)
+[51.6%] Remove [001100000] => No (cached)
 ============= Depth 10 =============
-[ 6.3%] Remove [0011110101] => No (cached)
-[ 9.5%] Remove [0011110100] => No (cached)
-[22.2%] Remove [0011101100] => No (cached)
-[30.1%] Remove [0011101000] => No (cached)
-[39.6%] Remove [0011100000] => No (cached)
-[52.3%] Remove [0011000001] => No (cached)
-[55.5%] Remove [0011000000] => No (cached)
+[ 4.8%] Remove [0011110101] => No (cached)
+[ 8.0%] Remove [0011110100] => No (cached)
+[20.9%] Remove [0011101100] => No (cached)
+[29.0%] Remove [0011101000] => No (cached)
+[38.7%] Remove [0011100000] => No (cached)
+[51.6%] Remove [0011000001] => No (cached)
+[54.8%] Remove [0011000000] => No (cached)
 ============= Depth 11 =============
-[ 6.3%] Remove [00111101010] => No (cached)
-[ 9.5%] Remove [00111101001] => No (cached)
-[11.1%] Remove [00111101000] => No (cached)
-[22.2%] Remove [00111011000] => No (cached)
-[30.1%] Remove [00111010000] => No (cached)
-[39.6%] Remove [00111000000] => No (cached)
-[52.3%] Remove [00110000010] => No (cached)
-[55.5%] Remove [00110000001] => No (cached)
-[57.1%] Remove [00110000000] => No (cached)
+[ 4.8%] Remove [00111101010] => No (cached)
+[ 8.0%] Remove [00111101001] => No (cached)
+[ 9.6%] Remove [00111101000] => No (cached)
+[20.9%] Remove [00111011000] => No (cached)
+[29.0%] Remove [00111010000] => No (cached)
+[38.7%] Remove [00111000000] => No (cached)
+[51.6%] Remove [00110000010] => No (cached)
+[54.8%] Remove [00110000001] => No (cached)
+[56.4%] Remove [00110000000] => No (cached)
 ============= Depth 12 =============
-[22.2%] Remove [001110110000] => No (cached)
-[30.1%] Remove [001110100000] => No (cached)
-[39.6%] Remove [001110000000] => No (cached)
-[57.1%] Remove [001100000001] => No (cached)
-[58.7%] Remove [001100000000] => No (cached)
-Done in 98 tests
+[20.9%] Remove [001110110000] => No (cached)
+[29.0%] Remove [001110100000] => No (cached)
+[38.7%] Remove [001110000000] => No (cached)
+[56.4%] Remove [001100000001] => No (cached)
+[58.0%] Remove [001100000000] => No (cached)
+Done in 92 tests
