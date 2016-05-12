@@ -162,6 +162,7 @@ private:
 /// Override std.string nonsense, which does UTF-8 decoding
 bool startsWith(in char[] big, in char[] small) { return big.length >= small.length && big[0..small.length] == small; }
 bool startsWith(in char[] big, char c) { return big.length && big[0] == c; }
+string strip(string s) { while (s.length && isWhite(s[0])) s = s[1..$]; while (s.length && isWhite(s[$-1])) s = s[0..$-1]; return s; }
 
 immutable ParseRule[] defaultRules =
 [
