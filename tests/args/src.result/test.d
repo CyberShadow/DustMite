@@ -2,7 +2,7 @@ import std.stdio;
 
 int total;
 
-void a(int , int , int )
+void a()
 {
 	total++;
 }
@@ -19,7 +19,7 @@ void c(int foo, int bar, int baz)()
 
 void main()
 {
-	a(1, 2, 3);
+	a;
 	b!(1, 2)(3);
 	c!(1, 2, 3);
 

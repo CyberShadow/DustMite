@@ -23,10 +23,10 @@
           ]
           [! // (
             "("
-            [!
+            [! // f arg 0
               [! "string " ]
               [ "s" ]
-            ]
+            ] => 46
             ")\n"
           ]
         ]
@@ -47,7 +47,7 @@
               [ "	writeln" ]
               [ // (
                 "("
-                [ "\"foo\"" ]
+                [ "\"foo\"" /* writeln arg 0 */ ] => 48
                 ")"
               ]
             ]
@@ -58,7 +58,7 @@
               [ "	writeln" ]
               [ // (
                 "("
-                [ "\"bar\"" ]
+                [ "\"bar\"" /* writeln arg 0 */ ] => 48
                 ")"
               ]
             ]
@@ -69,13 +69,21 @@
               [ "	writeln" ]
               [ // (
                 "("
-                [ "\"baz\"" ]
+                [ "\"baz\"" /* writeln arg 0 */ ] => 48
                 ")"
               ]
             ]
             ";\n"
           ]
           "}\n"
+        ]
+      ]
+      [! // Args root
+        [! // f root
+          [! /* f param 0 */ ] =46
+        ]
+        [ // writeln root
+          [ /* writeln param 0 */ ] =48
         ]
       ]
     ]

@@ -44,18 +44,19 @@ class Entity
 		this.tail     = tail;
 	}
 
+	string[] comments;
+
 	@property string comment()
 	{
+		string[] result = comments;
 		if (isPair)
 		{
 			assert(token == DSplitter.Token.none);
-			return "Pair";
+			result ~= "Pair";
 		}
-		else
-		if (token)
-			return DSplitter.tokenText[token];
-		else
-			return null;
+		if (token && DSplitter.tokenText[token])
+			result ~= DSplitter.tokenText[token];
+		return result.length ? result.join(" / ") : null;
 	}
 
 	override string toString()
@@ -941,11 +942,55 @@ struct DSplitter
 			postProcessParens(e.children);
 	}
 
-	static void postProcess(ref Entity[] entities)
+	static bool isValidIdentifier(string s)
+	{
+		if (!s.length)
+			return false;
+		if (!isAlpha(s[0]))
+			return false;
+		foreach (c; s[1..$])
+			if (!isAlphaNum(c))
+				return false;
+		return true;
+	}
+
+	/// Get all nodes between (exclusively) two addresses.
+	/// If either address is empty, then the respective bound is the respective extreme.
+	static Entity[] nodesBetween(Entity root, size_t[] a, size_t[] b)
+	{
+		while (a.length && b.length && a[0] == b[0])
+		{
+			root = root.children[a[0]];
+			a = a[1..$];
+			b = b[1..$];
+		}
+		size_t index0, index1;
+		Entity[] children0, children1;
+		if (a.length)
+		{
+			index0 = a[0] + 1;
+			children0 = nodesBetween(root.children[a[0]], a[1..$], null);
+		}
+		else
+			index0 = 0;
+
+		if (b.length)
+		{
+			index1 = b[0];
+			children1 = nodesBetween(root.children[b[0]], null, b[1..$]);
+		}
+		else
+			index1 = root.children.length;
+
+		assert(index0 <= index1);
+		return children0 ~ root.children[index0 .. index1] ~ children1;
+	}
+
+	static void postProcessRecursive(ref Entity[] entities)
 	{
 		foreach (e; entities)
 			if (e.children.length)
-				postProcess(e.children);
+				postProcessRecursive(e.children);
 
 		postProcessSimplify(entities);
 		postProcessDependency(entities);
@@ -954,6 +999,112 @@ struct DSplitter
 		postProcessBlockStatements(entities);
 		postProcessPairs(entities);
 		postProcessParens(entities);
+	}
+
+	/// Attempt to link together function arguments / parameters for
+	/// things that look like calls to the same function, to allow removing
+	/// unused function arguments / parameters.
+	static void postProcessArgs(ref Entity[] entities)
+	{
+		string lastID;
+
+		Entity[][][string] calls;
+
+		void visit(Entity entity)
+		{
+			auto id = entity.head.strip();
+			if (isValidIdentifier(id) && !entity.tail && !entity.children)
+				lastID = id;
+			else
+			if (lastID && entity.head.strip() == "(" && entity.tail.strip() == ")")
+			{
+				size_t[] stack;
+				size_t[][] commas;
+
+				// Find all top-level commas
+				void visit2(size_t i, Entity entity)
+				{
+					stack ~= i;
+					if (entity.token == tokenLookup[","])
+						commas ~= stack;
+					else
+					if (entity.head.length || entity.tail.length)
+						{}
+					else
+						foreach (j, child; entity.children)
+							visit2(j, child);
+					stack = stack[0..$-1];
+				}
+
+				foreach (i, child; entity.children)
+					visit2(i, child);
+
+				// Find all nodes between commas, effectively obtaining the arguments
+				size_t[] last = null;
+				commas ~= [[]];
+				Entity[][] args;
+				foreach (comma; commas)
+				{
+					args ~= nodesBetween(entity, last, comma);
+					last = comma;
+				}
+
+				// Register the arguments
+				foreach (i, arg; args)
+				{
+					debug
+						foreach (e; arg)
+							e.comments ~= "%s arg %d".format(lastID, i);
+
+					if (arg.length == 1)
+					{
+						if (lastID !in calls)
+							calls[lastID] = null;
+						while (calls[lastID].length < i+1)
+							calls[lastID] ~= null;
+						calls[lastID][i] ~= arg[0];
+					}
+				}
+
+				lastID = null;
+				return;
+			}
+			else
+				lastID = null;
+
+			foreach (child; entity.children)
+				visit(child);
+		}
+
+		foreach (entity; entities)
+			visit(entity);
+
+		// For each parameter, create a dummy empty node which is a dependency for all of the arguments.
+		auto callRoot = new Entity();
+		debug callRoot.comments ~= "Args root";
+		entities ~= callRoot;
+
+		foreach (id, params; calls)
+		{
+			auto funRoot = new Entity();
+			debug funRoot.comments ~= "%s root".format(id);
+			callRoot.children ~= funRoot;
+
+			foreach (i, args; params)
+			{
+				auto e = new Entity();
+				debug e.comments ~= "%s param %d".format(id, i);
+				funRoot.children ~= e;
+				foreach (arg; args)
+					arg.dependencies ~= e;
+			}
+		}
+	}
+
+	static void postProcess(ref Entity[] entities)
+	{
+		postProcessRecursive(entities);
+		postProcessArgs(entities);
 	}
 
 	static Entity* firstHead(ref Entity e)

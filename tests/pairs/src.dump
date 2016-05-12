@@ -52,7 +52,7 @@
           ]
           [ // (
             "("
-            [ "T" ]
+            [ "T" /* ST arg 0 */ ] => 85
             ")\n"
           ]
         ]
@@ -124,13 +124,21 @@
               [ "	writeln" ]
               [ // (
                 "("
-                [ "\"Hello, world!\"" ]
+                [ "\"Hello, world!\"" /* writeln arg 0 */ ] => 87
                 ")"
               ]
             ]
             ";\n"
           ]
           "}\n"
+        ]
+      ]
+      [ // Args root
+        [ // ST root
+          [ /* ST param 0 */ ] =85
+        ]
+        [ // writeln root
+          [ /* writeln param 0 */ ] =87
         ]
       ]
     ]

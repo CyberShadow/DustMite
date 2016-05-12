@@ -6,7 +6,8 @@
 ============= Depth 2 =============
 [ 0.0%] Remove [00] => No
 ============= Depth 3 =============
-[ 0.0%] Remove [000] => No (cached)
+[ 0.0%] Remove [001] => Yes (cached)
+[ 1.5%] Remove [000] => No (cached)
 ============= Depth 4 =============
 [ 0.0%] Remove [0001] => No
 [ 0.0%] Unwrap [0001] => No

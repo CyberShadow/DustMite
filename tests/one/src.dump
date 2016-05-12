@@ -56,7 +56,7 @@
                   [ "		writeln" ]
                   [ // (
                     "("
-                    [ "\"Doo dee doo\"" ]
+                    [ "\"Doo dee doo\"" /* writeln arg 0 */ ] => 239
                     ")"
                   ]
                 ]
@@ -70,7 +70,7 @@
               [ "while " /* while */ ]
               [ // (
                 "("
-                [ "false" ]
+                [ "false" /* while arg 0 */ ] => 237
                 ")"
               ]
             ]
@@ -88,7 +88,7 @@
                 [ "		writeln" ]
                 [ // (
                   "("
-                  [ "\"Dee doo dee\"" ]
+                  [ "\"Dee doo dee\"" /* writeln arg 0 */ ] => 239
                   ")"
                 ]
               ]
@@ -100,7 +100,7 @@
               [ "	while " /* while */ ]
               [ // (
                 "("
-                [ "false" ]
+                [ "false" /* while arg 0 */ ] => 237
                 ")"
               ]
             ]
@@ -118,7 +118,7 @@
                 [ "		writeln" ]
                 [ // (
                   "("
-                  [ "\"Doo dee doo\"" ]
+                  [ "\"Doo dee doo\"" /* writeln arg 0 */ ] => 239
                   ")"
                 ]
               ]
@@ -130,10 +130,10 @@
               [ "	catch" /* catch */ ]
               [ // (
                 "("
-                [
+                [ // catch arg 0
                   [ "Throwable " ]
                   [ "e" ]
-                ]
+                ] => 233
                 ")\n"
               ]
             ]
@@ -143,7 +143,7 @@
                 [ "		writeln" ]
                 [ // (
                   "("
-                  [ "\"Dee doo dee\"" ]
+                  [ "\"Dee doo dee\"" /* writeln arg 0 */ ] => 239
                   ")"
                 ]
               ]
@@ -161,7 +161,7 @@
                   [ "		writeln" ]
                   [ // (
                     "("
-                    [ "\"Doo dee doo\"" ]
+                    [ "\"Doo dee doo\"" /* writeln arg 0 */ ] => 239
                     ")"
                   ]
                 ]
@@ -175,10 +175,10 @@
               [ "	catch" /* catch */ ]
               [ // (
                 "("
-                [
+                [ // catch arg 0
                   [ "Throwable " ]
                   [ "e" ]
-                ]
+                ] => 233
                 ")\n"
               ]
             ]
@@ -188,7 +188,7 @@
                 [ "		writeln" ]
                 [ // (
                   "("
-                  [ "\"Dee doo dee\"" ]
+                  [ "\"Dee doo dee\"" /* writeln arg 0 */ ] => 239
                   ")"
                 ]
               ]
@@ -204,7 +204,7 @@
                 [ "		writeln" ]
                 [ // (
                   "("
-                  [ "\"Doo dee doo\"" ]
+                  [ "\"Doo dee doo\"" /* writeln arg 0 */ ] => 239
                   ")"
                 ]
               ]
@@ -216,10 +216,10 @@
               [ "	catch" /* catch */ ]
               [ // (
                 "("
-                [
+                [ // catch arg 0
                   [ "Throwable " ]
                   [ "e" ]
-                ]
+                ] => 233
                 ")\n"
               ]
             ]
@@ -230,7 +230,7 @@
                   [ "		writeln" ]
                   [ // (
                     "("
-                    [ "\"Dee doo dee\"" ]
+                    [ "\"Dee doo dee\"" /* writeln arg 0 */ ] => 239
                     ")"
                   ]
                 ]
@@ -250,7 +250,7 @@
                   [ "		writeln" ]
                   [ // (
                     "("
-                    [ "\"Doo dee doo\"" ]
+                    [ "\"Doo dee doo\"" /* writeln arg 0 */ ] => 239
                     ")"
                   ]
                 ]
@@ -264,10 +264,10 @@
               [ "	catch" /* catch */ ]
               [ // (
                 "("
-                [
+                [ // catch arg 0
                   [ "Throwable " ]
                   [ "e" ]
-                ]
+                ] => 233
                 ")\n"
               ]
             ]
@@ -278,7 +278,7 @@
                   [ "		writeln" ]
                   [ // (
                     "("
-                    [ "\"Dee doo dee\"" ]
+                    [ "\"Dee doo dee\"" /* writeln arg 0 */ ] => 239
                     ")"
                   ]
                 ]
@@ -305,7 +305,7 @@
                   [ "		writeln" ]
                   [ // (
                     "("
-                    [ "\"Doo dee doo\"" ]
+                    [ "\"Doo dee doo\"" /* writeln arg 0 */ ] => 239
                     ")"
                   ]
                 ]
@@ -323,7 +323,7 @@
                   [ "		writeln" ]
                   [ // (
                     "("
-                    [ "\"Dee doo dee\"" ]
+                    [ "\"Dee doo dee\"" /* writeln arg 0 */ ] => 239
                     ")"
                   ]
                 ]
@@ -341,7 +341,7 @@
                   [ "		writeln" ]
                   [ // (
                     "("
-                    [ "\"Dee dee doo\"" ]
+                    [ "\"Dee dee doo\"" /* writeln arg 0 */ ] => 239
                     ")"
                   ]
                 ]
@@ -357,7 +357,7 @@
               [ "	\n\n	if " /* if */ ]
               [ // (
                 "("
-                [ "false" ]
+                [ "false" /* if arg 0 */ ] => 235
                 ")\n"
               ]
             ]
@@ -367,7 +367,7 @@
                 [ "		writeln" ]
                 [ // (
                   "("
-                  [ "\"Doo dee doo\"" ]
+                  [ "\"Doo dee doo\"" /* writeln arg 0 */ ] => 239
                   ")"
                 ]
               ]
@@ -391,7 +391,7 @@
               [ "		\n	if " /* if */ ]
               [ // (
                 "("
-                [ "false" ]
+                [ "false" /* if arg 0 */ ] => 235
                 ")\n"
               ]
             ]
@@ -402,7 +402,7 @@
                   [ "		writeln" ]
                   [ // (
                     "("
-                    [ "\"Doo dee doo\"" ]
+                    [ "\"Doo dee doo\"" /* writeln arg 0 */ ] => 239
                     ")"
                   ]
                 ]
@@ -427,7 +427,7 @@
             [ "	\n\n	if " /* if */ ]
             [ // (
               "("
-              [ "true" ]
+              [ "true" /* if arg 0 */ ] => 235
               ")\n"
             ]
           ]
@@ -448,7 +448,7 @@
             [ "	writeln" ]
             [ // (
               "("
-              [
+              [ // writeln arg 0
                 [
                   [ "total" ]
                   [ "==" /* == */ ] => 229
@@ -456,13 +456,27 @@
                 [
                   [ "4" ]
                 ] =229
-              ]
+              ] => 239
               ")"
             ]
           ]
           ";\n"
         ]
         "}\n"
+      ]
+    ]
+    [ // Args root
+      [ // catch root
+        [ /* catch param 0 */ ] =233
+      ]
+      [ // if root
+        [ /* if param 0 */ ] =235
+      ]
+      [ // while root
+        [ /* while param 0 */ ] =237
+      ]
+      [ // writeln root
+        [ /* writeln param 0 */ ] =239
       ]
     ]
   ]

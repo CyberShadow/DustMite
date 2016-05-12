@@ -30,7 +30,7 @@
               [! "	writeln" ]
               [! // (
                 "("
-                [! "\"foo\"" ]
+                [! "\"foo\"" /* writeln arg 0 */ ] => 36
                 ")"
               ]
             ]
@@ -41,7 +41,7 @@
               [! "	writeln" ]
               [! // (
                 "( "
-                [! "/*canttouchthis*/ \"bar\"" ]
+                [! "/*canttouchthis*/ \"bar\"" /* writeln arg 0 */ ] => 36
                 ")"
               ]
             ]
@@ -52,13 +52,18 @@
               [! "	writeln" ]
               [! // (
                 "("
-                [! "\"baz\"" ]
+                [! "\"baz\"" /* writeln arg 0 */ ] => 36
                 ")"
               ]
             ]
             ";\n"
           ]
           "}\n"
+        ]
+      ]
+      [! // Args root
+        [! // writeln root
+          [! /* writeln param 0 */ ] =36
         ]
       ]
     ]
@@ -71,11 +76,11 @@
         [
           [
             [ "std" ]
-            [ "." /* . */ ] => 42
+            [ "." /* . */ ] => 45
           ]
           [
             [ "stdio" ]
-          ] =42
+          ] =45
         ]
         ";\n\n"
       ]
@@ -94,7 +99,7 @@
               [ "	writeln" ]
               [ // (
                 "("
-                [ "\"foo\"" ]
+                [ "\"foo\"" /* writeln arg 0 */ ] => 71
                 ")"
               ]
             ]
@@ -105,7 +110,7 @@
               [ "	writeln" ]
               [ // (
                 "( "
-                [ "/*canttouchthis*/ \"bar\"" ]
+                [ "/*canttouchthis*/ \"bar\"" /* writeln arg 0 */ ] => 71
                 ")"
               ]
             ]
@@ -116,13 +121,18 @@
               [ "	writeln" ]
               [ // (
                 "("
-                [ "\"baz\"" ]
+                [ "\"baz\"" /* writeln arg 0 */ ] => 71
                 ")"
               ]
             ]
             ";\n"
           ]
           "}\n"
+        ]
+      ]
+      [ // Args root
+        [ // writeln root
+          [ /* writeln param 0 */ ] =71
         ]
       ]
     ]

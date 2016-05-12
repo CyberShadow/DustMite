@@ -126,13 +126,18 @@
               [! "	writeln" ]
               [! // (
                 "("
-                [! "\"Hello, world!\"" ]
+                [! "\"Hello, world!\"" /* writeln arg 0 */ ] => 86
                 ")"
               ]
             ]
             ";\n"
           ]
           "}\n"
+        ]
+      ]
+      [! // Args root
+        [! // writeln root
+          [! /* writeln param 0 */ ] =86
         ]
       ]
     ]

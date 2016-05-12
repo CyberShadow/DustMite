@@ -30,7 +30,7 @@
               [ "	writeln" ]
               [ // (
                 "("
-                [ "\"foo\"" ]
+                [ "\"foo\"" /* writeln arg 0 */ ] => 36
                 ")"
               ]
             ]
@@ -59,6 +59,11 @@
             ";\n"
           ]
           "}\n"
+        ]
+      ]
+      [ // Args root
+        [ // writeln root
+          [ /* writeln param 0 */ ] =36
         ]
       ]
     ]

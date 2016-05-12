@@ -17,7 +17,7 @@
               [ "	writeln" ]
               [ // (
                 "("
-                [ "\"Hello, world!\"" ]
+                [ "\"Hello, world!\"" /* writeln arg 0 */ ] => 26
                 ")"
               ]
             ]
@@ -38,6 +38,11 @@
           ] =22
         ]
         ";\n"
+      ]
+      [ // Args root
+        [ // writeln root
+          [ /* writeln param 0 */ ] =26
+        ]
       ]
     ]
   ]
