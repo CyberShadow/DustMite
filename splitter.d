@@ -1018,7 +1018,7 @@ struct DSplitter
 			if (isValidIdentifier(id) && !entity.tail && !entity.children)
 				lastID = id;
 			else
-			if (lastID && entity.head.strip() == "(" && entity.tail.strip() == ")")
+			if (lastID && entity.token == tokenLookup["("])
 			{
 				size_t[] stack;
 				size_t[][] commas;

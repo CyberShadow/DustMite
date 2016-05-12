@@ -8,10 +8,10 @@
           "("
           [
             [
-              [ "msg" ]
+              [ "msg" /* pragma arg 0 */ ] => 66
               [ ", " /* , */ ] => 11
             ]
-            [
+            [ // pragma arg 1
               [
                 [
                   [
@@ -94,12 +94,17 @@
                   ]
                 ] =27
               ]
-            ] =11
+            ] =11 => 67
           ]
           ");"
         ]
       ]
-      [ /* Args root */ ]
+      [ // Args root
+        [ // pragma root
+          [ /* pragma param 0 */ ] =66
+          [ /* pragma param 1 */ ] =67
+        ]
+      ]
     ]
   ]
 ]
