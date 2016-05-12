@@ -1070,6 +1070,10 @@ struct DSplitter
 				return;
 			}
 			else
+			if (entity.token == tokenLookup["!"])
+				{}
+			else
+			if (entity.head || entity.tail)
 				lastID = null;
 
 			foreach (child; entity.children)

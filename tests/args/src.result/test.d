@@ -7,21 +7,20 @@ void a()
 	total++;
 }
 
-void b(int foo, int bar)(int )
+void b()(int )
 {
 	total++;
 }
 
-void c(int foo, int bar, int baz)()
-{
+void c(){
 	total++;
 }
 
 void main()
 {
 	a;
-	b!(1, 2)(3);
-	c!(1, 2, 3);
+	b!()(3);
+	c;
 
 	writeln(total==3);
 }
