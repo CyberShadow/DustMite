@@ -815,6 +815,8 @@ struct DSplitter
 
 	static void postProcessTemplates(ref Entity[] entities)
 	{
+		if (!entities.length)
+			return;
 		foreach_reverse (i, e; entities[0..$-1])
 			if (e.token == tokenLookup["!"] && entities[i+1].children.length && entities[i+1].children[0].token == tokenLookup["("])
 			{
