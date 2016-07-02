@@ -1494,7 +1494,7 @@ bool test(Reduction reduction)
 
 		Pid pid;
 		if (noRedirect)
-			pid = spawnShell(tester);
+			pid = spawnShell(tester, null, Config.none, testdir);
 		else
 		{
 			auto nul = File(nullFileName, "w+");
