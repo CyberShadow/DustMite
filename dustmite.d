@@ -194,7 +194,7 @@ EOS");
 
 	enforce(!(stripComments && coverageDir), "Sorry, --strip-comments is not compatible with --coverage");
 
-	dir = args[1];
+	dir = args[1].absolutePath().buildNormalizedPath();
 	if (isDirSeparator(dir[$-1]))
 		dir = dir[0..$-1];
 
