@@ -1424,9 +1424,17 @@ bool test(Reduction reduction)
 			{
 				if (!process.pid && !lookaheadIter.done)
 				{
+					auto initialReduction = lookaheadIter.front;
+					bool first = true;
+
 					while (true)
 					{
 						auto reduction = lookaheadIter.front;
+
+						if (!first && reduction == initialReduction)
+							break; // We've looped around using cached results
+						first = false;
+
 						auto digest = hash(reduction);
 
 						if (digest in cache || digest in lookaheadResults || lookaheadProcesses[].canFind!(p => p.digest == digest))
