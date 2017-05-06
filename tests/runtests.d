@@ -2,6 +2,7 @@ import std.algorithm;
 import std.array;
 import std.exception;
 import std.file;
+import std.getopt;
 import std.parallelism;
 import std.path;
 import std.process;
@@ -10,9 +11,20 @@ import std.string;
 
 void main(string[] args)
 {
+	string[] exclude;
+	getopt(args,
+		"exclude", &exclude,
+	);
+
 	auto tests = args[1..$];
 	if (tests.empty)
-		tests = dirEntries(".", SpanMode.shallow).filter!(de => de.isDir).map!(de => de.name).array;
+	{
+		tests = dirEntries(".", SpanMode.shallow)
+			.filter!(de => de.isDir)
+			.map!(de => de.name)
+			.filter!(name => !exclude.canFind(name))
+			.array;
+	}
 
 	auto dustmite = buildPath("..", "dustmite");
 	immutable flags = ["-g", "-debug"];
