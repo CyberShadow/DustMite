@@ -98,7 +98,7 @@ auto nullReduction = Reduction(Reduction.Type.None);
 
 int main(string[] args)
 {
-	bool force, dump, dumpHtml, showTimes, stripComments, obfuscate, keepLength, showHelp, noOptimize;
+	bool force, dump, dumpHtml, showTimes, stripComments = true, obfuscate, keepLength, showHelp, noOptimize;
 	string coverageDir;
 	string[] reduceOnly, noRemoveStr, splitRules;
 	uint lookaheadCount;
@@ -150,7 +150,8 @@ Supported options:
                        (may be used multiple times)
   --no-remove REGEXP Do not reduce blocks containing REGEXP
                        (may be used multiple times)
-  --strip-comments   Attempt to remove comments from source code.
+  --strip-comments   Attempt to remove comments from source code
+                       (true by default)
   --coverage DIR     Load .lst files corresponding to source files from DIR
   --obfuscate        Instead of reducing, obfuscate the input by replacing
                        words with random substitutions
