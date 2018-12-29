@@ -10,7 +10,7 @@
           ]
           [ // (
             "("
-            [ "T" /* x arg 0 node 0 */ ] => 158
+            [ "T" /* x arg 0 node 0 */ ] => 161
             ")"
           ]
           [ // (
@@ -50,7 +50,7 @@
           ]
           [ // (
             "("
-            [ "T" /* y arg 0 node 0 */ ] => 160
+            [ "T" /* y arg 0 node 0 */ ] => 163
             ")"
           ]
           [ // (
@@ -82,7 +82,7 @@
             [ // pragma arg 0 node 0
               [ "msg" ]
               [ ", " /* , */ ] => 48
-            ] => 162
+            ] => 158
             [ // pragma arg 1 node 0
               [
                 [
@@ -263,21 +263,21 @@
                   ]
                 ] =83
               ]
-            ] =48 => 163
+            ] =48 => 159
           ]
           ");"
         ]
       ]
       [ // Args root
+        [ // pragma root
+          [ /* pragma param 0 */ ] =158
+          [ /* pragma param 1 */ ] =159
+        ]
         [ // x root
-          [ /* x param 0 */ ] =158
+          [ /* x param 0 */ ] =161
         ]
         [ // y root
-          [ /* y param 0 */ ] =160
-        ]
-        [ // pragma root
-          [ /* pragma param 0 */ ] =162
-          [ /* pragma param 1 */ ] =163
+          [ /* y param 0 */ ] =163
         ]
       ]
     ]

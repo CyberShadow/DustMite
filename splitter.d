@@ -1130,13 +1130,13 @@ struct DSplitter
 		debug callRoot.comments ~= "Args root";
 		entities ~= callRoot;
 
-		foreach (id, params; calls)
+		foreach (id; calls.keys.sort())
 		{
 			auto funRoot = new Entity();
 			debug funRoot.comments ~= "%s root".format(id);
 			callRoot.children ~= funRoot;
 
-			foreach (i, args; params)
+			foreach (i, args; calls[id])
 			{
 				auto e = new Entity();
 				debug e.comments ~= "%s param %d".format(id, i);
