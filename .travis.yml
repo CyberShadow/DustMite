@@ -1,2 +1,3 @@
 language: d
+d: dmd-2.075.0
 script: cd tests && rdmd runtests.d && git diff --exit-code
