@@ -98,7 +98,7 @@ auto nullReduction = Reduction(Reduction.Type.None);
 
 int main(string[] args)
 {
-	bool force, dump, dumpHtml, showTimes, stripComments, obfuscate, keepLength, showHelp, noOptimize;
+	bool force, dump, dumpHtml, showTimes, stripComments, obfuscate, keepLength, showHelp, showVersion, noOptimize;
 	string coverageDir;
 	string[] reduceOnly, noRemoveStr, splitRules;
 	uint lookaheadCount;
@@ -134,7 +134,22 @@ int main(string[] args)
 		"nosave|no-save", &noSave, // for research
 		"nooptimize|no-optimize", &noOptimize, // for research
 		"h|help", &showHelp,
+		"V|version", &showVersion,
 	);
+
+	if (showVersion)
+	{
+		version (Dlang_Tools)
+			enum source = "dlang/tools";
+		else
+		version (Dustmite_CustomSource) // Packaging Dustmite separately for a distribution?
+			enum source = import("source");
+		else
+			enum source = "upstream";
+		writeln("DustMite build ", __DATE__, " (", source, "), built with ", __VENDOR__, " ", __VERSION__);
+		if (args.length == 1)
+			return 0;
+	}
 
 	if (showHelp || args.length == 1 || args.length>3)
 	{
@@ -165,13 +180,14 @@ EOS", args[0], splitterNames, totalCPUs);
 		if (!showHelp)
 		{
 			stderr.write(q"EOS
-  --help             Show this message and some less interesting options
+  -h, --help         Show this message and some less interesting options
 EOS");
 		}
 		else
 		{
 			stderr.write(q"EOS
-  --help             Show this message
+  -h, --help         Show this message
+  -V, --version      Show program version
 Less interesting options:
   --strategy STRAT   Set strategy (careful/lookback/pingpong/indepth/inbreadth)
   --dump             Dump parsed tree to DIR.dump file
