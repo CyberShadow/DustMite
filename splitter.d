@@ -1153,7 +1153,7 @@ struct DSplitter
 		postProcessArgs(entities);
 	}
 
-	static Entity* firstHead(ref Entity e)
+	static Entity* firstHead(ref return Entity e)
 	{
 		if (e.head.length)
 			return &e;
