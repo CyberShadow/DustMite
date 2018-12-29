@@ -612,7 +612,7 @@ struct DSplitter
 
 	static bool isWordChar(char c)
 	{
-	    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_';
+		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_';
 	}
 
 	void reset(string code)
@@ -873,12 +873,12 @@ struct DSplitter
 				 && entities[j].children.length == 2
 				 && firstToken(entities[j].children[0]) == t)
 				{
-				 	j++;
-				 	return true;
+					j++;
+					return true;
 				}
 				return false;
 			}
-			
+
 			if (consume(tokenLookup["if"]) || consume(tokenLookup["static if"]))
 				consume(tokenLookup["else"]);
 			else
