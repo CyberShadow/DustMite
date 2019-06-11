@@ -101,7 +101,7 @@ int main(string[] args)
 	bool force, dump, dumpHtml, showTimes, stripComments, obfuscate, keepLength, showHelp, showVersion, noOptimize;
 	string coverageDir;
 	string[] reduceOnly, noRemoveStr, splitRules;
-	uint lookaheadCount;
+	uint lookaheadCount, tabWidth = 8;
 
 	args = args.filter!(
 		(arg)
@@ -133,6 +133,7 @@ int main(string[] args)
 		"trace", &trace, // for debugging
 		"nosave|no-save", &noSave, // for research
 		"nooptimize|no-optimize", &noOptimize, // for research
+		"tab-width", &tabWidth,
 		"h|help", &showHelp,
 		"V|version", &showVersion,
 	);
@@ -199,6 +200,8 @@ Less interesting options:
   --no-save          Disable saving in-progress results
   --no-optimize      Disable tree optimization step
                        (may be useful with --dump)
+  --tab-width N      How many spaces one tab is equivalent to
+                       (for the "indent" split mode)
 EOS");
 		}
 		stderr.write(q"EOS
@@ -243,6 +246,7 @@ EOS");
 	parseOptions.stripComments = stripComments;
 	parseOptions.mode = obfuscate ? ParseOptions.Mode.words : ParseOptions.Mode.source;
 	parseOptions.rules = splitRules.map!parseSplitRule().array();
+	parseOptions.tabWidth = tabWidth;
 	measure!"load"({root = loadFiles(dir, parseOptions);});
 	enforce(root.children.length, "No files in specified directory");
 

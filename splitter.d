@@ -79,6 +79,7 @@ enum Splitter
 	words,     /// Split by whitespace
 	D,         /// Parse D source code
 	diff,      /// Unified diffs
+	indent,    /// Indentation (Python, YAML...)
 }
 immutable string[] splitterNames = [EnumMembers!Splitter].map!(e => e.text().toLower()).array();
 
@@ -95,6 +96,7 @@ struct ParseOptions
 	bool stripComments;
 	ParseRule[] rules;
 	Mode mode;
+	uint tabWidth;
 }
 
 /// Parse the given file/directory.
@@ -218,6 +220,9 @@ Entity loadFile(string name, string path, ParseOptions options)
 				}
 				case Splitter.diff:
 					result.children = parseDiff(result.contents);
+					return result;
+				case Splitter.indent:
+					result.children = parseIndent(result.contents, options.tabWidth);
 					return result;
 			}
 		}
@@ -1239,6 +1244,50 @@ Entity[] parseDiff(string s)
 		)
 		.array
 	;
+}
+
+Entity[] parseIndent(string s, uint tabWidth)
+{
+	Entity[] root;
+	Entity[]*[] stack;
+
+	foreach (line; s.split2!("\n", ""))
+	{
+		size_t indent = 0;
+	charLoop:
+		foreach (c; line)
+			switch (c)
+			{
+				case ' ':
+					indent++;
+					break;
+				case '\t':
+					indent += tabWidth;
+					break;
+				case '\r':
+				case '\n':
+					// Treat empty (whitespace-only) lines as belonging to the
+					// immediately higher (most-nested) block.
+					indent = stack.length;
+					break charLoop;
+				default:
+					break charLoop;
+			}
+
+		auto e = new Entity(line);
+		foreach_reverse (i; 0 .. min(indent, stack.length)) // non-inclusively up to indent
+			if (stack[i])
+			{
+				*stack[i] ~= e;
+				goto parentFound;
+			}
+		root ~= e;
+	parentFound:
+		stack.length = indent + 1;
+		stack[indent] = &e.children;
+	}
+
+	return root;
 }
 
 private:
