@@ -272,7 +272,8 @@ EOS");
 	resultDir = dirSuffix("reduced");
 	enforce(!exists(resultDir), "Result directory already exists");
 
-	if (!test(nullReduction))
+	auto nullResult = test(nullReduction);
+	if (!nullResult.success)
 	{
 		auto testerFile = dir.buildNormalizedPath(tester);
 		version (Posix)
@@ -284,7 +285,9 @@ EOS");
 			writeln("Hint: test program path should be relative to the source directory, try " ~
 				tester.absolutePath.relativePath(dir.absolutePath).escapeShellFileName() ~
 				" instead of " ~ tester.escapeShellFileName());
-		throw new Exception("Initial test fails" ~ (noRedirect ? "" : " (try using --no-redirect for details)"));
+		if (!noRedirect)
+			writeln("Hint: use --no-redirect to see test script output");
+		throw new Exception("Initial test fails: " ~ nullResult.reason);
 	}
 
 	lookaheadProcesses = new Lookahead[lookaheadCount];
@@ -1106,7 +1109,7 @@ Entity entityAt(size_t[] address)
 /// Try specified reduction. If it succeeds, apply it permanently and save intermediate result.
 bool tryReduction(Reduction r)
 {
-	if (test(r))
+	if (test(r).success)
 	{
 		foundAnything = true;
 		debug
@@ -1347,7 +1350,7 @@ struct Lookahead
 }
 Lookahead[] lookaheadProcesses;
 
-bool[HASH] lookaheadResults;
+TestResult[HASH] lookaheadResults;
 
 bool lookaheadPredict() { return false; }
 
@@ -1358,27 +1361,63 @@ else
 
 bool[HASH] cache;
 
-bool test(Reduction reduction)
+struct TestResult
+{
+	bool success;
+
+	enum Source : ubyte
+	{
+		none,
+		tester,
+		lookahead,
+		diskCache,
+		ramCache,
+	}
+	Source source;
+
+	int status;
+	string reason()
+	{
+		final switch (source)
+		{
+			case Source.none:
+				assert(false);
+			case Source.tester:
+				return format("Test script %(%s%) exited with exit code %d (%s)",
+					[tester], status, (success ? "success" : "failure"));
+			case Source.lookahead:
+				return format("Test script %(%s%) (in lookahead) exited with exit code %d (%s)",
+					[tester], status, (success ? "success" : "failure"));
+			case Source.diskCache:
+				return "Test result was cached on disk as " ~ (success ? "success" : "failure");
+			case Source.ramCache:
+				return "Test result was cached in memory as " ~ (success ? "success" : "failure");
+		}
+	}
+}
+
+TestResult test(Reduction reduction)
 {
 	write(reduction, " => "); stdout.flush();
 
 	HASH digest;
 	measure!"cacheHash"({ digest = hash(reduction); });
 
-	bool ramCached(lazy bool fallback)
+	TestResult ramCached(lazy TestResult fallback)
 	{
 		auto cacheResult = digest in cache;
 		if (cacheResult)
 		{
 			// Note: as far as I can see, a cache hit for a positive reduction is not possible (except, perhaps, for a no-op reduction)
 			writeln(*cacheResult ? "Yes" : "No", " (cached)");
-			return *cacheResult;
+			return TestResult(*cacheResult, TestResult.Source.ramCache);
 		}
 		auto result = fallback;
-		return cache[digest] = result;
+		cache[digest] = result.success;
+		return result;
 	}
 
-	bool diskCached(lazy bool fallback)
+	TestResult diskCached(lazy TestResult fallback)
 	{
 		tests++;
 
@@ -1392,33 +1431,33 @@ bool test(Reduction reduction)
 			if (found)
 			{
 				writeln("No (disk cache)");
-				return false;
+				return TestResult(false, TestResult.Source.diskCache);
 			}
 			measure!"globalCache"({ found = exists(cacheBase~"1"); });
 			if (found)
 			{
 				writeln("Yes (disk cache)");
-				return true;
+				return TestResult(true, TestResult.Source.diskCache);
 			}
 			auto result = fallback;
-			measure!"globalCache"({ autoRetry({ std.file.write(cacheBase ~ (result ? "1" : "0"), ""); }, "save result to disk cache"); });
+			measure!"globalCache"({ autoRetry({ std.file.write(cacheBase ~ (result.success ? "1" : "0"), ""); }, "save result to disk cache"); });
 			return result;
 		}
 		else
 			return fallback;
 	}
 
-	bool lookahead(lazy bool fallback)
+	TestResult lookahead(lazy TestResult fallback)
 	{
 		if (iter.strategy)
 		{
 			// Handle existing lookahead jobs
 
-			bool reap(ref Lookahead process, int status)
+			TestResult reap(ref Lookahead process, int status)
 			{
 				safeDelete(process.testdir);
 				process.pid = null;
-				return lookaheadResults[process.digest] = status == 0;
+				return lookaheadResults[process.digest] = TestResult(status == 0, TestResult.Source.lookahead, status);
 			}
 
 			foreach (ref process; lookaheadProcesses)
@@ -1461,7 +1500,7 @@ bool test(Reduction reduction)
 								prediction = cache[digest];
 							else
 							if (digest in lookaheadResults)
-								prediction = lookaheadResults[digest];
+								prediction = lookaheadResults[digest].success;
 							else
 								prediction = lookaheadPredict();
 							lookaheadIter.next(prediction);
@@ -1490,7 +1529,7 @@ bool test(Reduction reduction)
 			auto plookaheadResult = digest in lookaheadResults;
 			if (plookaheadResult)
 			{
-				writeln(*plookaheadResult ? "Yes" : "No", " (lookahead)");
+				writeln(plookaheadResult.success ? "Yes" : "No", " (lookahead)");
 				return *plookaheadResult;
 			}
 
@@ -1503,7 +1542,7 @@ bool test(Reduction reduction)
 					auto exitCode = process.pid.wait();
 
 					auto result = reap(process, exitCode);
-					writeln(result ? "Yes" : "No", " (lookahead-wait)");
+					writeln(result.success ? "Yes" : "No", " (lookahead-wait)");
 					return result;
 				}
 			}
@@ -1512,7 +1551,7 @@ bool test(Reduction reduction)
 		return fallback;
 	}
 
-	bool doTest()
+	TestResult doTest()
 	{
 		string testdir = dirSuffix("test");
 		measure!"testSave"({save(reduction, testdir);}); scope(exit) measure!"clean"({safeDelete(testdir);});
@@ -1526,14 +1565,15 @@ bool test(Reduction reduction)
 			pid = spawnShell(tester, nul, nul, nul, null, Config.none, testdir);
 		}
 
-		bool result;
-		measure!"test"({result = pid.wait() == 0;});
-		writeln(result ? "Yes" : "No");
+		int status;
+		measure!"test"({status = pid.wait();});
+		auto result = TestResult(status == 0, TestResult.Source.tester, status);
+		writeln(result.success ? "Yes" : "No");
 		return result;
 	}
 
 	auto result = ramCached(diskCached(lookahead(doTest())));
-	if (trace) saveTrace(reduction, dirSuffix("trace"), result);
+	if (trace) saveTrace(reduction, dirSuffix("trace"), result.success);
 	return result;
 }
 
