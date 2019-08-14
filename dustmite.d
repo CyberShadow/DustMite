@@ -270,7 +270,11 @@ EOS");
 	}
 
 	resultDir = dirSuffix("reduced");
-	enforce(!exists(resultDir), "Result directory already exists");
+	if (resultDir.exists)
+	{
+		writeln("Hint: read https://github.com/CyberShadow/DustMite/wiki#result-directory-already-exists");
+		throw new Exception("Result directory already exists");
+	}
 
 	auto nullResult = test(nullReduction);
 	if (!nullResult.success)
@@ -287,6 +291,7 @@ EOS");
 				" instead of " ~ tester.escapeShellFileName());
 		if (!noRedirect)
 			writeln("Hint: use --no-redirect to see test script output");
+		writeln("Hint: read https://github.com/CyberShadow/DustMite/wiki#initial-test-fails");
 		throw new Exception("Initial test fails: " ~ nullResult.reason);
 	}
 
@@ -312,7 +317,10 @@ EOS");
 			writefln("Done in %s tests and %s; reduced to empty set", tests, duration);
 	}
 	else
+	{
+		writeln("Hint: read https://github.com/CyberShadow/DustMite/wiki#reduced-to-empty-set");
 		writefln("Done in %s tests and %s; no reductions found", tests, duration);
+	}
 
 	if (showTimes)
 		foreach (i, t; times.tupleof)
