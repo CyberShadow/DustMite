@@ -9,6 +9,12 @@ import std.process;
 import std.stdio;
 import std.string;
 
+/// Obviously different compiler versions will compile D programs differently.
+/// Thus, we should use a specific version to run the Dustmite test suite against,
+/// so we can distinguish changes in results due to Dustmite bugs or unexpected effects of changes,
+/// from changes due to differences in how D compiler versions compile D programs.
+enum testSuiteDMDVersion = "v2.080.0";
+
 void main(string[] args)
 {
 	string[] exclude;
@@ -24,6 +30,15 @@ void main(string[] args)
 			.map!(de => de.name)
 			.filter!(name => !exclude.canFind(name))
 			.array;
+	}
+
+	{
+		auto result = execute(["dmd", "--version"]);
+		enforce(result.status == 0, "Can't execute dmd compiler");
+		auto dmdVersion = result.output.splitLines[0].split[$-1];
+		if (dmdVersion != testSuiteDMDVersion)
+			stderr.writefln("WARNING: dmd binary in PATH is version %s, not %s.\n  Test results may be wrong.",
+				dmdVersion, testSuiteDMDVersion);
 	}
 
 	auto dustmite = buildPath("..", "dustmite");
