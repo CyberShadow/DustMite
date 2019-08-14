@@ -13,6 +13,7 @@ import std.string;
 /// Thus, we should use a specific version to run the Dustmite test suite against,
 /// so we can distinguish changes in results due to Dustmite bugs or unexpected effects of changes,
 /// from changes due to differences in how D compiler versions compile D programs.
+// Note: when updating this, also update README.md.
 enum testSuiteDMDVersion = "v2.080.0";
 
 void main(string[] args)
