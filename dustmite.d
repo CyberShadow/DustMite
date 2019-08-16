@@ -314,13 +314,13 @@ EOS");
 			writefln("Done in %s tests and %s; reduced version is in %s", tests, duration, resultDir);
 		}
 		else
+		{
+			writeln("Hint: read https://github.com/CyberShadow/DustMite/wiki#reduced-to-empty-set");
 			writefln("Done in %s tests and %s; reduced to empty set", tests, duration);
+		}
 	}
 	else
-	{
-		writeln("Hint: read https://github.com/CyberShadow/DustMite/wiki#reduced-to-empty-set");
 		writefln("Done in %s tests and %s; no reductions found", tests, duration);
-	}
 
 	if (showTimes)
 		foreach (i, t; times.tupleof)
