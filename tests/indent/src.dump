@@ -2,43 +2,39 @@
   [
     /*** indent-test.txt ***/
     [
+      "root\n"
       [
-        "root\n"
-        [
-          "  child\n"
-          [ "    grandchild\n" ]
-          [ "    grandsibling\n" ]
-        ]
-        [ "  sibling\n" ]
+        "  child\n"
+        [ "    grandchild\n" ]
+        [ "    grandsibling\n" ]
       ]
+      [ "  sibling\n" ]
+    ]
+    [
+      "root2\n"
       [
-        "root2\n"
+        "  child1\n"
         [
-          "  child1\n"
+          "    child2\n"
           [
-            "    child2\n"
-            [
-              "      child3\n"
-              [ "        child4\n" ]
-              [ "	tabtest\n" ]
-            ]
+            "      child3\n"
+            [ "        child4\n" ]
+            [ "	tabtest\n" ]
           ]
         ]
       ]
     ]
     [
+      "root3\n"
       [
-        "root3\n"
+        "  emptystart\n"
         [
-          "  emptystart\n"
-          [
-            "  \n"
-            [ "\n" ]
-          ]
+          "  \n"
+          [ "\n" ]
         ]
-        [ "  emptyend\n" ]
       ]
-      [ "" ]
+      [ "  emptyend\n" ]
     ]
+    [ "" ]
   ]
 ]
