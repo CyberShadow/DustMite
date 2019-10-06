@@ -127,13 +127,13 @@ enum BIN_SIZE = 2;
 
 void optimize(Entity set)
 {
-	static void group(ref Entity[] set, size_t start, size_t end)
+	static Entity group(Entity[] children)
 	{
-		//set = set[0..start] ~ [new Entity(removable, set[start..end])] ~ set[end..$];
-		auto children = set[start..end].dup;
+		if (children.length == 1)
+			return children[0];
 		auto e = new Entity(null, children, null);
 		e.noRemove = children.any!(c => c.noRemove)();
-		set.replaceInPlace(start, end, [e]);
+		return e;
 	}
 
 	static void clusterBy(ref Entity[] set, size_t binSize)
@@ -143,11 +143,7 @@ void optimize(Entity set)
 			auto size = set.length >= binSize*2 ? binSize : (set.length+1) / 2;
 			//auto size = binSize;
 
-			auto bins = set.length/size;
-			if (set.length % size > 1)
-				group(set, bins*size, set.length);
-			foreach_reverse (i; 0..bins)
-				group(set, i*size, (i+1)*size);
+			set = set.chunks(size).map!group.array;
 		}
 	}
 
