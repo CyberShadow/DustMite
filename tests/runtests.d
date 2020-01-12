@@ -50,6 +50,8 @@ void main(string[] args)
 		enforce(status == 0, "Dustmite build failed with status %s".format(status));
 	}
 
+	auto mutex = new Object;
+
 	foreach (test; tests.parallel)
 	{
 		scope(failure) stderr.writefln("runtests: Error with test %s", test);
@@ -77,7 +79,8 @@ void main(string[] args)
 			opts = optsFile.readText().splitLines();
 
 		auto outputFile = test~"/output.txt";
-		auto output = File(outputFile, "wb");
+		File output;
+		synchronized(mutex) output.open(outputFile, "wb");
 
 		stderr.writefln("runtests: test %s: dumping", test);
 		auto status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ ["--dump", "--no-optimize", target],
@@ -88,7 +91,7 @@ void main(string[] args)
 		if (!tester.exists)
 			continue; // dump only
 
-		output.reopen(outputFile, "ab"); // Reopen because spawnProcess closes it
+		synchronized(mutex) output.reopen(outputFile, "ab"); // Reopen because spawnProcess closes it
 		stderr.writefln("runtests: test %s: reducing", test);
 		status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ ["--times", target, testerCmd],
 			stdin, output, output, null, Config.retainStdout | Config.retainStderr).wait();
@@ -96,7 +99,7 @@ void main(string[] args)
 		stderr.writefln("runtests: test %s: done", test);
 
 		rename(reducedDir, resultDir);
-		output.close();
+		synchronized(mutex) output.close();
 		auto progress = File(test~"/progress.txt", "wb");
 		foreach (line; File(outputFile, "rb").byLine())
 		{
