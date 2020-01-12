@@ -1,0 +1,47 @@
+[!
+  [
+    /*** sub/sub.d ***/
+    [
+      [ // ;
+        [
+          [
+            [
+              [ "module " ]
+              [ "sub" ]
+            ]
+            [ "." /* . */ ] => 11
+          ]
+          [
+            [ "sub" ]
+          ] =11
+        ]
+        ";\n"
+      ]
+      [ /* Args root */ ]
+    ]
+  ]
+  [!
+    /*** test.d ***/
+    [!
+      [ // ;
+        [ "import " /* import */ ]
+        [
+          [
+            [ "sub" ]
+            [ "." /* . */ ] => 22
+          ]
+          [
+            [ "sub" ]
+          ] =22
+        ]
+        ";\n\n"
+      ]
+      [! // Pair
+        [! "// DustMiteNoRemoveStart\nunittest\n" ]
+        [! "{\n" "}\n" /* { */ ]
+      ]
+      [ "// DustMiteNoRemoveStop\n" ]
+      [ /* Args root */ ]
+    ]
+  ]
+]
