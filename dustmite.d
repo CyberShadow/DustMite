@@ -1203,12 +1203,14 @@ void applyReduction(ref Reduction r)
 		case Reduction.Type.Concat:
 		{
 			Entity[] allData;
+			bool noRemove;
 			void scan(Entity e)
 			{
 				if (e.isFile)
 				{
 					allData ~= e.children;
 					e.children = null;
+					noRemove |= e.noRemove;
 				}
 				else
 					foreach (c; e.children)
@@ -1218,6 +1220,7 @@ void applyReduction(ref Reduction r)
 			scan(root);
 
 			r.target.children = allData;
+			r.target.noRemove |= noRemove;
 			optimize(r.target);
 			countDescendants(root);
 
