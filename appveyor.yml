@@ -1,5 +1,5 @@
 environment:
-  D_VER: 2.075.0
+  D_VER: 2.080.0
 install:
   - curl --location -o C:\dmd.7z http://downloads.dlang.org/releases/2.x/%D_VER%/dmd.%D_VER%.windows.7z
   - 7z x C:\dmd.7z -oC:\
