@@ -80,16 +80,18 @@ void main(string[] args)
 		auto output = File(outputFile, "wb");
 
 		stderr.writefln("runtests: test %s: dumping", test);
-		auto status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ ["--dump", "--no-optimize", target], stdin, output, output).wait();
+		auto status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ ["--dump", "--no-optimize", target],
+			stdin, output, output, null, Config.retainStdout | Config.retainStderr).wait();
 		enforce(status == 0, "Dustmite dump failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
 
 		if (!tester.exists)
 			continue; // dump only
 
-		output = File(outputFile, "ab"); // Reopen because spawnProcess closes it
+		output.reopen(outputFile, "ab"); // Reopen because spawnProcess closes it
 		stderr.writefln("runtests: test %s: reducing", test);
-		status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ ["--times", target, testerCmd], stdin, output, output).wait();
+		status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ ["--times", target, testerCmd],
+			stdin, output, output, null, Config.retainStdout | Config.retainStderr).wait();
 		enforce(status == 0, "Dustmite run failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
 
