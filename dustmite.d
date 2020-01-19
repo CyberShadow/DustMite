@@ -36,7 +36,7 @@ size_t maxBreadth;
 Entity root;
 size_t origDescendants;
 int tests; bool foundAnything;
-bool noSave, trace, noRedirect;
+bool noSave, trace, noRedirect, noConcat;
 string strategy = "inbreadth";
 
 struct Times { StopWatch total, load, testSave, resultSave, test, clean, cacheHash, globalCache, misc; }
@@ -120,6 +120,7 @@ int main(string[] args)
 		"reduceonly|reduce-only", &reduceOnly,
 		"noremove|no-remove", &noRemoveStr,
 		"strip-comments", &stripComments,
+		"noconcat|no-concat", &noConcat,
 		"coverage", &coverageDir,
 		"obfuscate", &obfuscate,
 		"keep-length", &keepLength,
@@ -167,6 +168,7 @@ Supported options:
   --no-remove REGEXP Do not reduce blocks containing REGEXP
                        (may be used multiple times)
   --strip-comments   Attempt to remove comments from source code.
+  --no-concat        Do not attempt to move contents of one file to an other.
   --coverage DIR     Load .lst files corresponding to source files from DIR
   --obfuscate        Instead of reducing, obfuscate the input by replacing
                        words with random substitutions
@@ -465,7 +467,7 @@ struct ReductionIterator
 					// Try next reduction type
 					type = Reduction.Type.Concat;
 
-					if (e.isFile && !concatPerformed)
+					if (e.isFile && !concatPerformed && !noConcat)
 						return; // Try this
 					else
 					{
