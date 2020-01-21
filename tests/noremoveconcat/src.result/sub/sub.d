@@ -1,4 +1,0 @@
-// DustMiteNoRemoveStart
-unittest
-{
-}

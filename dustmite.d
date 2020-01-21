@@ -1046,8 +1046,11 @@ void dump(Entity root, ref Reduction reduction, void delegate(string) handleFile
 				{
 					foreach (f; e.children)
 						if (f.isFile)
-							foreach (c; f.children)
-								dumpEntity(c);
+						{
+							if (!f.noRemove) // leave alone files with "no-remove" entities
+								foreach (c; f.children)
+									dumpEntity(c);
+						}
 						else
 							dumpFileContent(f);
 				}
@@ -1062,7 +1065,8 @@ void dump(Entity root, ref Reduction reduction, void delegate(string) handleFile
 		if (e.isFile)
 		{
 			handleFile(e.filename);
-			if (reduction.type == Reduction.Type.Concat) // not the target - writing an empty file
+			if (reduction.type == Reduction.Type.Concat && // not the target - writing an empty file
+				!e.noRemove) // files with "no-remove" entities were left alone, so we can continue writing them here as usual
 				return;
 			foreach (c; e.children)
 				dumpEntity(c);
@@ -1203,14 +1207,15 @@ void applyReduction(ref Reduction r)
 		case Reduction.Type.Concat:
 		{
 			Entity[] allData;
-			bool noRemove;
 			void scan(Entity e)
 			{
 				if (e.isFile)
 				{
-					allData ~= e.children;
-					e.children = null;
-					noRemove |= e.noRemove;
+					if (!e.noRemove)
+					{
+						allData ~= e.children;
+						e.children = null;
+					}
 				}
 				else
 					foreach (c; e.children)
@@ -1220,7 +1225,6 @@ void applyReduction(ref Reduction r)
 			scan(root);
 
 			r.target.children = allData;
-			r.target.noRemove |= noRemove;
 			optimize(r.target);
 			countDescendants(root);
 
