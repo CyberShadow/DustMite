@@ -45,11 +45,12 @@ class Entity
 		this.tail     = tail;
 	}
 
-	string[] comments;
+	debug string[] comments;
 
 	@property string comment()
 	{
-		string[] result = comments;
+		string[] result;
+		debug result = comments;
 		if (isPair)
 		{
 			assert(token == DSplitter.Token.none);
