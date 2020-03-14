@@ -650,7 +650,6 @@ struct DSplitter
 			return r;
 		}
 
-		tokenLoop:
 		while (true)
 		{
 			Token token;
