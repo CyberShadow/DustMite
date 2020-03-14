@@ -261,6 +261,7 @@ EOS");
 	countDescendants(root);
 	resetProgress();
 	assignID(root);
+	setParents(root, null);
 
 	if (dump)
 		dumpSet(dirSuffix("dump"));
@@ -360,6 +361,13 @@ size_t checkDescendants(Entity e)
 		n += checkDescendants(c);
 	assert(e.descendants == n, "Wrong descendant count: expected %d, found %d".format(e.descendants, n));
 	return n;
+}
+
+void checkParents(Entity e, Entity parent)
+{
+	assert(e.parent is parent);
+	foreach (c; e.children)
+		checkParents(c, e);
 }
 
 size_t countFiles(Entity e)
@@ -1195,6 +1203,11 @@ void markRemoved(Entity e, bool value)
 
 /// Permanently apply specified reduction to set.
 void applyReduction(ref Reduction r)
+out
+{
+	debug checkParents(root, null);
+}
+do
 {
 	final switch (r.type)
 	{
@@ -1263,6 +1276,8 @@ void applyReduction(ref Reduction r)
 			r.target.children = allData;
 			optimize(r.target);
 			countDescendants(root);
+			foreach (e; r.target.children)
+				setParents(e, r.target);
 
 			return;
 		}
@@ -1865,6 +1880,13 @@ void assignID(Entity e)
 	e.id = ++counter;
 	foreach (c; e.children)
 		assignID(c);
+}
+
+void setParents(Entity e, Entity parent)
+{
+	e.parent = parent;
+	foreach (c; e.children)
+		setParents(c, e);
 }
 
 void dumpSet(string fn)
