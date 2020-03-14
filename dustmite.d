@@ -1100,6 +1100,7 @@ void save(Reduction reduction, string savedir)
 		string dir;
 
 		File o;
+		typeof(o.lockingBinaryWriter()) binaryWriter;
 
 		void handleFile(string fn)
 		{
@@ -1107,14 +1108,13 @@ void save(Reduction reduction, string savedir)
 			if (!exists(dirName(path)))
 				safeMkdir(dirName(path));
 
-			if (o.isOpen)
-				o.close();
 			o.open(path, "wb");
+			binaryWriter = o.lockingBinaryWriter;
 		}
 
 		void handleText(string s)
 		{
-			o.write(s);
+			binaryWriter.put(s);
 		}
 	}
 	auto writer = DiskWriter(savedir);
