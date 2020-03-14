@@ -38,16 +38,12 @@ class Entity
 	int id;                /// For diagnostics
 	size_t descendants;    /// For progress display
 
-	DSplitter.Token token; /// Used internally
-
 	this(string head = null, Entity[] children = null, string tail = null)
 	{
 		this.head     = head;
 		this.children = children;
 		this.tail     = tail;
 	}
-
-	debug string[] comments;
 
 	@property string comment()
 	{
@@ -67,6 +63,11 @@ class Entity
 	{
 		return "%(%s%) %s %(%s%)".format([head], children, [tail]);
 	}
+
+private: // Used during parsing only
+	DSplitter.Token token;    /// Used internally
+
+	debug string[] comments;  /// Used to debug the splitter
 }
 
 enum Mode
