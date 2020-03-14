@@ -995,7 +995,7 @@ bool skipEntity(Entity e)
 	return false;
 }
 
-void dump(Entity root, ref Reduction reduction, void delegate(string) handleFile, void delegate(string) handleText)
+void dump(Writer)(Entity root, ref Reduction reduction, Writer writer)
 {
 	void dumpEntity(Entity e)
 	{
@@ -1004,7 +1004,7 @@ void dump(Entity root, ref Reduction reduction, void delegate(string) handleFile
 			if (e.isFile)
 			{
 				assert(e.head.length==0 && e.tail.length==0);
-				handleFile(applyReductionToPath(e.filename, reduction));
+				writer.handleFile(applyReductionToPath(e.filename, reduction));
 				foreach (c; e.children)
 					dumpEntity(c);
 			}
@@ -1015,11 +1015,11 @@ void dump(Entity root, ref Reduction reduction, void delegate(string) handleFile
 				if (e.head)
 				{
 					if (e.head == reduction.from)
-						handleText(reduction.to);
+						writer.handleText(reduction.to);
 					else
-						handleText(e.head);
+						writer.handleText(e.head);
 				}
-				handleText(e.tail);
+				writer.handleText(e.tail);
 			}
 			else
 				foreach (c; e.children)
@@ -1040,7 +1040,7 @@ void dump(Entity root, ref Reduction reduction, void delegate(string) handleFile
 					dumpEntity(c);
 				break;
 			case Reduction.Type.Concat: // write contents of all files to this one; leave other files empty
-				handleFile(e.filename);
+				writer.handleFile(e.filename);
 
 				void dumpFileContent(Entity e)
 				{
@@ -1064,7 +1064,7 @@ void dump(Entity root, ref Reduction reduction, void delegate(string) handleFile
 		else
 		if (e.isFile)
 		{
-			handleFile(e.filename);
+			writer.handleFile(e.filename);
 			if (reduction.type == Reduction.Type.Concat && // not the target - writing an empty file
 				!e.noRemove) // files with "no-remove" entities were left alone, so we can continue writing them here as usual
 				return;
@@ -1073,10 +1073,10 @@ void dump(Entity root, ref Reduction reduction, void delegate(string) handleFile
 		}
 		else
 		{
-			if (e.head.length) handleText(e.head);
+			if (e.head.length) writer.handleText(e.head);
 			foreach (c; e.children)
 				dumpEntity(c);
-			if (e.tail.length) handleText(e.tail);
+			if (e.tail.length) writer.handleText(e.tail);
 		}
 	}
 
@@ -1095,23 +1095,31 @@ void save(Reduction reduction, string savedir)
 {
 	safeMkdir(savedir);
 
-	File o;
-
-	void handleFile(string fn)
+	static struct DiskWriter
 	{
-		auto path = buildPath(savedir, fn);
-		if (!exists(dirName(path)))
-			safeMkdir(dirName(path));
+		string dir;
 
-		if (o.isOpen)
-			o.close();
-		o.open(path, "wb");
+		File o;
+
+		void handleFile(string fn)
+		{
+			auto path = buildPath(dir, fn);
+			if (!exists(dirName(path)))
+				safeMkdir(dirName(path));
+
+			if (o.isOpen)
+				o.close();
+			o.open(path, "wb");
+		}
+
+		void handleText(string s)
+		{
+			o.write(s);
+		}
 	}
+	auto writer = DiskWriter(savedir);
 
-	dump(root, reduction, &handleFile, &o.write!string);
-
-	if (o.isOpen)
-		o.close();
+	dump(root, reduction, &writer);
 }
 
 Entity entityAt(size_t[] address)
@@ -1334,9 +1342,16 @@ version(HAVE_AE)
 	HASH hash(Reduction reduction)
 	{
 		static StringBuffer sb;
+
+		static struct BufferWriter
+		{
+			alias handleFile = handleText;
+			void handleText(string s) { sb.put(s); }
+		}
+		static BufferWriter writer;
+
 		sb.clear();
-		auto writer = &sb.put!string;
-		dump(root, reduction, writer, writer);
+		dump(root, reduction, writer);
 		return murmurHash3_128(sb.get());
 	}
 
@@ -1350,12 +1365,16 @@ else
 
 	HASH hash(Reduction reduction)
 	{
-		ubyte[16] digest;
-		MD5 context;
-		context.start();
-		auto writer = cast(void delegate(string))&context.put;
-		dump(root, reduction, writer, writer);
-		return context.finish();
+		static struct DigestWriter
+		{
+			MD5 context;
+			alias handleFile = handleText;
+			void handleText(string s) { context.put(s.representation); }
+		}
+		DigestWriter writer;
+		writer.context.start();
+		dump(root, reduction, &writer);
+		return writer.context.finish();
 	}
 
 	alias toHexString formatHash;
@@ -1936,9 +1955,9 @@ EOT");
 	std.file.write(fn, buf.data());
 }
 
-void dumpText(string fn, ref Reduction r = nullReduction)
-{
-	auto f = File(fn, "wt");
-	dump(root, r, (string) {}, &f.write!string);
-	f.close();
-}
+// void dumpText(string fn, ref Reduction r = nullReduction)
+// {
+// 	auto f = File(fn, "wt");
+// 	dump(root, r, (string) {}, &f.write!string);
+// 	f.close();
+// }
