@@ -59,7 +59,7 @@ class Entity
 		return result.length ? result.join(" / ") : null;
 	}
 
-	override string toString()
+	override string toString() const
 	{
 		return "%(%s%) %s %(%s%)".format([head], children, [tail]);
 	}
