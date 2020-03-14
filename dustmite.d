@@ -1091,6 +1091,33 @@ void dump(Writer)(Entity root, ref Reduction reduction, Writer writer)
 	debug verifyNotRemoved(root);
 }
 
+static struct FastWriter(Next) /// Accelerates Writer interface by bulking contiguous strings
+{
+	Next next;
+	immutable(char)* start, end;
+	void finish()
+	{
+		if (start != end)
+			next.handleText(start[0 .. end - start]);
+		start = end = null;
+	}
+	void handleFile(string s)
+	{
+		finish();
+		next.handleFile(s);
+	}
+	void handleText(string s)
+	{
+		if (s.ptr != end)
+		{
+			finish();
+			start = s.ptr;
+		}
+		end = s.ptr + s.length;
+	}
+	~this() { finish(); }
+}
+
 void save(Reduction reduction, string savedir)
 {
 	safeMkdir(savedir);
@@ -1117,9 +1144,10 @@ void save(Reduction reduction, string savedir)
 			binaryWriter.put(s);
 		}
 	}
-	auto writer = DiskWriter(savedir);
-
+	FastWriter!DiskWriter writer;
+	writer.next.dir = savedir;
 	dump(root, reduction, &writer);
+	writer.finish();
 }
 
 Entity entityAt(size_t[] address)
