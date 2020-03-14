@@ -33,8 +33,6 @@ class Entity
 	bool removed;          /// For dangling dependencies
 	Entity[] dependencies; /// If any of these entities are omitted, so should this entity.
 
-	Entity parent;         /// Is set late, only after parsing / optimization
-
 	int id;                /// For diagnostics
 	size_t descendants;    /// For progress display
 
