@@ -713,7 +713,7 @@ class LevelStrategy : IterativeStrategy
 /// Keep going deeper until we find a successful reduction.
 /// When found, finish tests at current depth and restart from top depth (new iteration).
 /// If we reach the bottom (depth with no nodes on it), we're done.
-class CarefulStrategy : LevelStrategy
+final class CarefulStrategy : LevelStrategy
 {
 	override void next(bool success)
 	{
@@ -744,7 +744,7 @@ class CarefulStrategy : LevelStrategy
 /// Once no new reductions are found at higher depths, jump to the next unvisited depth in this iteration.
 /// If we reach the bottom (depth with no nodes on it), start a new iteration.
 /// If we finish an iteration without finding any reductions, we're done.
-class LookbackStrategy : LevelStrategy
+final class LookbackStrategy : LevelStrategy
 {
 	size_t maxLevel = 0;
 
@@ -794,7 +794,7 @@ class LookbackStrategy : LevelStrategy
 /// Once no new reductions are found at higher depths, start going downwards again.
 /// If we reach the bottom (depth with no nodes on it), start a new iteration.
 /// If we finish an iteration without finding any reductions, we're done.
-class PingPongStrategy : LevelStrategy
+final class PingPongStrategy : LevelStrategy
 {
 	override void next(bool success)
 	{
@@ -822,7 +822,7 @@ class PingPongStrategy : LevelStrategy
 /// Keep going deeper.
 /// If we reach the bottom (depth with no nodes on it), start a new iteration.
 /// If we finish an iteration without finding any reductions, we're done.
-class InBreadthStrategy : LevelStrategy
+final class InBreadthStrategy : LevelStrategy
 {
 	override void next(bool success)
 	{
@@ -847,7 +847,7 @@ class InBreadthStrategy : LevelStrategy
 /// Otherwise, recurse and look at its children.
 /// End an iteration once we looked at an entire tree.
 /// If we finish an iteration without finding any reductions, we're done.
-class InDepthStrategy : IterativeStrategy
+final class InDepthStrategy : IterativeStrategy
 {
 	final bool nextAddress(bool descend)
 	{
