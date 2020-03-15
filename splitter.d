@@ -17,6 +17,30 @@ import std.string;
 import std.traits;
 import std.stdio : stderr;
 
+/// Represents an Entity's position within a program tree.
+struct Address
+{
+	Address* parent;       /// Upper node's Address. If null, then this is the root node (and index should be 0).
+	size_t index;          /// Index within the parent's children array
+
+	Address*[] children;   /// Used to keep a global cached tree of addresses.
+	ref Address* child(size_t index) const
+	{
+		auto mutableThis = cast(Address*)&this; // Break const for caching
+		if (mutableThis.children.length < index + 1)
+			mutableThis.children.length = index + 1;
+		if (!mutableThis.children[index])
+			mutableThis.children[index] = new Address(mutableThis, index);
+		return mutableThis.children[index];
+	}
+}
+
+struct EntityRef           /// Reference to another Entity in the same tree
+{
+	Entity entity;         /// Pointer - only valid during splitting / optimizing
+	Address* address;      /// Address - assigned after splitting / optimizing
+}
+
 /// Represents a slice of the original code.
 final class Entity
 {
@@ -29,9 +53,11 @@ final class Entity
 
 	bool isPair;           /// Internal hint for --dump output
 	bool noRemove;         /// Don't try removing this entity (children OK)
+	bool edited;           /// Set temporarily in applyReduction
 
-	bool removed;          /// For dangling dependencies
-	Entity[] dependencies; /// If any of these entities are omitted, so should this entity.
+	bool dead;             /// Tombstone or redirect
+	EntityRef[] dependents;/// If this entity is removed, so should all these entities.
+	Address* redirect;     /// If moved, this is where this entity is now
 
 	int id;                /// For diagnostics
 	size_t descendants;    /// For progress display
@@ -60,6 +86,24 @@ final class Entity
 	override string toString() const
 	{
 		return "%(%s%) %s %(%s%)".format([head], children, [tail]);
+	}
+
+	Entity dup()           /// Creates a shallow copy
+	{
+		auto result = new Entity;
+		foreach (i, item; this.tupleof)
+			result.tupleof[i] = this.tupleof[i];
+		return result;
+	}
+
+	void kill()            /// Convert to tombstone/redirect
+	{
+		head = tail = filename = contents = null;
+		children = null;
+		dependents = null;
+		isPair = false;
+		descendants = 0;
+		dead = true;
 	}
 
 private: // Used during parsing only
@@ -777,7 +821,7 @@ struct DSplitter
 		for (size_t i=0; i<entities.length;)
 		{
 			auto e = entities[i];
-			if (e.head.empty && e.tail.empty && e.dependencies.empty)
+			if (e.head.empty && e.tail.empty && e.dependents.empty)
 			{
 				assert(e.token == Token.none);
 				if (e.children.length == 0)
@@ -819,7 +863,7 @@ struct DSplitter
 			auto head = entities[0..i] ~ group(e.children);
 			e.children = null;
 			auto tail = new Entity(null, group(entities[i+1..$]), null);
-			e.dependencies ~= tail;
+			tail.dependents ~= EntityRef(e);
 			entities = group(head ~ e) ~ tail;
 			foreach (c; entities)
 				postProcessDependency(c.children);
@@ -834,8 +878,7 @@ struct DSplitter
 			if (e.token == tokenLookup!"!" && entities[i+1].children.length && entities[i+1].children[0].token == tokenLookup!"(")
 			{
 				auto dependency = new Entity;
-				e.dependencies ~= dependency;
-				entities[i+1].children[0].dependencies ~= dependency;
+				dependency.dependents = [EntityRef(e), EntityRef(entities[i+1].children[0])];
 				entities = entities[0..i+1] ~ dependency ~ entities[i+1..$];
 			}
 	}
@@ -844,7 +887,7 @@ struct DSplitter
 	{
 		foreach (i, e; entities)
 			if (i && !e.token && e.children.length && getSeparatorType(e.children[0].token) == SeparatorType.binary && !e.children[0].children)
-				e.children[0].dependencies ~= entities[i-1];
+				entities[i-1].dependents ~= EntityRef(e.children[0]);
 	}
 
 	static void postProcessBlockKeywords(ref Entity[] entities)
@@ -1148,7 +1191,7 @@ struct DSplitter
 				debug e.comments ~= "%s param %d".format(id, i);
 				funRoot.children ~= e;
 				foreach (arg; args)
-					arg.dependencies ~= e;
+					e.dependents ~= EntityRef(arg);
 			}
 		}
 	}

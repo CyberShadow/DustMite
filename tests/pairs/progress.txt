@@ -11,14 +11,14 @@
 ============= Depth 4 =============
 [ 0.0%] Remove [0011] => No
 [ 2.0%] Remove [0010] => Yes
-[ 5.1%] Remove [0001] => No
+[ 6.1%] Remove [0001] => No
 [60.8%] Remove [0000] => No
 ============= Depth 5 =============
 [ 0.0%] Remove [00100] => No (cached)
 [ 3.1%] Remove [00011] => No
-[46.3%] Remove [00010] => Yes
-[60.0%] Remove [00001] => Yes
-[80.0%] Remove [00000] => No
+[46.8%] Remove [00010] => Yes
+[59.5%] Remove [00001] => Yes
+[79.7%] Remove [00000] => No
 ============= Depth 6 =============
 [ 4.6%] Remove [000101] => No
 [23.4%] Remove [000100] => Yes
