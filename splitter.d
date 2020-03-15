@@ -18,7 +18,7 @@ import std.traits;
 import std.stdio : stderr;
 
 /// Represents a slice of the original code.
-class Entity
+final class Entity
 {
 	string head;           /// This node's "head", e.g. "{" for a statement block.
 	Entity[] children;     /// This node's children nodes, e.g. the statements of the statement block.
