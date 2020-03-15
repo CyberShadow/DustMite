@@ -1989,3 +1989,12 @@ EOT");
 // 	dump(root, r, (string) {}, &f.write!string);
 // 	f.close();
 // }
+
+version(testsuite)
+shared static this()
+{
+	import core.runtime;
+	"../cov".mkdir.collectException();
+	dmd_coverDestPath("../cov");
+	dmd_coverSetMerge(true);
+}

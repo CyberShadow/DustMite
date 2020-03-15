@@ -43,7 +43,9 @@ void main(string[] args)
 	}
 
 	auto dustmite = buildPath("..", "dustmite");
-	immutable flags = ["-g", "-debug"];
+	immutable flags = ["-g", "-debug", "-cov", "-version=testsuite"];
+	buildPath("..", "cov").rmdirRecurse.collectException;
+
 	stderr.writeln("Building...");
 	{
 		auto status = spawnProcess(["rdmd", "--build-only"] ~ flags ~ [dustmite]).wait();

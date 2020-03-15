@@ -1,3 +1,12 @@
 language: d
 d: dmd-2.080.0
-script: cd tests && rdmd runtests.d && git diff --exit-code
+
+script:
+  - ( cd tests && rdmd runtests.d )
+  - git diff --exit-code
+
+  - find tests -name '*.lst' -delete
+  - for f in cov/..-*.lst ; do sed -i 's#^\.\./##' "$f" ; mv "$f" "${f:7}" ; done
+  - wget -O doveralls https://github.com/ColdenCullen/doveralls/releases/download/v1.3.2/doveralls_linux_travis
+  - chmod +x doveralls
+  - ./doveralls
