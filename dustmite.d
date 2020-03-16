@@ -1574,6 +1574,12 @@ TestResult test(
 				{
 					auto reduction = lookaheadIter.front;
 					auto newRoot = lookaheadIter.root.applyReduction(reduction);
+					if (newRoot is lookaheadIter.root)
+					{
+						lookaheadIter.next(false);
+						continue; // inapplicable reduction
+					}
+
 					auto digest = hash(newRoot);
 
 					bool prediction;
