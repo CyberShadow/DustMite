@@ -4,6 +4,9 @@
 
 module dustmite;
 
+import core.atomic;
+import core.thread;
+
 import std.algorithm;
 import std.array;
 import std.ascii;
@@ -1458,7 +1461,8 @@ else
 
 struct Lookahead
 {
-	Pid pid;
+	Thread thread;
+	shared Pid pid;
 	string testdir;
 	HASH digest;
 }
@@ -1572,27 +1576,31 @@ TestResult test(
 
 			TestResult reap(ref Lookahead process, int status)
 			{
+				scope(success) process = Lookahead.init;
 				safeDelete(process.testdir);
-				process.pid = null;
+				if (process.thread)
+					process.thread.join(/*rethrow:*/true);
 				return lookaheadResults[process.digest] = TestResult(status == 0, TestResult.Source.lookahead, status);
 			}
 
 			foreach (ref process; lookaheadProcesses)
-			{
-				if (process.pid)
+				if (process.thread)
 				{
-					auto waitResult = process.pid.tryWait();
-					if (waitResult.terminated)
-						reap(process, waitResult.status);
+					auto pid = cast()atomicLoad(process.pid);
+					if (pid)
+					{
+						auto waitResult = pid.tryWait();
+						if (waitResult.terminated)
+							reap(process, waitResult.status);
+					}
 				}
-			}
 
 			// Start new lookahead jobs
 
 			auto lookaheadIter = iter;
 
 			foreach (ref process; lookaheadProcesses)
-				while (!process.pid && !lookaheadIter.done)
+				while (!process.thread && !lookaheadIter.done)
 				{
 					auto reduction = lookaheadIter.front;
 					auto newRoot = lookaheadIter.root.applyReduction(reduction);
@@ -1605,7 +1613,7 @@ TestResult test(
 					auto digest = hash(newRoot);
 
 					bool prediction;
-					if (digest in cache || digest in lookaheadResults || lookaheadProcesses[].canFind!(p => p.pid && p.digest == digest))
+					if (digest in cache || digest in lookaheadResults || lookaheadProcesses[].canFind!(p => p.thread && p.digest == digest))
 					{
 						if (digest in cache)
 							prediction = cache[digest];
@@ -1621,10 +1629,21 @@ TestResult test(
 
 						static int counter;
 						process.testdir = dirSuffix("lookahead.%d".format(counter++));
-						save(newRoot, process.testdir);
 
-						auto nul = File(nullFileName, "w+");
-						process.pid = spawnShell(tester, nul, nul, nul, null, Config.none, process.testdir);
+						// Saving and process creation are expensive.
+						// Don't block the main thread, use a worker thread instead.
+						static void runThread(Entity newRoot, ref Lookahead process, string tester)
+						{
+							process.thread = new Thread({
+								save(newRoot, process.testdir);
+
+								auto nul = File(nullFileName, "w+");
+								auto pid = spawnShell(tester, nul, nul, nul, null, Config.none, process.testdir);
+								atomicStore(process.pid, cast(shared)pid);
+							});
+							process.thread.start();
+						}
+						runThread(newRoot, process, tester);
 
 						prediction = lookaheadPredict(lookaheadIter.root, reduction);
 					}
@@ -1645,11 +1664,16 @@ TestResult test(
 
 			foreach (ref process; lookaheadProcesses)
 			{
-				if (process.pid && process.digest == digest)
+				if (process.thread && process.digest == digest)
 				{
 					// Current test is already being tested in the background, wait for its result.
 
-					auto exitCode = process.pid.wait();
+					// Join the thread first, to guarantee that there is a pid
+					process.thread.join(/*rethrow:*/true);
+					process.thread = null;
+
+					auto pid = cast()atomicLoad(process.pid);
+					auto exitCode = pid.wait();
 
 					auto result = reap(process, exitCode);
 					writeln(result.success ? "Yes" : "No", " (lookahead-wait)");
