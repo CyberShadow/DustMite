@@ -1136,8 +1136,7 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 	scope(exit) debug assert(origBytes == treeBytes(origRoot), "Original tree was changed!");
 	scope(success) debug if (root !is origRoot) assert(treeBytes(root) != origBytes, "Tree was unchanged");
 
-	Entity[] editedEntities;
-	scope(success) foreach (e; editedEntities) e.edited = false;
+	scope(success) debug { void scan(Entity e) { assert(!e.edited); foreach (c; e.children) scan(c); } scan(root); }
 	Entity edit(const(Address)* addr) /// Returns a writable copy of the entity at the given Address
 	{
 		auto findResult = findEntity(root, addr); // TODO: O((log n)^2)
@@ -1150,7 +1149,6 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 			return oldEntity;
 		auto newEntity = oldEntity.dup();
 		newEntity.edited = true;
-		editedEntities ~= newEntity;
 
 		if (addr.parent)
 		{
@@ -1207,9 +1205,6 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 				n.kill(); // Convert to tombstone
 			}
 			remove(r.address.convertAddress);
-
-			countDescendants(root);  // TODO !!!
-			debug checkDescendants(root);
 			break;
 		}
 		case Reduction.Type.Unwrap:
@@ -1279,19 +1274,45 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 				if (auto p = e in tombstones)
 					p.redirect = address; // Patch the tombstone to point to the node's new location.
 				else
+				{
+					e.edited = true; // This node was created by optimize(), mark it as edited
 					foreach (i, child; e.children)
 						makeRedirects(address.child(i), child);
+				}
 			}
 			foreach (i, child; temp.children)
 				makeRedirects(r.address.convertAddress.child(n.children.length + i), child);
 
 			n.children ~= temp.children;
 
-			countDescendants(root); // TODO !!!
-
 			break;
 		}
 	}
+
+	if (root !is origRoot)
+		assert(root.edited);
+
+	// Recalculate cumulative information for the part of the tree that we edited.
+
+	void update(Entity e)
+	{
+		if (!e.edited)
+			return;
+
+		e.descendants = e.dead ? 0 : 1;
+		foreach (c; e.children)
+		{
+			update(c);
+			e.descendants += c.descendants;
+		}
+
+		e.edited = false;
+	}
+
+	update(root);
+
+	debug checkDescendants(root);
+
 	return root;
 }
 
