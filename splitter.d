@@ -110,6 +110,7 @@ final class Entity
 		auto result = new Entity;
 		foreach (i, item; this.tupleof)
 			result.tupleof[i] = this.tupleof[i];
+		result.children = result.children.dup;
 		return result;
 	}
 

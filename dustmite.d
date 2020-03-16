@@ -1148,7 +1148,7 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 {
 	Entity root = origRoot;
 
-	debug static ubyte[] treeBytes(Entity e) { return (cast(ubyte*)e)[0 .. __traits(classInstanceSize, Entity)] ~ e.children.map!treeBytes.join; }
+	debug static ubyte[] treeBytes(Entity e) { return (cast(ubyte*)e)[0 .. __traits(classInstanceSize, Entity)] ~ cast(ubyte[])e.children ~ e.children.map!treeBytes.join; }
 	debug auto origBytes = treeBytes(origRoot);
 	scope(exit) debug assert(origBytes == treeBytes(origRoot), "Original tree was changed!");
 	scope(success) debug if (root !is origRoot) assert(treeBytes(root) != origBytes, "Tree was unchanged");
@@ -1158,29 +1158,32 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 	scope(success) debug checkClean(root);
 	Entity edit(const(Address)* addr) /// Returns a writable copy of the entity at the given Address
 	{
-		auto findResult = findEntity(root, addr); // TODO: O((log n)^2)
-		addr = findResult.address;
-		auto oldEntity = findResult.entity;
-		if (!oldEntity)
-			return null; // Gone
-
-		if (!oldEntity.clean)
-			return oldEntity;
-		auto newEntity = oldEntity.dup();
-		newEntity.clean = false;
-
+		Entity* pEntity;
 		if (addr.parent)
 		{
 			auto parent = edit(addr.parent);
-			assert(parent.children[addr.index] == oldEntity);
-			parent.children = parent.children.dup;
-			parent.children[addr.index] = newEntity;
+			if (!parent)
+				return null; // Gone
+			pEntity = &parent.children[addr.index];
 		}
 		else
+			pEntity = &root;
+
+		auto oldEntity = *pEntity;
+
+		if (oldEntity.dead)
 		{
-			assert(oldEntity is root);
-			root = newEntity;
+			if (oldEntity.redirect)
+				return edit(oldEntity.redirect);
+			return null; // Gone
 		}
+
+		if (!oldEntity.clean)
+			return oldEntity;
+
+		auto newEntity = oldEntity.dup();
+		newEntity.clean = false;
+		*pEntity = newEntity;
 
 		return newEntity;
 	}
