@@ -164,6 +164,12 @@ if (isUnsigned!T)
 	{
 		this.value = longMul(this.value, operand.value).longDiv(q).remainder;
 	}
+
+	T opCast(Q)() const if (is(Q == T)) { return value; }
+
+	// Ensure this type is supported whet it is instantiated,
+	// instead of when the operator overloads are
+	private static void check() { typeof(this) m; m *= typeof(this)(0); }
 }
 
 unittest

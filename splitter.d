@@ -17,6 +17,8 @@ import std.string;
 import std.traits;
 import std.stdio : stderr;
 
+import polyhash;
+
 /// Represents an Entity's position within a program tree.
 struct Address
 {
@@ -41,6 +43,19 @@ struct EntityRef           /// Reference to another Entity in the same tree
 	Address* address;      /// Address - assigned after splitting / optimizing
 }
 
+enum largest64bitPrime = 18446744073709551557UL; // 0xFFFFFFFF_FFFFFFC5
+static if (is(ModQ!(ulong, largest64bitPrime)))
+	alias EntityHash = PolynomialHash!(ModQ!(ulong, largest64bitPrime));
+else
+{
+	pragma(msg,
+		"64-bit long multiplication/division is not supported on this platform.\n" ~
+		"Falling back to working in modulo 2^^64.\n" ~
+		"Hashing / cache accuracy may be impaired.\n" ~
+		"---------------------------------------------------------------------");
+	alias EntityHash = PolynomialHash!ulong;
+}
+
 /// Represents a slice of the original code.
 final class Entity
 {
@@ -61,6 +76,7 @@ final class Entity
 
 	int id;                /// For diagnostics
 	size_t descendants;    /// [Computed] For progress display
+	EntityHash hash;       /// [Computed] Hashed value of this entity's content (as if it were saved to disk).
 
 	this(string head = null, Entity[] children = null, string tail = null)
 	{

@@ -41,7 +41,7 @@ int tests; bool foundAnything;
 bool noSave, trace, noRedirect;
 string strategy = "inbreadth";
 
-struct Times { StopWatch total, load, testSave, resultSave, test, clean, cacheHash, globalCache, misc; }
+struct Times { StopWatch total, load, testSave, resultSave, test, clean, globalCache, misc; }
 Times times;
 static this() { times.total.start(); times.misc.start(); }
 void measure(string what)(void delegate() p)
@@ -364,11 +364,16 @@ void recalculate(Entity e)
 		return;
 
 	e.descendants = e.dead ? 0 : 1;
+	e.hash = EntityHash.init;
+	e.hash.put(e.filename);
+	e.hash.put(e.head);
 	foreach (c; e.children)
 	{
 		recalculate(c);
 		e.descendants += c.descendants;
+		e.hash.put(c.hash);
 	}
+	e.hash.put(e.tail);
 
 	e.clean = true;
 }
@@ -1401,67 +1406,16 @@ void saveResult(Entity root)
 		measure!"resultSave"({safeSave(root, resultDir);});
 }
 
-version(HAVE_AE)
-{
-	// Use faster murmurhash from http://github.com/CyberShadow/ae
-	// when compiled with -version=HAVE_AE
-
-	import ae.utils.digest;
-	import ae.utils.textout;
-
-	alias MH3Digest128 HASH;
-
-	HASH hash(Entity root)
-	{
-		static StringBuffer sb;
-
-		static struct BufferWriter
-		{
-			alias handleFile = handleText;
-			void handleText(string s) { sb.put(s); }
-		}
-		static BufferWriter writer;
-
-		sb.clear();
-		dump(root, writer);
-		return murmurHash3_128(sb.get());
-	}
-
-	alias digestToStringMH3 formatHash;
-}
-else
-{
-	import std.digest.md;
-
-	alias ubyte[16] HASH;
-
-	HASH hash(Entity root)
-	{
-		static struct DigestWriter
-		{
-			MD5 context;
-			alias handleFile = handleText;
-			void handleText(string s) { context.put(s.representation); }
-		}
-		DigestWriter writer;
-		writer.context.start();
-		dump(root, &writer);
-		return writer.context.finish();
-	}
-
-	alias toHexString formatHash;
-}
-
 struct Lookahead
 {
 	Thread thread;
 	shared Pid pid;
 	string testdir;
-	HASH digest;
+	EntityHash digest;
 }
 Lookahead[] lookaheadProcesses;
 
-TestResult[HASH] lookaheadResults;
+TestResult[EntityHash] lookaheadResults;
 
 bool lookaheadPredict(Entity currentRoot, ref Reduction proposedReduction) { return false; }
 
@@ -1470,7 +1424,7 @@ version (Windows)
 else
 	enum nullFileName = "/dev/null";
 
-bool[HASH] cache;
+bool[EntityHash] cache;
 
 struct TestResult
 {
@@ -1514,8 +1468,7 @@ TestResult test(
 {
 	write(reduction, " => "); stdout.flush();
 
-	HASH digest;
-	measure!"cacheHash"({ digest = hash(root); });
+	EntityHash digest = root.hash;
 
 	TestResult ramCached(lazy TestResult fallback)
 	{
@@ -1538,7 +1491,7 @@ TestResult test(
 		if (globalCache)
 		{
 			if (!exists(globalCache)) mkdirRecurse(globalCache);
-			string cacheBase = absolutePath(buildPath(globalCache, formatHash(digest))) ~ "-";
+			string cacheBase = absolutePath(buildPath(globalCache, format("%016X", cast(ulong)digest.value))) ~ "-";
 			bool found;
 
 			measure!"globalCache"({ found = exists(cacheBase~"0"); });
@@ -1603,7 +1556,7 @@ TestResult test(
 						continue; // inapplicable reduction
 					}
 
-					auto digest = hash(newRoot);
+					auto digest = newRoot.hash;
 
 					bool prediction;
 					if (digest in cache || digest in lookaheadResults || lookaheadProcesses[].canFind!(p => p.thread && p.digest == digest))
