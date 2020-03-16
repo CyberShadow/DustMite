@@ -53,14 +53,14 @@ final class Entity
 
 	bool isPair;           /// Internal hint for --dump output
 	bool noRemove;         /// Don't try removing this entity (children OK)
-	bool edited;           /// Set temporarily in applyReduction
+	bool clean;            /// Computed fields are up-to-date
 
 	bool dead;             /// Tombstone or redirect
 	EntityRef[] dependents;/// If this entity is removed, so should all these entities.
 	Address* redirect;     /// If moved, this is where this entity is now
 
 	int id;                /// For diagnostics
-	size_t descendants;    /// For progress display
+	size_t descendants;    /// [Computed] For progress display
 
 	this(string head = null, Entity[] children = null, string tail = null)
 	{

@@ -269,7 +269,7 @@ EOS");
 	if (!obfuscate && !noOptimize)
 		optimize(root);
 	maxBreadth = getMaxBreadth(root);
-	countDescendants(root);
+	recalculate(root);
 	resetProgress(root);
 	assignID(root);
 	convertRefs(root);
@@ -357,12 +357,20 @@ size_t getMaxBreadth(Entity e)
 	return breadth;
 }
 
-size_t countDescendants(Entity e)
+/// Update computed fields for dirty nodes
+void recalculate(Entity e)
 {
-	size_t n = e.dead ? 0 : 1;
+	if (e.clean)
+		return;
+
+	e.descendants = e.dead ? 0 : 1;
 	foreach (c; e.children)
-		n += countDescendants(c);
-	return e.descendants = n;
+	{
+		recalculate(c);
+		e.descendants += c.descendants;
+	}
+
+	e.clean = true;
 }
 
 size_t checkDescendants(Entity e)
@@ -1140,7 +1148,9 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 	scope(exit) debug assert(origBytes == treeBytes(origRoot), "Original tree was changed!");
 	scope(success) debug if (root !is origRoot) assert(treeBytes(root) != origBytes, "Tree was unchanged");
 
-	scope(success) debug { void scan(Entity e) { assert(!e.edited); foreach (c; e.children) scan(c); } scan(root); }
+	debug void checkClean(Entity e) { assert(e.clean, "Found dirty node before/after reduction"); foreach (c; e.children) checkClean(c); }
+	debug checkClean(root);
+	scope(success) debug checkClean(root);
 	Entity edit(const(Address)* addr) /// Returns a writable copy of the entity at the given Address
 	{
 		auto findResult = findEntity(root, addr); // TODO: O((log n)^2)
@@ -1149,10 +1159,10 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 		if (!oldEntity)
 			return null; // Gone
 
-		if (oldEntity.edited)
+		if (!oldEntity.clean)
 			return oldEntity;
 		auto newEntity = oldEntity.dup();
-		newEntity.edited = true;
+		newEntity.clean = false;
 
 		if (addr.parent)
 		{
@@ -1279,7 +1289,7 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 					p.redirect = address; // Patch the tombstone to point to the node's new location.
 				else
 				{
-					e.edited = true; // This node was created by optimize(), mark it as edited
+					assert(!e.clean); // This node was created by optimize(), it can't be clean
 					foreach (i, child; e.children)
 						makeRedirects(address.child(i), child);
 				}
@@ -1294,26 +1304,9 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 	}
 
 	if (root !is origRoot)
-		assert(root.edited);
+		assert(!root.clean);
 
-	// Recalculate cumulative information for the part of the tree that we edited.
-
-	void update(Entity e)
-	{
-		if (!e.edited)
-			return;
-
-		e.descendants = e.dead ? 0 : 1;
-		foreach (c; e.children)
-		{
-			update(c);
-			e.descendants += c.descendants;
-		}
-
-		e.edited = false;
-	}
-
-	update(root);
+	recalculate(root); // Recalculate cumulative information for the part of the tree that we edited
 
 	debug checkDescendants(root);
 
