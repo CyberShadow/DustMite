@@ -122,6 +122,7 @@ final class Entity
 		dependents = null;
 		isPair = false;
 		descendants = 0;
+		hash = EntityHash.init;
 		dead = true;
 	}
 
