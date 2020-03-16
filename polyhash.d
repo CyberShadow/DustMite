@@ -44,7 +44,10 @@ if (isUnsigned!Value)
 	{
 		Value value;
 		foreach (n; 0..s.length)
-			value += Value(s[n]) * pPower(n);
+		{
+			value *= p;
+			value += Value(s[n]);
+		}
 		return typeof(this)(value, s.length);
 	}
 
@@ -54,7 +57,8 @@ if (isUnsigned!Value)
 		typeof(this) result;
 		foreach (hash; hashes)
 		{
-			result.value += hash.value * pPower(result.length);
+			result.value *= pPower(hash.length);
+			result.value += hash.value;
 			result.length += hash.length;
 		}
 		return result;
