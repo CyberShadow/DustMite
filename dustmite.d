@@ -1287,7 +1287,7 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 
 			auto temp = new Entity;
 			temp.children = allData;
-			optimize(temp);
+			temp.optimizeUntil!((Entity e) => e in tombstones);
 
 			// The optimize function rearranges nodes in a tree,
 			// so we need to do a recursive scan to find their new location.

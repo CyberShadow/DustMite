@@ -189,7 +189,7 @@ Entity loadFiles(ref string path, ParseOptions options)
 
 enum BIN_SIZE = 2;
 
-void optimize(Entity set)
+void optimizeUntil(alias stop)(Entity set)
 {
 	static Entity group(Entity[] children)
 	{
@@ -211,8 +211,10 @@ void optimize(Entity set)
 		}
 	}
 
-	static void doOptimize(Entity e)
+	void doOptimize(Entity e)
 	{
+		if (stop(e))
+			return;
 		foreach (c; e.children)
 			doOptimize(c);
 		clusterBy(e.children, BIN_SIZE);
@@ -220,6 +222,8 @@ void optimize(Entity set)
 
 	doOptimize(set);
 }
+
+alias optimize = optimizeUntil!((Entity e) => false);
 
 private:
 
