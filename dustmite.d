@@ -1568,14 +1568,6 @@ TestResult test(
 			// Start new lookahead jobs
 
 			auto lookaheadIter = iter;
-			{
-				auto initialReduction = lookaheadIter.front;
-				auto prediction = lookaheadPredict(lookaheadIter.root, initialReduction);
-				if (prediction)
-					lookaheadIter.root = lookaheadIter.root.applyReduction(initialReduction);
-				if (!lookaheadIter.done)
-					lookaheadIter.next(prediction);
-			}
 
 			foreach (ref process; lookaheadProcesses)
 				while (!process.pid && !lookaheadIter.done)
