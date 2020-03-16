@@ -33,7 +33,6 @@ string dir, resultDir, tester, globalCache;
 string dirSuffix(string suffix) { return (dir.absolutePath().buildNormalizedPath() ~ "." ~ suffix).relativePath(); }
 
 size_t maxBreadth;
-Entity root;
 size_t origDescendants;
 int tests; bool foundAnything;
 bool noSave, trace, noRedirect;
@@ -53,6 +52,7 @@ struct Reduction
 {
 	enum Type { None, Remove, Unwrap, Concat, ReplaceWord }
 	Type type;
+	Entity root;
 
 	// Remove / Unwrap / Concat
 	size_t[] address; // TODO replace type with Address
@@ -248,6 +248,8 @@ EOS");
 		return ParseRule(pattern, cast(Splitter)splitterIndex);
 	}
 
+	Entity root;
+
 	ParseOptions parseOptions;
 	parseOptions.stripComments = stripComments;
 	parseOptions.mode = obfuscate ? ParseOptions.Mode.words : ParseOptions.Mode.source;
@@ -256,23 +258,23 @@ EOS");
 	measure!"load"({root = loadFiles(dir, parseOptions);});
 	enforce(root.children.length, "No files in specified directory");
 
-	applyNoRemoveMagic();
-	applyNoRemoveRegex(noRemoveStr, reduceOnly);
-	applyNoRemoveDeps();
+	applyNoRemoveMagic(root);
+	applyNoRemoveRegex(root, noRemoveStr, reduceOnly);
+	applyNoRemoveDeps(root);
 	if (coverageDir)
-		loadCoverage(coverageDir);
+		loadCoverage(root, coverageDir);
 	if (!obfuscate && !noOptimize)
 		optimize(root);
 	maxBreadth = getMaxBreadth(root);
 	countDescendants(root);
-	resetProgress();
+	resetProgress(root);
 	assignID(root);
 	convertRefs(root);
 
 	if (dump)
-		dumpSet(dirSuffix("dump"));
+		dumpSet(root, dirSuffix("dump"));
 	if (dumpHtml)
-		dumpToHtml(dirSuffix("html"));
+		dumpToHtml(root, dirSuffix("html"));
 
 	if (tester is null)
 	{
@@ -310,9 +312,9 @@ EOS");
 
 	foundAnything = false;
 	if (obfuscate)
-		.obfuscate(keepLength);
+		.obfuscate(root, keepLength);
 	else
-		reduce();
+		reduce(root);
 
 	auto duration = times.total.peek();
 	duration = dur!"msecs"(duration.total!"msecs"); // truncate anything below ms, users aren't interested in that
@@ -321,7 +323,7 @@ EOS");
 		if (root.children.length)
 		{
 			if (noSave)
-				measure!"resultSave"({safeSave(resultDir);});
+				measure!"resultSave"({safeSave(root, resultDir);});
 			writefln("Done in %s tests and %s; reduced version is in %s", tests, duration, resultDir);
 		}
 		else
@@ -390,12 +392,13 @@ struct ReductionIterator
 		strategy = strategy.dup;
 	}
 
-	@property Reduction front() { return Reduction(type, strategy.front, e); }
+	@property ref Entity root() { return strategy.root; }
+	@property Reduction front() { return Reduction(type, root, strategy.front, e); }
 
 	void nextEntity(bool success) /// Iterate strategy until the next non-dead node
 	{
 		strategy.next(success);
-		while (!strategy.done && entityAt(strategy.front).dead)
+		while (!strategy.done && root.entityAt(strategy.front).dead)
 			strategy.next(false);
 	}
 
@@ -421,7 +424,7 @@ struct ReductionIterator
 						return;
 					}
 
-					e = entityAt(strategy.front);
+					e = root.entityAt(strategy.front);
 
 					if (e.noRemove)
 					{
@@ -492,18 +495,20 @@ struct ReductionIterator
 	}
 }
 
-void resetProgress()
+void resetProgress(Entity root)
 {
 	origDescendants = root.descendants;
 }
 
 abstract class Strategy
 {
+	Entity root;
 	uint progressGeneration = 0;
 	bool done = false;
 
 	void copy(Strategy result) const
 	{
+		result.root = cast()root;
 		result.progressGeneration = this.progressGeneration;
 		result.done = this.done;
 	}
@@ -652,14 +657,6 @@ bool nextAddress(ref size_t[] address, lazy Entity root, bool descend)
 	}
 
 	return false;
-}
-
-void validateAddress(size_t[] address, Entity root = root)
-{
-	if (!address.length)
-		return;
-	assert(address[0] < root.children.length);
-	validateAddress(address[1..$], root.children[address[0]]);
 }
 
 class LevelStrategy : IterativeStrategy
@@ -901,38 +898,46 @@ void reduceByStrategy(Strategy strategy)
 		}
 		if (lastProgressGeneration != strategy.progressGeneration)
 		{
-			resetProgress();
+			resetProgress(iter.root);
 			lastProgressGeneration = strategy.progressGeneration;
 		}
 
-		auto result = tryReduction(iter.front);
+		auto result = tryReduction(iter.root, iter.front);
 
 		iter.next(result);
 	}
 }
 
-void reduce()
+Strategy createStrategy(string name)
 {
-	switch (strategy)
+	switch (name)
 	{
 		case "careful":
-			return reduceByStrategy(new CarefulStrategy());
+			return new CarefulStrategy();
 		case "lookback":
-			return reduceByStrategy(new LookbackStrategy());
+			return new LookbackStrategy();
 		case "pingpong":
-			return reduceByStrategy(new PingPongStrategy());
+			return new PingPongStrategy();
 		case "indepth":
-			return reduceByStrategy(new InDepthStrategy());
+			return new InDepthStrategy();
 		case "inbreadth":
-			return reduceByStrategy(new InBreadthStrategy());
+			return new InBreadthStrategy();
 		default:
 			throw new Exception("Unknown strategy");
 	}
 }
 
+void reduce(ref Entity root)
+{
+	auto strategy = createStrategy(.strategy);
+	strategy.root = root;
+	reduceByStrategy(strategy);
+	root = strategy.root;
+}
+
 Mt19937 rng;
 
-void obfuscate(bool keepLength)
+void obfuscate(ref Entity root, bool keepLength)
 {
 	bool[string] wordSet;
 	string[] words; // preserve file order
@@ -990,7 +995,7 @@ void obfuscate(bool keepLength)
 		while (r.to in wordSet && tries++ < 10);
 		wordSet[r.to] = true;
 
-		tryReduction(r);
+		tryReduction(root, r);
 	}
 }
 
@@ -1075,7 +1080,7 @@ void save(Entity root, string savedir)
 	writer.finish();
 }
 
-Entity entityAt(size_t[] address) // TODO: replace uses with findEntity and remove
+Entity entityAt(Entity root, size_t[] address) // TODO: replace uses with findEntity and remove
 {
 	Entity e = root;
 	foreach (a; address)
@@ -1100,7 +1105,7 @@ struct AddressRange
 }
 
 /// Try specified reduction. If it succeeds, apply it permanently and save intermediate result.
-bool tryReduction(Reduction r)
+bool tryReduction(ref Entity root, Reduction r)
 {
 	auto newRoot = root.applyReduction(r);
 	if (newRoot is root)
@@ -1113,7 +1118,7 @@ bool tryReduction(Reduction r)
 	{
 		foundAnything = true;
 		root = newRoot;
-		saveResult();
+		saveResult(root);
 		return true;
 	}
 	return false;
@@ -1370,12 +1375,12 @@ void safeReplace(string path, void delegate(string path) creator)
 }
 
 
-void safeSave(string savedir) { safeReplace(savedir, path => save(root, path)); }
+void safeSave(Entity root, string savedir) { safeReplace(savedir, path => save(root, path)); }
 
-void saveResult()
+void saveResult(Entity root)
 {
 	if (!noSave)
-		measure!"resultSave"({safeSave(resultDir);});
+		measure!"resultSave"({safeSave(root, resultDir);});
 }
 
 version(HAVE_AE)
@@ -1672,7 +1677,7 @@ void saveTrace(Entity root, Reduction reduction, string dir, bool result)
 	save(root, traceDir);
 }
 
-void applyNoRemoveMagic()
+void applyNoRemoveMagic(Entity root)
 {
 	enum MAGIC_START = "DustMiteNoRemoveStart";
 	enum MAGIC_STOP  = "DustMiteNoRemoveStop";
@@ -1704,7 +1709,7 @@ void applyNoRemoveMagic()
 	scan(root);
 }
 
-void applyNoRemoveRegex(string[] noRemoveStr, string[] reduceOnly)
+void applyNoRemoveRegex(Entity root, string[] noRemoveStr, string[] reduceOnly)
 {
 	auto noRemove = array(map!((string s) { return regex(s, "mg"); })(noRemoveStr));
 
@@ -1790,7 +1795,7 @@ void applyNoRemoveRegex(string[] noRemoveStr, string[] reduceOnly)
 	}
 }
 
-void applyNoRemoveDeps()
+void applyNoRemoveDeps(Entity root)
 {
 	static bool isNoRemove(Entity e)
 	{
@@ -1814,7 +1819,7 @@ void applyNoRemoveDeps()
 	fill(root);
 }
 
-void loadCoverage(string dir)
+void loadCoverage(Entity root, string dir)
 {
 	void scanFile(Entity f)
 	{
@@ -1945,7 +1950,7 @@ FindResult findEntity(Entity root, const(Address)* addr)
 	return FindResult(e, addr);
 }
 
-void dumpSet(string fn)
+void dumpSet(Entity root, string fn)
 {
 	auto f = File(fn, "wb");
 
@@ -2020,7 +2025,7 @@ void dumpSet(string fn)
 	f.close();
 }
 
-void dumpToHtml(string fn)
+void dumpToHtml(Entity root, string fn)
 {
 	auto buf = appender!string();
 
