@@ -1,6 +1,6 @@
 /// Simple source code splitter
 /// Written by Vladimir Panteleev <vladimir@thecybershadow.net>
-/// Released into the Public Domain
+/// License: Boost Software License, Version 1.0
 
 module splitter;
 

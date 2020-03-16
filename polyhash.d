@@ -1,7 +1,7 @@
 /// Polynomial hash for partial rehashing.
 /// http://stackoverflow.com/a/42112687/21501
 /// Written by Vladimir Panteleev <vladimir@thecybershadow.net>
-/// Released into the Public Domain
+/// License: Boost Software License, Version 1.0
 
 module polyhash;
 
