@@ -269,10 +269,10 @@ EOS");
 	if (!obfuscate && !noOptimize)
 		optimize(root);
 	maxBreadth = getMaxBreadth(root);
-	recalculate(root);
-	resetProgress(root);
 	assignID(root);
 	convertRefs(root);
+	recalculate(root);
+	resetProgress(root);
 
 	if (dump)
 		dumpSet(root, dirSuffix("dump"));
