@@ -76,6 +76,8 @@ void main(string[] args)
 		if (reducedDir.exists) reducedDir.rmdirRecurse();
 		auto resultDir = target.setExtension("result");
 		if (resultDir.exists) resultDir.rmdirRecurse();
+		auto cacheDir = target.setExtension("cache");
+		if (cacheDir.exists) cacheDir.rmdirRecurse();
 
 		string[] opts;
 		auto optsFile = test~"/opts.txt";
