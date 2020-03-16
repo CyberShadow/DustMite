@@ -1108,6 +1108,8 @@ struct AddressRange
 bool tryReduction(Reduction r)
 {
 	auto newRoot = root.applyReduction(r);
+	if (newRoot is root && r.type != Reduction.Type.None) // TODO refactor so that this is never called with Reduction.Type.None
+		return false;
 	if (test(newRoot, r).success)
 	{
 		foundAnything = true;
@@ -1128,7 +1130,7 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 	debug static ubyte[] treeBytes(Entity e) { return (cast(ubyte*)e)[0 .. __traits(classInstanceSize, Entity)] ~ e.children.map!treeBytes.join; }
 	debug auto origBytes = treeBytes(origRoot);
 	scope(exit) debug assert(origBytes == treeBytes(origRoot), "Original tree was changed!");
-	scope(success) debug if (r.type != Reduction.Type.None) assert(treeBytes(root) != origBytes, "Tree was unchanged");
+	scope(success) debug if (root !is origRoot) assert(treeBytes(root) != origBytes, "Tree was unchanged");
 
 	Entity[] editedEntities;
 	scope(success) foreach (e; editedEntities) e.edited = false;
@@ -1216,6 +1218,7 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 			// Move all nodes from all files to a single file (the target).
 			// Leave behind redirects.
 
+			size_t numFiles;
 			Entity[] allData;
 			Entity[Entity] tombstones; // Map from moved entity to its tombstone
 
@@ -1225,18 +1228,24 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 			{
 				if (e.isFile)
 				{
-					if (!e.noRemove || equal(addr.AddressRange, r.address.convertAddress.AddressRange))
+					// Skip noRemove files, except when they are the target
+					// (in which case they will keep their contents after the reduction).
+					if (e.noRemove && !equal(addr.AddressRange, r.address.convertAddress.AddressRange))
+						return;
+
+					if (!e.children.canFind!(c => !c.dead))
+						return; // File is empty (already concat'd?)
+
+					numFiles++;
+					allData ~= e.children;
+					auto f = edit(addr);
+					f.children = new Entity[e.children.length];
+					foreach (i; 0 .. e.children.length)
 					{
-						allData ~= e.children;
-						auto f = edit(addr);
-						f.children = new Entity[e.children.length];
-						foreach (i; 0 .. e.children.length)
-						{
-							auto tombstone = new Entity;
-							tombstone.kill();
-							f.children[i] = tombstone;
-							tombstones[e.children[i]] = tombstone;
-						}
+						auto tombstone = new Entity;
+						tombstone.kill();
+						f.children[i] = tombstone;
+						tombstones[e.children[i]] = tombstone;
 					}
 				}
 				else
@@ -1245,6 +1254,13 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 			}
 
 			collect(root, &rootAddress);
+
+			// Fail the reduction if there are less than two files to concatenate.
+			if (numFiles < 2)
+			{
+				root = origRoot;
+				break;
+			}
 
 			auto n = edit(r.address.convertAddress);
 
