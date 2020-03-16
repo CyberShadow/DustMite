@@ -1113,12 +1113,18 @@ Address* convertAddress(size_t[] address) // TODO: replace uses with findEntity 
 	return a;
 }
 
-struct AddressRange
+/// Return true if these two addresses are the same
+/// (they point to the same node).
+bool equal(const(Address)* a, const(Address)* b)
 {
-	Address *address;
-	bool empty() { return !address.parent; }
-	size_t front() { return address.index; }
-	void popFront() { address = address.parent; }
+	if (a is b)
+		return true;
+	if (a.depth != b.depth)
+		return false;
+	if (a.index != b.index)
+		return false;
+	assert(a.parent && b.parent); // If we are at the root node, then the address check should have passed
+	return equal(a.parent, b.parent);
 }
 
 /// Try specified reduction. If it succeeds, apply it permanently and save intermediate result.
@@ -1252,7 +1258,7 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 				{
 					// Skip noRemove files, except when they are the target
 					// (in which case they will keep their contents after the reduction).
-					if (e.noRemove && !equal(addr.AddressRange, r.address.convertAddress.AddressRange))
+					if (e.noRemove && !equal(addr, r.address.convertAddress))
 						return;
 
 					if (!e.children.canFind!(c => !c.dead))
@@ -1891,7 +1897,7 @@ void convertRefs(Entity root)
 		assert(address.children.length == 0);
 		foreach (i, c; e.children)
 		{
-			auto childAddress = new Address(address, i);
+			auto childAddress = new Address(address, i, address.depth + 1);
 			address.children ~= childAddress;
 			collectAddresses(c, childAddress);
 		}

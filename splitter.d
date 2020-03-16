@@ -24,6 +24,7 @@ struct Address
 {
 	Address* parent;       /// Upper node's Address. If null, then this is the root node (and index should be 0).
 	size_t index;          /// Index within the parent's children array
+	size_t depth;          /// Distance from the root address
 
 	Address*[] children;   /// Used to keep a global cached tree of addresses.
 	ref Address* child(size_t index) const
@@ -32,7 +33,7 @@ struct Address
 		if (mutableThis.children.length < index + 1)
 			mutableThis.children.length = index + 1;
 		if (!mutableThis.children[index])
-			mutableThis.children[index] = new Address(mutableThis, index);
+			mutableThis.children[index] = new Address(mutableThis, index, depth+1);
 		return mutableThis.children[index];
 	}
 }
