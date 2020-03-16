@@ -1,6 +1,6 @@
 int f(int i)
 {
-	if (i == 0)
+	if (i > -1 && i < 1)
 	{
 		return 0;
 	}
