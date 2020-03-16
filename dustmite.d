@@ -1212,6 +1212,7 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 				auto n = edit(address);
 				if (!n)
 					return; // This dependency was removed by something else
+				n.dead = true; // Mark as dead early, so that we don't waste time processing dependencies under this node
 				void removeDependents(Entity e)
 				{
 					foreach (ref dep; e.dependents)
