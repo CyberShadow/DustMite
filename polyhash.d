@@ -235,6 +235,12 @@ else
 version (X86_64)
 	version = Intel;
 
+// Hack to work around DMD bug https://issues.dlang.org/show_bug.cgi?id=20677
+version (Intel)
+	public enum modQSupported = size_t.sizeof == 8;
+else
+	public enum modQSupported = false;
+
 version (Intel)
 {
 	version (DigitalMars)

@@ -44,7 +44,8 @@ struct EntityRef           /// Reference to another Entity in the same tree
 }
 
 enum largest64bitPrime = 18446744073709551557UL; // 0xFFFFFFFF_FFFFFFC5
-static if (is(ModQ!(ulong, largest64bitPrime)))
+// static if (is(ModQ!(ulong, largest64bitPrime)))
+static if (modQSupported) // https://issues.dlang.org/show_bug.cgi?id=20677
 	alias EntityHash = PolynomialHash!(ModQ!(ulong, largest64bitPrime));
 else
 {
