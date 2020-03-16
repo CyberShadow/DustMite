@@ -9,15 +9,16 @@ import std.range.primitives;
 import std.traits;
 
 struct PolynomialHash(Value)
-	if (isUnsigned!Value)
+if (isUnsigned!Value)
 {
-	Value value;
-	size_t length;
+	Value value;   /// The hash value of the hashed string
+	size_t length; /// The length of the hashed string
 
 	// Cycle length == 2^^30 for uint, > 2^^46 for ulong
 	// TODO: find primitive root modulo 2^^32, if one exists
 	enum p = 269;
 
+	/// Return p^^power (mod q).
 	static Value pPower(size_t power)
 	{
 		static Value[] powers = [1];
