@@ -13,12 +13,19 @@
 [ 0.0%] Remove [111] => No
 [ 0.0%] Concat [111] => Yes
 [96.9%] Remove [110] => No
+[96.9%] Concat [110] => N/A
 [97.3%] Remove [101] => No
+[97.3%] Concat [101] => N/A
 [97.5%] Remove [100] => No
+[97.5%] Concat [100] => N/A
 [98.2%] Remove [011] => No
+[98.2%] Concat [011] => N/A
 [98.4%] Remove [010] => No
+[98.4%] Concat [010] => N/A
 [98.9%] Remove [001] => No
+[98.9%] Concat [001] => N/A
 [99.1%] Remove [000] => No
+[99.1%] Concat [000] => N/A
 ============= Depth 4 =============
 [ 0.0%] Remove [1111] => No
 [70.6%] Remove [1110] => No
@@ -475,6 +482,7 @@
 [98.7%] Remove [00] => Yes
 ============= Depth 3 =============
 [ 0.0%] Remove [001] => No
+[ 0.0%] Concat [001] => N/A
 [98.9%] Remove [000] => Yes
 ============= Depth 4 =============
 [ 0.0%] Remove [0001] => No
@@ -884,6 +892,7 @@
 [ 0.0%] Remove [00] => No (cached)
 ============= Depth 3 =============
 [ 0.0%] Remove [000] => No (cached)
+[ 0.0%] Concat [000] => N/A
 ============= Depth 4 =============
 [ 0.0%] Remove [0001] => No (cached)
 [73.3%] Remove [0000] => No (cached)

@@ -1089,7 +1089,10 @@ bool tryReduction(Reduction r)
 {
 	auto newRoot = root.applyReduction(r);
 	if (newRoot is root && r.type != Reduction.Type.None) // TODO refactor so that this is never called with Reduction.Type.None
+	{
+		writeln(r, " => N/A");
 		return false;
+	}
 	if (test(newRoot, r).success)
 	{
 		foundAnything = true;

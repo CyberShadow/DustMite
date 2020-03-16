@@ -3,6 +3,7 @@
 [ 0.0%] Remove [] => No
 ============= Depth 1 =============
 [ 0.0%] Remove [0] => No (cached)
+[ 0.0%] Concat [0] => N/A
 ============= Depth 2 =============
 [ 0.0%] Remove [00] => Yes
 ############### ITERATION 1 ################
@@ -10,4 +11,5 @@
 [ 0.0%] Remove [] => No (cached)
 ============= Depth 1 =============
 [ 0.0%] Remove [0] => No (cached)
+[ 0.0%] Concat [0] => N/A
 Done in 3 tests
