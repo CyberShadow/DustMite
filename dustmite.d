@@ -1605,7 +1605,7 @@ TestResult test(
 					auto digest = hash(newRoot);
 
 					bool prediction;
-					if (digest in cache || digest in lookaheadResults || lookaheadProcesses[].canFind!(p => p.digest == digest))
+					if (digest in cache || digest in lookaheadResults || lookaheadProcesses[].canFind!(p => p.pid && p.digest == digest))
 					{
 						if (digest in cache)
 							prediction = cache[digest];
