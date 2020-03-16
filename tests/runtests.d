@@ -61,6 +61,8 @@ void main(string[] args)
 		auto target = test~"/src";
 		if (!target.exists)
 			target = test~"/src.d";
+		if (!target.exists)
+			target = null;
 		version (Windows)
 			enum testFile = "test.cmd";
 		else
@@ -85,7 +87,7 @@ void main(string[] args)
 		synchronized(mutex) output.open(outputFile, "wb");
 
 		stderr.writefln("runtests: test %s: dumping", test);
-		auto status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ ["--dump", "--no-optimize", target],
+		auto status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ (target ? ["--dump", "--no-optimize", target] : []),
 			stdin, output, output, null, Config.retainStdout | Config.retainStderr).wait();
 		enforce(status == 0, "Dustmite dump failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
