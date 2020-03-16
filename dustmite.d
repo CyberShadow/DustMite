@@ -399,8 +399,17 @@ struct ReductionIterator
 			strategy.next(false);
 	}
 
+	void reset()
+	{
+		strategy.reset();
+		type = Reduction.Type.None;
+	}
+
 	void next(bool success)
 	{
+		if (success && type == Reduction.Type.Concat)
+			reset(); // Significant changes across the tree
+
 		while (true)
 		{
 			final switch (type)
@@ -501,6 +510,7 @@ abstract class Strategy
 
 	abstract @property size_t[] front();
 	abstract void next(bool success);
+	abstract void reset(); /// Invoked by ReductionIterator for significant tree changes
 	int getIteration() { return -1; }
 	int getDepth() { return -1; }
 
@@ -559,6 +569,11 @@ class IterativeStrategy : SimpleStrategy
 	void nextIteration()
 	{
 		assert(iterationChanged, "Starting new iteration after no changes");
+		reset();
+	}
+
+	override void reset()
+	{
 		iteration++;
 		iterationChanged = false;
 		address = null;
