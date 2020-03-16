@@ -194,8 +194,8 @@ EOS");
 		{
 			stderr.write(q"EOS
   -h, --help         Show this message
-  -V, --version      Show program version
 Less interesting options:
+  -V, --version      Show program version
   --strategy STRAT   Set strategy (careful/lookback/pingpong/indepth/inbreadth)
   --dump             Dump parsed tree to DIR.dump file
   --dump-html        Dump parsed tree to DIR.html file
