@@ -369,26 +369,12 @@ size_t checkDescendants(Entity e)
 	return n;
 }
 
-size_t countFiles(Entity e)
-{
-	if (e.isFile)
-		return 1;
-	else
-	{
-		size_t n = 0;
-		foreach (c; e.children)
-			n += countFiles(c);
-		return n;
-	}
-}
-
 
 struct ReductionIterator
 {
 	Strategy strategy;
 
 	bool done = false;
-	bool concatPerformed;
 
 	Reduction.Type type = Reduction.Type.None;
 	Entity e;
@@ -397,9 +383,6 @@ struct ReductionIterator
 	{
 		this.strategy = strategy;
 		next(false);
-
-		if (countFiles(root) < 2)
-			concatPerformed = true;
 	}
 
 	this(this)
@@ -479,7 +462,7 @@ struct ReductionIterator
 					// Try next reduction type
 					type = Reduction.Type.Concat;
 
-					if (e.isFile && !concatPerformed)
+					if (e.isFile)
 						return; // Try this
 					else
 					{
@@ -488,9 +471,6 @@ struct ReductionIterator
 					}
 
 				case Reduction.Type.Concat:
-					if (success)
-						concatPerformed = true;
-
 					// Next node
 					type = Reduction.Type.None;
 					nextEntity(success);
