@@ -1,0 +1,87 @@
+/// Polynomial hash for partial rehashing.
+/// http://stackoverflow.com/a/42112687/21501
+/// Written by Vladimir Panteleev <vladimir@thecybershadow.net>
+/// Released into the Public Domain
+
+module polyhash;
+
+import std.range.primitives;
+import std.traits;
+
+struct PolynomialHash(Value)
+	if (isUnsigned!Value)
+{
+	Value value;
+	size_t length;
+
+	// Cycle length == 2^^30 for uint, > 2^^46 for ulong
+	// TODO: find primitive root modulo 2^^32, if one exists
+	enum p = 269;
+
+	static Value pPower(size_t power)
+	{
+		static Value[] powers = [1];
+		while (powers.length <= power)
+			powers ~= powers[$-1] * p;
+		return powers[power];
+	}
+
+	static typeof(this) hashString(in char[] s)
+	{
+		Value value;
+		foreach (n; 0..s.length)
+			value += Value(s[n]) * pPower(n);
+		return typeof(this)(value, s.length);
+	}
+
+	static typeof(this) hashHashes(R)(R hashes)
+		if (isInputRange!R && is(ElementType!R == typeof(this)))
+	{
+		typeof(this) result;
+		foreach (hash; hashes)
+		{
+			result.value += hash.value * pPower(result.length);
+			result.length += hash.length;
+		}
+		return result;
+	}
+
+	unittest
+	{
+		assert(hashString("").value == 0);
+		assert(hashHashes([hashString(""), hashString("")]).value == 0);
+
+		// "a" + "" + "b" == "ab"
+		assert(hashHashes([hashString("a"), hashString(""), hashString("b")]) == hashString("ab"));
+
+		// "a" + "bc" == "ab" + "c"
+		assert(hashHashes([hashString("a"), hashString("bc")]) == hashHashes([hashString("ab"), hashString("c")]));
+
+		// "a" != "b"
+		assert(hashString("a") != hashString("b"));
+
+		// "ab" != "ba"
+		assert(hashString("ab") != hashString("ba"));
+		assert(hashHashes([hashString("a"), hashString("b")]) != hashHashes([hashString("b"), hashString("a")]));
+
+		// Test overflow
+		assert(hashHashes([
+					hashString("Mary"),
+					hashString(" "), 
+					hashString("had"),
+					hashString(" "), 
+					hashString("a"),
+					hashString(" "), 
+					hashString("little"),
+					hashString(" "), 
+					hashString("lamb"),
+					hashString("")
+				]) == hashString("Mary had a little lamb"));
+	}
+}
+
+unittest
+{
+	PolynomialHash!uint uintTest;
+	PolynomialHash!ulong ulongTest;
+}
