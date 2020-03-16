@@ -230,3 +230,6 @@ void foo (const std::string& , const std::string& , std::vector<std::string>& vl
 	if(vlist.size())
 	;
 }
+
+# 12 \
+    "34"
