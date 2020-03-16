@@ -1050,6 +1050,7 @@ static struct FastWriter(Next) /// Accelerates Writer interface by bulking conti
 
 void save(Entity root, string savedir)
 {
+	safeDelete(savedir);
 	safeMkdir(savedir);
 
 	static struct DiskWriter
