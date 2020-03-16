@@ -21,10 +21,23 @@ if (isUnsigned!Value)
 	/// Return p^^power (mod q).
 	static Value pPower(size_t power)
 	{
-		static Value[] powers = [1];
-		while (powers.length <= power)
-			powers ~= powers[$-1] * p;
-		return powers[power];
+		/// Precalculated table for (p^^(2^^i))
+		static immutable Value[size_t.sizeof * 8] power2s = (){
+			Value[size_t.sizeof * 8] result;
+			Value v = p;
+			foreach (i; 0 .. result.length)
+			{
+				result[i] = v;
+				v *= v;
+			}
+			return result;
+		}();
+
+		Value v = 1;
+		foreach (b; 0 .. power2s.length)
+			if ((size_t(1) << b) & power)
+				v *= power2s[b];
+		return v;
 	}
 
 	static typeof(this) hashString(in char[] s)
