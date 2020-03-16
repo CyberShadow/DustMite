@@ -16,7 +16,7 @@ if (isUnsigned!Value)
 
 	// Cycle length == 2^^30 for uint, > 2^^46 for ulong
 	// TODO: find primitive root modulo 2^^32, if one exists
-	enum p = 269;
+	enum Value p = 269;
 
 	/// Return p^^power (mod q).
 	static Value pPower(size_t power)
@@ -40,61 +40,69 @@ if (isUnsigned!Value)
 		return v;
 	}
 
-	static typeof(this) hashString(in char[] s)
+	void put(char c)
 	{
-		Value value;
-		foreach (n; 0..s.length)
-		{
-			value *= p;
-			value += Value(s[n]);
-		}
-		return typeof(this)(value, s.length);
+		value *= p;
+		value += Value(c);
+		length++;
 	}
 
-	static typeof(this) hashHashes(R)(R hashes)
-		if (isInputRange!R && is(ElementType!R == typeof(this)))
+	void put(in char[] s)
+	{
+		foreach (c; s)
+		{
+			value *= p;
+			value += Value(c);
+		}
+		length += s.length;
+	}
+
+	void put(ref typeof(this) hash)
+	{
+		value *= pPower(hash.length);
+		value += hash.value;
+		length += hash.length;
+	}
+
+	static typeof(this) hash(T)(T value)
+	if (is(typeof({ typeof(this) result; .put(result, value); })))
 	{
 		typeof(this) result;
-		foreach (hash; hashes)
-		{
-			result.value *= pPower(hash.length);
-			result.value += hash.value;
-			result.length += hash.length;
-		}
+		.put(result, value);
 		return result;
 	}
 
 	unittest
 	{
-		assert(hashString("").value == 0);
-		assert(hashHashes([hashString(""), hashString("")]).value == 0);
+		assert(hash("").value == 0);
+		assert(hash([hash(""), hash("")]).value == 0);
 
 		// "a" + "" + "b" == "ab"
-		assert(hashHashes([hashString("a"), hashString(""), hashString("b")]) == hashString("ab"));
+		assert(hash([hash("a"), hash(""), hash("b")]) == hash("ab"));
 
 		// "a" + "bc" == "ab" + "c"
-		assert(hashHashes([hashString("a"), hashString("bc")]) == hashHashes([hashString("ab"), hashString("c")]));
+		assert(hash([hash("a"), hash("bc")]) == hash([hash("ab"), hash("c")]));
 
 		// "a" != "b"
-		assert(hashString("a") != hashString("b"));
+		assert(hash("a") != hash("b"));
 
 		// "ab" != "ba"
-		assert(hashString("ab") != hashString("ba"));
-		assert(hashHashes([hashString("a"), hashString("b")]) != hashHashes([hashString("b"), hashString("a")]));
+		assert(hash("ab") != hash("ba"));
+		assert(hash([hash("a"), hash("b")]) != hash([hash("b"), hash("a")]));
 
 		// Test overflow
-		assert(hashHashes([
-					hashString("Mary"),
-					hashString(" "), 
-					hashString("had"),
-					hashString(" "), 
-					hashString("a"),
-					hashString(" "), 
-					hashString("little"),
-					hashString(" "), 
-					hashString("lamb"),
-					hashString("")
-				]) == hashString("Mary had a little lamb"));
+		assert(hash([
+			hash("Mary"),
+			hash(" "),
+			hash("had"),
+			hash(" "),
+			hash("a"),
+			hash(" "),
+			hash("little"),
+			hash(" "),
+			hash("lamb"),
+			hash("")
+		]) == hash("Mary had a little lamb"));
 	}
 }
 
