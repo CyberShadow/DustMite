@@ -1564,9 +1564,8 @@ TestResult test(
 
 			auto lookaheadIter = iter;
 			auto lookaheadRoot = root;
-			auto initialReduction = lookaheadIter.front;
-			bool first = true;
 			{
+				auto initialReduction = lookaheadIter.front;
 				auto prediction = lookaheadPredict(lookaheadRoot, initialReduction);
 				if (prediction)
 					lookaheadRoot = lookaheadRoot.applyReduction(initialReduction);
@@ -1578,11 +1577,6 @@ TestResult test(
 				while (!process.pid && !lookaheadIter.done)
 				{
 					auto reduction = lookaheadIter.front;
-
-					if (!first && reduction == initialReduction)
-						break; // We've looped around using cached results
-					first = false;
-
 					auto newRoot = lookaheadRoot.applyReduction(reduction);
 					auto digest = hash(newRoot);
 
