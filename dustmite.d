@@ -1568,12 +1568,11 @@ TestResult test(
 			// Start new lookahead jobs
 
 			auto lookaheadIter = iter;
-			auto lookaheadRoot = root;
 			{
 				auto initialReduction = lookaheadIter.front;
-				auto prediction = lookaheadPredict(lookaheadRoot, initialReduction);
+				auto prediction = lookaheadPredict(lookaheadIter.root, initialReduction);
 				if (prediction)
-					lookaheadRoot = lookaheadRoot.applyReduction(initialReduction);
+					lookaheadIter.root = lookaheadIter.root.applyReduction(initialReduction);
 				if (!lookaheadIter.done)
 					lookaheadIter.next(prediction);
 			}
@@ -1582,7 +1581,7 @@ TestResult test(
 				while (!process.pid && !lookaheadIter.done)
 				{
 					auto reduction = lookaheadIter.front;
-					auto newRoot = lookaheadRoot.applyReduction(reduction);
+					auto newRoot = lookaheadIter.root.applyReduction(reduction);
 					auto digest = hash(newRoot);
 
 					bool prediction;
@@ -1594,7 +1593,7 @@ TestResult test(
 						if (digest in lookaheadResults)
 							prediction = lookaheadResults[digest].success;
 						else
-							prediction = lookaheadPredict(lookaheadRoot, reduction);
+							prediction = lookaheadPredict(lookaheadIter.root, reduction);
 					}
 					else
 					{
@@ -1607,11 +1606,11 @@ TestResult test(
 						auto nul = File(nullFileName, "w+");
 						process.pid = spawnShell(tester, nul, nul, nul, null, Config.none, process.testdir);
 
-						prediction = lookaheadPredict(lookaheadRoot, reduction);
+						prediction = lookaheadPredict(lookaheadIter.root, reduction);
 					}
 
 					if (prediction)
-						lookaheadRoot = newRoot;
+						lookaheadIter.root = newRoot;
 					lookaheadIter.next(prediction);
 				}
 
