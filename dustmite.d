@@ -1216,7 +1216,9 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 
 		dead |= oldEntity.dead;
 
-		if (!oldEntity.clean)
+		// We can avoid copying the entity if it (or a parent) is dead, because edit()
+		// will not allow such an entity to be returned back to applyReduction.
+		if (!oldEntity.clean || dead)
 			return EditResult(oldEntity, dead);
 
 		auto newEntity = oldEntity.dup();
