@@ -1270,6 +1270,8 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 
 			void collect(Entity e, Address* addr)
 			{
+				if (e.dead)
+					return;
 				if (e.isFile)
 				{
 					// Skip noRemove files, except when they are the target
