@@ -1,4 +1,4 @@
-import std.stdio, x;
+import std.stdio;
 
 void fa()
 {

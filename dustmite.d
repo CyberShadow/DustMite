@@ -1183,36 +1183,52 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 	debug void checkClean(Entity e) { assert(e.clean, "Found dirty node before/after reduction"); foreach (c; e.children) checkClean(c); }
 	debug checkClean(root);
 	scope(success) debug checkClean(root);
-	Entity edit(const(Address)* addr) /// Returns a writable copy of the entity at the given Address
+
+	static struct EditResult
+	{
+		Entity entity; /// Entity at address. Never null.
+		bool dead;     /// Entity or one of its parents is dead.
+	}
+	EditResult editImpl(const(Address)* addr)
 	{
 		Entity* pEntity;
+		bool dead;
 		if (addr.parent)
 		{
-			auto parent = edit(addr.parent);
-			if (!parent)
-				return null; // Gone
+			auto result = editImpl(addr.parent);
+			auto parent = result.entity;
 			pEntity = &parent.children[addr.index];
+			dead = result.dead;
 		}
 		else
+		{
 			pEntity = &root;
+			dead = false;
+		}
 
 		auto oldEntity = *pEntity;
 
-		if (oldEntity.dead)
+		if (oldEntity.redirect)
 		{
-			if (oldEntity.redirect)
-				return edit(oldEntity.redirect);
-			return null; // Gone
+			assert(oldEntity.dead);
+			return editImpl(oldEntity.redirect);
 		}
 
+		dead |= oldEntity.dead;
+
 		if (!oldEntity.clean)
-			return oldEntity;
+			return EditResult(oldEntity, dead);
 
 		auto newEntity = oldEntity.dup();
 		newEntity.clean = false;
 		*pEntity = newEntity;
 
-		return newEntity;
+		return EditResult(newEntity, dead);
+	}
+	Entity edit(const(Address)* addr) /// Returns a writable copy of the entity at the given Address
+	{
+		auto r = editImpl(addr);
+		return r.dead ? null : r.entity;
 	}
 
 	final switch (r.type)

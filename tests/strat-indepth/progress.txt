@@ -509,7 +509,7 @@
 [ 0.6%] Remove [000011100] => No (cached)
 [ 0.6%] Remove [0000111000] => No
 [ 0.6%] Remove [00001110001] => No
-[ 0.6%] Remove [000011100010] => No (cached)
+[ 0.6%] Remove [000011100010] => No
 [ 1.8%] Remove [00001110000] => No
 [ 1.8%] Remove [000011100001] => No
 [ 2.4%] Remove [000011100000] => No
@@ -853,4 +853,4 @@
 [91.3%] Remove [00000000000] => No (cached)
 [91.3%] Remove [000000000001] => No (cached)
 [91.9%] Remove [000000000000] => No (cached)
-Done in 540 tests
+Done in 541 tests
