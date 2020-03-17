@@ -363,7 +363,12 @@ void recalculate(Entity e)
 	if (e.clean)
 		return;
 
-	if (!e.dead)
+	if (e.dead)
+	{
+		foreach (c; e.children)
+			recalculate(c);
+	}
+	else
 	{
 		e.descendants = 1;
 		e.hash = EntityHash.init;
