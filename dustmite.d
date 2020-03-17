@@ -1128,11 +1128,14 @@ void save(Entity root, string savedir)
 
 		void handleFile(string fn)
 		{
-			auto path = buildPath(dir, fn);
+			static Appender!(char[]) pathBuf;
+			pathBuf.clear();
+			pathBuf.put(dir.chainPath(fn));
+			auto path = pathBuf.data;
 			if (!exists(dirName(path)))
 				safeMkdir(dirName(path));
 
-			o.open(path, "wb");
+			o.open(cast(string)path, "wb");
 			binaryWriter = o.lockingBinaryWriter;
 		}
 
@@ -1421,7 +1424,7 @@ string applyReductionToPath(string path, Reduction reduction)
 	return path;
 }
 
-void autoRetry(void delegate() fun, string operation)
+void autoRetry(scope void delegate() fun, lazy const(char)[] operation)
 {
 	while (true)
 		try
@@ -1438,13 +1441,6 @@ void autoRetry(void delegate() fun, string operation)
 		}
 }
 
-/// Alternative way to check for file existence
-/// Files marked for deletion act as inexistant, but still prevent creation and appear in directory listings
-bool exists2(string path)
-{
-	return array(dirEntries(dirName(path), baseName(path), SpanMode.shallow)).length > 0;
-}
-
 void deleteAny(string path)
 {
 	if (exists(path))
@@ -1454,12 +1450,24 @@ void deleteAny(string path)
 		else
 			remove(path);
 	}
-	enforce(!exists(path) && !exists2(path), "Path still exists"); // Windows only marks locked directories for deletion
+
+	// The ugliest hacks, only for the ugliest operating system
+	version (Windows)
+	{
+		/// Alternative way to check for file existence
+		/// Files marked for deletion act as inexistant, but still prevent creation and appear in directory listings
+		bool exists2(string path)
+		{
+			return !dirEntries(dirName(path), baseName(path), SpanMode.shallow).empty;
+		}
+
+		enforce(!exists(path) && !exists2(path), "Path still exists"); // Windows only marks locked directories for deletion
+	}
 }
 
 void safeDelete(string path) { autoRetry({deleteAny(path);}, "delete " ~ path); }
 void safeRename(string src, string dst) { autoRetry({rename(src, dst);}, "rename " ~ src ~ " to " ~ dst); }
-void safeMkdir(string path) { autoRetry({mkdirRecurse(path);}, "mkdir " ~ path); }
+void safeMkdir(in char[] path) { autoRetry({mkdirRecurse(path);}, "mkdir " ~ path); }
 
 void safeReplace(string path, void delegate(string path) creator)
 {
