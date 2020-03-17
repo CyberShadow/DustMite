@@ -1940,29 +1940,40 @@ void convertRefs(Entity root)
 
 struct FindResult
 {
-	Entity entity;
-	const Address* address; // the "real" (no redirects) address
+	Entity entity;          /// null if gone
+	const Address* address; /// the "real" (no redirects) address, null if gone
 }
 
 FindResult findEntity(Entity root, const(Address)* addr)
 {
-	if (!addr.parent) // root
-		return FindResult(root, addr);
+	auto result = findEntityEx(root, addr);
+	if (result.dead)
+		return FindResult(null, null);
+	return FindResult(result.entity, result.address);
+}
 
-	auto r = findEntity(root, addr.parent);
-	if (!r.entity)
-		return FindResult(null, null); // Gone
+struct FindResultEx
+{
+	Entity entity;          /// never null
+	const Address* address; /// never null
+	bool dead;              /// a dead node has been traversed to get here
+}
+
+static FindResultEx findEntityEx(Entity root, const(Address)* addr)
+{
+	if (!addr.parent) // root
+		return FindResultEx(root, addr, root.dead);
+
+	auto r = findEntityEx(root, addr.parent);
 	auto e = r.entity.children[addr.index];
-	if (e.dead)
+	if (e.redirect)
 	{
-		if (e.redirect)
-			return findEntity(root, e.redirect);
-		else
-			return FindResult(null, null); // Gone
+		assert(e.dead);
+		return findEntityEx(root, e.redirect); // shed the "dead" flag here
 	}
 
 	addr = r.address.child(addr.index); // apply redirects in parents
-	return FindResult(e, addr);
+	return FindResultEx(e, addr, r.dead || e.dead); // accumulate the "dead" flag
 }
 
 void dumpSet(Entity root, string fn)
