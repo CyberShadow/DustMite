@@ -65,7 +65,7 @@ final class Entity
 	Entity[] children;     /// This node's children nodes, e.g. the statements of the statement block.
 	string tail;           /// This node's "tail", e.g. "}" for a statement block.
 
-	string filename;
+	string filename, contents;
 	@property bool isFile() { return filename != ""; }
 
 	bool isPair;           /// Internal hint for --dump output
@@ -80,7 +80,6 @@ final class Entity
 	size_t descendants;    /// [Computed] For progress display
 	EntityHash hash;       /// [Computed] Hashed value of this entity's content (as if it were saved to disk).
 	const(Address)*[] allDependents; /// [Computed] External dependents of this and child nodes
-	string contents;       /// [Computed] Full contents of this node.
 
 	this(string head = null, Entity[] children = null, string tail = null)
 	{
