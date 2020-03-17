@@ -367,8 +367,8 @@ void recalculate(Entity root)
 
 		if (e.dead)
 		{
-			foreach (c; e.children)
-				recalculate(c);
+			foreach (i, c; e.children)
+				scan(c, addr.child(i));
 		}
 		else
 		{
