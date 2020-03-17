@@ -360,18 +360,12 @@ size_t getMaxBreadth(Entity e)
 /// Update computed fields for dirty nodes
 void recalculate(Entity root)
 {
-	void scan(Entity e, Address *addr)
 	{
-		if (e.clean)
-			return;
+		void pass1(Entity e, Address *addr)
+		{
+			if (e.clean || e.dead)
+				return;
 
-		if (e.dead)
-		{
-			foreach (c; e.children)
-				recalculate(c);
-		}
-		else
-		{
 			e.descendants = e.dead ? 0 : 1;
 			e.hash = EntityHash.init;
 			e.hash.put(e.filename);
@@ -402,17 +396,89 @@ void recalculate(Entity root)
 
 			foreach (i, c; e.children)
 			{
-				scan(c, addr.child(i));
+				pass1(c, addr.child(i));
 				e.descendants += c.descendants;
 				e.hash.put(c.hash);
 				addDependents(c.allDependents);
 			}
 			e.hash.put(e.tail);
 		}
-
-		e.clean = true;
+		pass1(root, &rootAddress);
 	}
-	scan(root, &rootAddress);
+
+	{
+		// At the top-most dirty node, start a contiguous buffer
+		// which contains the concatenation of all child nodes.
+
+		char[] buf;
+		size_t pos;
+
+		void put(ref string s)
+		{
+			if (!s.length)
+				return;
+			assert(pos + s.length <= buf.length);
+			auto target = buf[pos .. pos + s.length];
+			target[] = s;
+			// s = cast(string)target; // TODO: is this a good idea?
+			pos += s.length;
+		}
+
+		// This runs in a second pass because we need to know the total length of nodes first.
+		void pass2(Entity e, bool inFile)
+		{
+			if (e.clean)
+			{
+				if (buf)
+					put(e.contents);
+				return;
+			}
+			if (e.dead)
+				return;
+
+			inFile |= e.isFile;
+
+			bool bufStarted;
+			if (inFile && !buf && e.hash.length)
+			{
+				buf = new char[e.hash.length];
+				pos = 0;
+				bufStarted = true;
+			}
+
+			auto start = pos;
+
+			put(e.filename); // for consistency with e.hash.length
+			put(e.head);
+			foreach (c; e.children)
+				pass2(c, inFile);
+			put(e.tail);
+
+			e.contents = cast(string)buf[start .. pos];
+
+			if (bufStarted)
+			{
+				assert(pos == buf.length);
+				buf = null;
+				pos = 0;
+			}
+		}
+		pass2(root, false);
+	}
+
+	{
+		void pass3(Entity e)
+		{
+			if (e.clean)
+				return;
+
+			foreach (i, c; e.children)
+				pass3(c);
+
+			e.clean = true;
+		}
+		pass3(root);
+	}
 }
 
 size_t checkDescendants(Entity e)
@@ -1063,91 +1129,31 @@ void obfuscate(ref Entity root, bool keepLength)
 	}
 }
 
-void dump(Writer)(Entity root, Writer writer)
-{
-	void dumpEntity(Entity e)
-	{
-		if (e.dead)
-			return;
-		if (e.isFile)
-		{
-			writer.handleFile(e.filename);
-			foreach (c; e.children)
-				dumpEntity(c);
-		}
-		else
-		{
-			if (e.head.length) writer.handleText(e.head);
-			foreach (c; e.children)
-				dumpEntity(c);
-			if (e.tail.length) writer.handleText(e.tail);
-		}
-	}
-
-	dumpEntity(root);
-}
-
-static struct FastWriter(Next) /// Accelerates Writer interface by bulking contiguous strings
-{
-	Next next;
-	immutable(char)* start, end;
-	void finish()
-	{
-		if (start != end)
-			next.handleText(start[0 .. end - start]);
-		start = end = null;
-	}
-	void handleFile(string s)
-	{
-		finish();
-		next.handleFile(s);
-	}
-	void handleText(string s)
-	{
-		if (s.ptr != end)
-		{
-			finish();
-			start = s.ptr;
-		}
-		end = s.ptr + s.length;
-	}
-	~this() { finish(); }
-}
-
 void save(Entity root, string savedir)
 {
 	safeDelete(savedir);
 	safeMkdir(savedir);
 
-	static struct DiskWriter
+	void dump(Entity e)
 	{
-		string dir;
-
-		File o;
-		typeof(o.lockingBinaryWriter()) binaryWriter;
-
-		void handleFile(string fn)
+		if (e.dead)
+			return;
+		if (e.isFile)
 		{
 			static Appender!(char[]) pathBuf;
 			pathBuf.clear();
-			pathBuf.put(dir.chainPath(fn));
+			pathBuf.put(savedir.chainPath(e.filename));
 			auto path = pathBuf.data;
 			if (!exists(dirName(path)))
 				safeMkdir(dirName(path));
-
-			o.open(cast(string)path, "wb");
-			binaryWriter = o.lockingBinaryWriter;
+			std.file.write(path, e.contents[e.filename.length .. $]);
 		}
-
-		void handleText(string s)
-		{
-			binaryWriter.put(s);
-		}
+		else
+			foreach (c; e.children)
+				dump(c);
 	}
-	FastWriter!DiskWriter writer;
-	writer.next.dir = savedir;
-	dump(root, &writer);
-	writer.finish();
+
+	dump(root);
 }
 
 Entity entityAt(Entity root, size_t[] address) // TODO: replace uses with findEntity and remove
