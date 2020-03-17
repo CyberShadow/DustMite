@@ -38,7 +38,7 @@ string dirSuffix(string suffix) { return (dir.absolutePath().buildNormalizedPath
 size_t maxBreadth;
 size_t origDescendants;
 int tests; bool foundAnything;
-bool noSave, trace, noRedirect;
+bool noSave, trace, noRedirect, doDump;
 string strategy = "inbreadth";
 
 struct Times { StopWatch total, load, testSave, resultSave, test, clean, globalCache, misc; }
@@ -107,7 +107,7 @@ auto nullReduction = Reduction(Reduction.Type.None);
 
 int main(string[] args)
 {
-	bool force, dump, dumpHtml, showTimes, stripComments, obfuscate, keepLength, showHelp, showVersion, noOptimize;
+	bool force, dumpHtml, showTimes, stripComments, obfuscate, keepLength, showHelp, showVersion, noOptimize;
 	string coverageDir;
 	string[] reduceOnly, noRemoveStr, splitRules;
 	uint lookaheadCount, tabWidth = 8;
@@ -134,7 +134,7 @@ int main(string[] args)
 		"keep-length", &keepLength,
 		"strategy", &strategy,
 		"split", &splitRules,
-		"dump", &dump,
+		"dump", &doDump,
 		"dump-html", &dumpHtml,
 		"times", &showTimes,
 		"noredirect|no-redirect", &noRedirect,
@@ -274,7 +274,7 @@ EOS");
 	recalculate(root);
 	resetProgress(root);
 
-	if (dump)
+	if (doDump)
 		dumpSet(root, dirSuffix("dump"));
 	if (dumpHtml)
 		dumpToHtml(root, dirSuffix("html"));
@@ -1690,6 +1690,8 @@ void saveTrace(Entity root, Reduction reduction, string dir, bool result)
 	string countStr = format("%08d-#%08d-%d", count++, reduction.target ? reduction.target.id : 0, result ? 1 : 0);
 	auto traceDir = buildPath(dir, countStr);
 	save(root, traceDir);
+	if (doDump && result)
+		dumpSet(root, traceDir ~ ".dump");
 }
 
 void applyNoRemoveMagic(Entity root)
