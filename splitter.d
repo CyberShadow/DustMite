@@ -525,7 +525,7 @@ struct DSplitter
 				advance();
 				break;
 			case 'r':
-				if (consume(`r"`))
+				if (consume(`"`))
 				{
 					result = Token.other;
 					while (advance() != '"')
