@@ -358,32 +358,61 @@ size_t getMaxBreadth(Entity e)
 }
 
 /// Update computed fields for dirty nodes
-void recalculate(Entity e)
+void recalculate(Entity root)
 {
-	if (e.clean)
-		return;
+	void scan(Entity e, Address *addr)
+	{
+		if (e.clean)
+			return;
 
-	if (e.dead)
-	{
-		foreach (c; e.children)
-			recalculate(c);
-	}
-	else
-	{
-		e.descendants = 1;
-		e.hash = EntityHash.init;
-		e.hash.put(e.filename);
-		e.hash.put(e.head);
-		foreach (c; e.children)
+		if (e.dead)
 		{
-			recalculate(c);
-			e.descendants += c.descendants;
-			e.hash.put(c.hash);
+			foreach (c; e.children)
+				recalculate(c);
 		}
-		e.hash.put(e.tail);
-	}
+		else
+		{
+			e.descendants = e.dead ? 0 : 1;
+			e.hash = EntityHash.init;
+			e.hash.put(e.filename);
+			e.hash.put(e.head);
+			e.allDependents = null;
 
-	e.clean = true;
+			void addDependents(R)(R range)
+			{
+				auto oldDependents = e.allDependents;
+			dependentLoop:
+				foreach (const(Address)* d; range)
+				{
+					d = findEntity(root, d).address;
+					if (!d)
+						continue; // Gone
+					if (d.startsWith(addr))
+						continue; // Internal
+
+					// Deduplicate
+					foreach (o; oldDependents)
+						if (equal(d, o))
+							continue dependentLoop;
+
+					e.allDependents ~= d;
+				}
+			}
+			addDependents(e.dependents.map!(d => d.address));
+
+			foreach (i, c; e.children)
+			{
+				scan(c, addr.child(i));
+				e.descendants += c.descendants;
+				e.hash.put(c.hash);
+				addDependents(c.allDependents);
+			}
+			e.hash.put(e.tail);
+		}
+
+		e.clean = true;
+	}
+	scan(root, &rootAddress);
 }
 
 size_t checkDescendants(Entity e)
@@ -1148,6 +1177,17 @@ bool equal(const(Address)* a, const(Address)* b)
 	return equal(a.parent, b.parent);
 }
 
+/// Returns true if the `haystack` address starts with the `needle` address,
+/// i.e. the entity that needle points at is a child of the entity that haystack points at.
+bool startsWith(const(Address)* haystack, const(Address)* needle)
+{
+	if (haystack.depth < needle.depth)
+		return false;
+	while (haystack.depth > needle.depth)
+		haystack = haystack.parent;
+	return equal(haystack, needle);
+}
+
 /// Try specified reduction. If it succeeds, apply it permanently and save intermediate result.
 bool tryReduction(ref Entity root, Reduction r)
 {
@@ -1252,24 +1292,14 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 		case Reduction.Type.Remove:
 		{
 			assert(!findEntity(root, r.address.convertAddress).entity.dead, "Trying to remove a tombstone");
-			void remove(Address* address)
+			void remove(const(Address)* address)
 			{
 				auto n = edit(address);
 				if (!n)
 					return; // This dependency was removed by something else
 				n.dead = true; // Mark as dead early, so that we don't waste time processing dependencies under this node
-				void removeDependents(Entity e)
-				{
-					foreach (ref dep; e.dependents)
-						remove(dep.address);
-				}
-				void removeChildren(Entity e)
-				{
-					foreach (c; e.children)
-						removeChildren(c);
-					removeDependents(e);
-				}
-				removeChildren(n);
+				foreach (dep; n.allDependents)
+					remove(dep);
 				n.kill(); // Convert to tombstone
 			}
 			remove(r.address.convertAddress);
@@ -2001,6 +2031,14 @@ static FindResultEx findEntityEx(Entity root, const(Address)* addr)
 
 	addr = r.address.child(addr.index); // apply redirects in parents
 	return FindResultEx(e, addr, r.dead || e.dead); // accumulate the "dead" flag
+}
+
+struct AddressRange
+{
+	const(Address)*address;
+	bool empty() { return !address.parent; }
+	size_t front() { return address.index; }
+	void popFront() { address = address.parent; }
 }
 
 void dumpSet(Entity root, string fn)

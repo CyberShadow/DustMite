@@ -79,6 +79,7 @@ final class Entity
 	int id;                /// For diagnostics
 	size_t descendants;    /// [Computed] For progress display
 	EntityHash hash;       /// [Computed] Hashed value of this entity's content (as if it were saved to disk).
+	const(Address)*[] allDependents; /// [Computed] External dependents of this and child nodes
 
 	this(string head = null, Entity[] children = null, string tail = null)
 	{
@@ -122,6 +123,7 @@ final class Entity
 		isPair = false;
 		descendants = 0;
 		hash = EntityHash.init;
+		allDependents = null;
 		dead = true;
 	}
 
