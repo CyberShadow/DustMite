@@ -363,28 +363,42 @@ void recalculate(Entity e)
 	if (e.clean)
 		return;
 
-	e.descendants = e.dead ? 0 : 1;
-	e.hash = EntityHash.init;
-	e.hash.put(e.filename);
-	e.hash.put(e.head);
-	foreach (c; e.children)
+	if (!e.dead)
 	{
-		recalculate(c);
-		e.descendants += c.descendants;
-		e.hash.put(c.hash);
+		e.descendants = 1;
+		e.hash = EntityHash.init;
+		e.hash.put(e.filename);
+		e.hash.put(e.head);
+		foreach (c; e.children)
+		{
+			recalculate(c);
+			e.descendants += c.descendants;
+			e.hash.put(c.hash);
+		}
+		e.hash.put(e.tail);
 	}
-	e.hash.put(e.tail);
 
 	e.clean = true;
 }
 
 size_t checkDescendants(Entity e)
 {
+	if (e.dead)
+		return 0;
 	size_t n = e.dead ? 0 : 1;
 	foreach (c; e.children)
 		n += checkDescendants(c);
 	assert(e.descendants == n, "Wrong descendant count: expected %d, found %d".format(e.descendants, n));
 	return n;
+}
+
+bool addressDead(Entity root, size_t[] address) // TODO: this function shouldn't exist
+{
+	if (root.dead)
+		return true;
+	if (!address.length)
+		return false;
+	return addressDead(root.children[address[0]], address[1..$]);
 }
 
 
@@ -414,7 +428,7 @@ struct ReductionIterator
 	void nextEntity(bool success) /// Iterate strategy until the next non-dead node
 	{
 		strategy.next(success);
-		while (!strategy.done && root.entityAt(strategy.front).dead)
+		while (!strategy.done && root.addressDead(strategy.front))
 			strategy.next(false);
 	}
 
@@ -1019,6 +1033,8 @@ void dump(Writer)(Entity root, Writer writer)
 {
 	void dumpEntity(Entity e)
 	{
+		if (e.dead)
+			return;
 		if (e.isFile)
 		{
 			writer.handleFile(e.filename);

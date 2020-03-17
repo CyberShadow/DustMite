@@ -118,7 +118,6 @@ final class Entity
 	void kill()            /// Convert to tombstone/redirect
 	{
 		head = tail = filename = contents = null;
-		children = null;
 		dependents = null;
 		isPair = false;
 		descendants = 0;
