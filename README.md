@@ -1,4 +1,4 @@
-DustMite
+DustMite [![Build Status](https://travis-ci.org/CyberShadow/DustMite.svg?branch=master)](https://travis-ci.org/CyberShadow/DustMite) [![Coverage Status](https://coveralls.io/repos/github/CyberShadow/DustMite/badge.svg?branch=master)](https://coveralls.io/github/CyberShadow/DustMite?branch=master)
 ========
 
 DustMite is a general-purpose data reduction tool.
