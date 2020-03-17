@@ -655,6 +655,8 @@ class IterativeStrategy : SimpleStrategy
 /// Return false if no address at that level could be found.
 bool findAddressAtLevel(size_t[] address, Entity root)
 {
+	if (root.dead)
+		return false;
 	if (!address.length)
 		return true;
 	foreach_reverse (i, child; root.children)
@@ -673,7 +675,7 @@ bool findAddressAtLevel(size_t[] address, Entity root)
 /// Return false if no more addresses at that level could be found.
 bool nextAddressInLevel(size_t[] address, lazy Entity root)
 {
-	if (!address.length)
+	if (!address.length || root.dead)
 		return false;
 	if (nextAddressInLevel(address[1..$], root.children[address[0]]))
 		return true;
@@ -697,6 +699,9 @@ bool nextAddressInLevel(size_t[] address, lazy Entity root)
 /// Return false if no more addresses could be found.
 bool nextAddress(ref size_t[] address, lazy Entity root, bool descend)
 {
+	if (root.dead)
+		return false;
+
 	if (!address.length)
 	{
 		if (descend && root.children.length)
