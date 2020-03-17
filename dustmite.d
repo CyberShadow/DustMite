@@ -1989,7 +1989,7 @@ void dumpSet(Entity root, string fn)
 	{
 		foreach (d; e.dependents)
 		{
-			auto dependent = findEntity(root, d.address).entity;
+			auto dependent = findEntityEx(root, d.address).entity;
 			if (dependent)
 				dependencies[dependent.id] ~= e.id;
 		}
@@ -1997,7 +1997,7 @@ void dumpSet(Entity root, string fn)
 			scanDependencies(c);
 		if (e.redirect)
 		{
-			auto target = findEntity(root, e.redirect).entity;
+			auto target = findEntityEx(root, e.redirect).entity;
 			if (target)
 				redirects[target.id] = true;
 		}
@@ -2010,15 +2010,17 @@ void dumpSet(Entity root, string fn)
 
 		// if (!fileLevel) { f.writeln(prefix, "[ ... ]"); continue; }
 
-		f.write(prefix);
+		f.write(
+			prefix,
+			"[",
+			e.noRemove ? "!" : "",
+			e.dead ? "X" : "",
+		);
 		if (e.children.length == 0)
 		{
 			f.write(
-				"[",
-				e.noRemove ? "!" : "",
 				" ",
-				e.dead ? "X " : "",
-				e.redirect ? findEntity(root, e.redirect).entity ? "=> " ~ text(findEntity(root, e.redirect).entity.id) ~ " " : "=> X " : "",
+				e.redirect ? "-> " ~ text(findEntityEx(root, e.redirect).entity.id) ~ " " : "",
 				e.isFile ? e.filename ? printableFN(e.filename) ~ " " : null : e.head ? printable(e.head) ~ " " : null,
 				e.tail ? printable(e.tail) ~ " " : null,
 				e.comment ? "/* " ~ e.comment ~ " */ " : null,
@@ -2027,7 +2029,7 @@ void dumpSet(Entity root, string fn)
 		}
 		else
 		{
-			f.writeln("[", e.noRemove ? "!" : "", e.comment ? " // " ~ e.comment : null);
+			f.writeln(e.comment ? " // " ~ e.comment : null);
 			if (e.isFile) f.writeln(prefix, "  ", printableFN(e.filename));
 			if (e.head) f.writeln(prefix, "  ", printable(e.head));
 			foreach (c; e.children)
