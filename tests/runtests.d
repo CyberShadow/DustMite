@@ -43,7 +43,7 @@ void main(string[] args)
 	}
 
 	auto dustmite = buildPath("..", "dustmite");
-	immutable flags = ["-g", "-debug", "-cov", "-version=testsuite"];
+	immutable flags = ["-g", "-debug", "-unittest", "-cov", "-version=testsuite"];
 	buildPath("..", "cov").rmdirRecurse.collectException;
 
 	stderr.writeln("Building...");
