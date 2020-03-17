@@ -323,7 +323,7 @@ EOS");
 	duration = dur!"msecs"(duration.total!"msecs"); // truncate anything below ms, users aren't interested in that
 	if (foundAnything)
 	{
-		if (root.children.length)
+		if (!root.dead)
 		{
 			if (noSave)
 				measure!"resultSave"({safeSave(root, resultDir);});
