@@ -673,7 +673,7 @@ bool findAddressAtLevel(size_t[] address, Entity root)
 /// Find the next address at the depth of address.length,
 /// and update address[] accordingly.
 /// Return false if no more addresses at that level could be found.
-bool nextAddressInLevel(size_t[] address, lazy Entity root)
+bool nextAddressInLevel(size_t[] address, Entity root)
 {
 	if (!address.length || root.dead)
 		return false;
@@ -697,7 +697,7 @@ bool nextAddressInLevel(size_t[] address, lazy Entity root)
 /// (going depth-first). Update address accordingly.
 /// If descend is false, then skip addresses under the given one.
 /// Return false if no more addresses could be found.
-bool nextAddress(ref size_t[] address, lazy Entity root, bool descend)
+bool nextAddress(ref size_t[] address, Entity root, bool descend)
 {
 	if (root.dead)
 		return false;
