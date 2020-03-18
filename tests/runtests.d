@@ -83,6 +83,11 @@ void main(string[] args)
 		auto optsFile = test~"/opts.txt";
 		if (optsFile.exists)
 			opts = optsFile.readText().splitLines();
+		if (opts.canFind("--in-place"))
+		{
+			copyRecurse(target, reducedDir);
+			target = reducedDir;
+		}
 
 		auto outputFile = test~"/output.txt";
 		File output;
@@ -116,5 +121,18 @@ void main(string[] args)
 			if (line.startsWith("Done in "))
 				progress.writeln(line.split()[0..4].join(" "));
 		}
+	}
+}
+
+void copyRecurse(string from, string to)
+{
+	mkdir(to);
+	foreach (de; dirEntries(from, SpanMode.breadth))
+	{
+		auto target = to.buildPath(de.name.absolutePath.relativePath(from.absolutePath));
+		if (de.isDir)
+			mkdir(target);
+		else
+			copy(de.name, target);
 	}
 }

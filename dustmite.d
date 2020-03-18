@@ -107,7 +107,7 @@ auto nullReduction = Reduction(Reduction.Type.None);
 
 int main(string[] args)
 {
-	bool force, dumpHtml, showTimes, stripComments, obfuscate, keepLength, showHelp, showVersion, noOptimize;
+	bool force, dumpHtml, showTimes, stripComments, obfuscate, keepLength, showHelp, showVersion, noOptimize, inPlace;
 	string coverageDir;
 	string[] reduceOnly, noRemoveStr, splitRules;
 	uint lookaheadCount, tabWidth = 8;
@@ -143,6 +143,7 @@ int main(string[] args)
 		"nosave|no-save", &noSave, // for research
 		"nooptimize|no-optimize", &noOptimize, // for research
 		"tab-width", &tabWidth,
+		"i|in-place", &inPlace,
 		"h|help", &showHelp,
 		"V|version", &showVersion,
 	);
@@ -206,6 +207,7 @@ Less interesting options:
   --cache DIR        Use DIR as persistent disk cache
                        (in addition to memory cache)
   --trace            Save all attempted reductions to DIR.trace
+  -i, --in-place     Overwrite input with results
   --no-save          Disable saving in-progress results
   --no-optimize      Disable tree optimization step
                        (may be useful with --dump)
@@ -285,11 +287,16 @@ EOS");
 		return 0;
 	}
 
-	resultDir = dirSuffix("reduced");
-	if (resultDir.exists)
+	if (inPlace)
+		resultDir = dir;
+	else
 	{
-		writeln("Hint: read https://github.com/CyberShadow/DustMite/wiki#result-directory-already-exists");
-		throw new Exception("Result directory already exists");
+		resultDir = dirSuffix("reduced");
+		if (resultDir.exists)
+		{
+			writeln("Hint: read https://github.com/CyberShadow/DustMite/wiki#result-directory-already-exists");
+			throw new Exception("Result directory already exists");
+		}
 	}
 
 	auto nullResult = test(root, nullReduction);
