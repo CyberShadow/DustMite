@@ -1,0 +1,2 @@
+--remove
+\s*\b(?:static\s+)?import [^;]*;\s*

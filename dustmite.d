@@ -157,6 +157,7 @@ int main(string[] args)
 	getopt(args,
 		"force", &force,
 		"reduceonly|reduce-only", (string opt, string value) { removeRules ~= RemoveRule(Regex!char.init, value, true); },
+		"remove"                , (string opt, string value) { removeRules ~= RemoveRule(regex(value, "mg"), null, true); },
 		"noremove|no-remove"    , (string opt, string value) { removeRules ~= RemoveRule(regex(value, "mg"), null, false); },
 		"strip-comments", &stripComments,
 		"coverage", &coverageDir,
@@ -204,6 +205,8 @@ and anything else otherwise.
 Supported options:
   --force            Force reduction of unusual files
   --reduce-only MASK Only reduce paths glob-matching MASK
+                       (may be used multiple times)
+  --remove REGEXP    Only reduce blocks covered by REGEXP
                        (may be used multiple times)
   --no-remove REGEXP Do not reduce blocks containing REGEXP
                        (may be used multiple times)

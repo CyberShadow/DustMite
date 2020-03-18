@@ -1,0 +1,20 @@
+import a;
+import b, c;
+import d, e, f;
+import g : one;
+import hh = h;
+import i : ione = one;
+static import j;
+static import k, l;
+static import l, m, n;
+import o;
+import p;
+enum unused = 1;
+import q, r;
+enum used = 1;
+import s : uone = one;
+import t, u;
+import v, w, x;import y;
+import z;
+
+pragma(msg, one + ione + m.one + used == 4);
