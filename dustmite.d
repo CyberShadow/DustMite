@@ -1959,8 +1959,9 @@ void saveTrace(Entity root, Reduction[] reductions, string dir, bool result)
 
 void applyNoRemoveMagic(Entity root)
 {
-	enum MAGIC_START = "DustMiteNoRemoveStart";
-	enum MAGIC_STOP  = "DustMiteNoRemoveStop";
+	enum MAGIC_PREFIX = "DustMiteNoRemove";
+	enum MAGIC_START = MAGIC_PREFIX ~ "Start";
+	enum MAGIC_STOP  = MAGIC_PREFIX ~ "Stop";
 
 	bool state = false;
 
