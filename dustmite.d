@@ -38,7 +38,7 @@ string dirSuffix(string suffix) { return (dir.absolutePath().buildNormalizedPath
 size_t maxBreadth;
 size_t origDescendants;
 int tests; bool foundAnything;
-bool noSave, trace, noRedirect, doDump;
+bool noSave, trace, noRedirect, doDump, whiteout;
 string strategy = "inbreadth";
 
 struct Times { StopWatch total, load, testSave, resultSave, test, clean, globalCache, misc; }
@@ -160,6 +160,7 @@ int main(string[] args)
 		"remove"                , (string opt, string value) { removeRules ~= RemoveRule(regex(value, "mg"), null, true); },
 		"noremove|no-remove"    , (string opt, string value) { removeRules ~= RemoveRule(regex(value, "mg"), null, false); },
 		"strip-comments", &stripComments,
+		"whiteout|white-out", &whiteout,
 		"coverage", &coverageDir,
 		"obfuscate", &obfuscate,
 		"fuzz", &fuzz,
@@ -211,6 +212,7 @@ Supported options:
   --no-remove REGEXP Do not reduce blocks containing REGEXP
                        (may be used multiple times)
   --strip-comments   Attempt to remove comments from source code
+  --white-out        Replace deleted text with spaces to preserve line numbers
   --coverage DIR     Load .lst files corresponding to source files from DIR
   --fuzz             Instead of reducing, fuzz the input by performing random
                        changes until TESTER returns 0
@@ -419,26 +421,43 @@ size_t getMaxBreadth(Entity e)
 /// Update computed fields for dirty nodes
 void recalculate(Entity root)
 {
-	void scan(Entity e, Address *addr)
+	// Pass 1 - length + hash (and some other calculated fields)
 	{
-		if (e.clean)
-			return;
+		void pass1(Entity e, Address *addr)
+		{
+			if (e.clean)
+				return;
 
-		if (e.dead)
-		{
-			foreach (i, c; e.children)
-				scan(c, addr.child(i));
-		}
-		else
-		{
-			e.descendants = e.dead ? 0 : 1;
-			e.hash = EntityHash.init;
-			e.hash.put(e.filename);
-			e.hash.put(e.head);
 			e.allDependents = null;
+			e.descendants = 1;
+			e.hash = e.deadHash = EntityHash.init;
+			e.contents = e.deadContents = null;
+
+			void putString(string s)
+			{
+				e.hash.put(s);
+
+				// There is a circular dependency here.
+				// Calculating the whited-out string efficiently
+				// requires the total length of all children,
+				// which is conveniently included in the hash.
+				// However, calculating the hash requires knowing
+				// the whited-out string that will be written.
+				// Break the cycle by calculating the hash of the
+				// redundantly whited-out string explicitly here.
+				if (whiteout)
+					foreach (c; s)
+						e.deadHash.put(c.isWhite ? c : ' ');
+			}
+
+			putString(e.filename);
+			putString(e.head);
 
 			void addDependents(R)(R range)
 			{
+				if (e.dead)
+					return;
+
 				auto oldDependents = e.allDependents;
 			dependentLoop:
 				foreach (const(Address)* d; range)
@@ -457,21 +476,118 @@ void recalculate(Entity root)
 					e.allDependents ~= d;
 				}
 			}
+			if (e.dead) assert(!e.dependents);
 			addDependents(e.dependents.map!(d => d.address));
 
 			foreach (i, c; e.children)
 			{
-				scan(c, addr.child(i));
+				pass1(c, addr.child(i));
 				e.descendants += c.descendants;
 				e.hash.put(c.hash);
+				e.deadHash.put(c.deadHash);
 				addDependents(c.allDependents);
 			}
-			e.hash.put(e.tail);
+			putString(e.tail);
+
+			assert(e.deadHash.length == (whiteout ? e.hash.length : 0));
+
+			if (e.dead)
+			{
+				e.descendants = 0;
+				// Switch to the "dead" variant of this subtree's hash at this point.
+				// This is irreversible (in child nodes).
+				e.hash = e.deadHash;
+			}
+		}
+		pass1(root, &rootAddress);
+	}
+
+	// --white-out pass - calculate deadContents
+	if (whiteout)
+	{
+		// At the top-most dirty node, start a contiguous buffer
+		// which contains the concatenation of all child nodes.
+
+		char[] buf;
+		size_t pos;
+
+		void putString(string s)
+		{
+			foreach (char c; s)
+			{
+				if (!isWhite(c))
+					c = ' ';
+				buf[pos++] = c;
+			}
+		}
+		void putWhite(string s)
+		{
+			foreach (c; s)
+				buf[pos++] = c;
 		}
 
-		e.clean = true;
+		// This needs to run in a second pass because we
+		// need to know the total length of nodes first.
+		void passWO(Entity e, bool inFile)
+		{
+			if (e.clean)
+			{
+				if (buf)
+					putWhite(e.deadContents);
+				return;
+			}
+
+			inFile |= e.isFile;
+
+			assert(e.hash.length == e.deadHash.length);
+
+			bool bufStarted;
+			// We start a buffer even when outside of a file,
+			// for efficiency (use one buffer across many files).
+			if (!buf && e.deadHash.length)
+			{
+				buf = new char[e.deadHash.length];
+				pos = 0;
+				bufStarted = true;
+			}
+
+			auto start = pos;
+
+			putString(e.filename);
+			putString(e.head);
+			foreach (c; e.children)
+				passWO(c, inFile);
+			putString(e.tail);
+			assert(e.deadHash.length == e.hash.length);
+
+			e.deadContents = cast(string)buf[start .. pos];
+
+			if (bufStarted)
+			{
+				assert(pos == buf.length);
+				buf = null;
+				pos = 0;
+			}
+
+			if (inFile)
+				e.contents = e.deadContents;
+		}
+		passWO(root, false);
 	}
-	scan(root, &rootAddress);
+
+	{
+		void passFinal(Entity e)
+		{
+			if (e.clean)
+				return;
+
+			foreach (c; e.children)
+				passFinal(c);
+
+			e.clean = true;
+		}
+		passFinal(root);
+	}
 }
 
 size_t checkDescendants(Entity e)
@@ -1185,7 +1301,11 @@ void dump(Writer)(Entity root, Writer writer)
 	void dumpEntity(Entity e)
 	{
 		if (e.dead)
-			return;
+		{
+			if (e.contents.length)
+				writer.handleText(e.contents[e.filename.length .. $]);
+		}
+		else
 		if (e.isFile)
 		{
 			writer.handleFile(e.filename);
@@ -1437,10 +1557,22 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 			break;
 		}
 		case Reduction.Type.Unwrap:
+		{
 			assert(!findEntity(root, r.address).entity.dead, "Trying to unwrap a tombstone");
+			bool changed;
 			with (edit(r.address))
-				head = tail = null;
+				foreach (value; [&head, &tail])
+				{
+					string newValue = whiteout
+						? cast(string)((*value).representation.map!(c => isWhite(c) ? char(c) : ' ').array)
+						: null;
+					changed |= *value != newValue;
+					*value = newValue;
+				}
+			if (!changed)
+				root = origRoot;
 			break;
+		}
 		case Reduction.Type.Concat:
 		{
 			// Move all nodes from all files to a single file (the target).

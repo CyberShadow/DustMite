@@ -80,6 +80,8 @@ final class Entity
 	size_t descendants;    /// [Computed] For progress display
 	EntityHash hash;       /// [Computed] Hashed value of this entity's content (as if it were saved to disk).
 	const(Address)*[] allDependents; /// [Computed] External dependents of this and child nodes
+	string deadContents;   /// [Computed] For --white-out - all of this node's contents, with non-whitespace replaced by whitespace
+	EntityHash deadHash;   /// [Computed] Hash of deadContents
 
 	this(string head = null, Entity[] children = null, string tail = null)
 	{
@@ -118,11 +120,9 @@ final class Entity
 
 	void kill()            /// Convert to tombstone/redirect
 	{
-		head = tail = filename = contents = null;
 		dependents = null;
 		isPair = false;
 		descendants = 0;
-		hash = EntityHash.init;
 		allDependents = null;
 		dead = true;
 	}
