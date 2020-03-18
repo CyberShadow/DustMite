@@ -132,11 +132,14 @@ Address rootAddress;
 
 auto nullReduction = Reduction(Reduction.Type.None);
 
+struct RemoveRule { Regex!char regexp; string shellGlob; bool remove; }
+
 int main(string[] args)
 {
 	bool force, dumpHtml, showTimes, stripComments, obfuscate, fuzz, keepLength, showHelp, showVersion, noOptimize, inPlace;
 	string coverageDir;
-	string[] reduceOnly, noRemoveStr, splitRules;
+	RemoveRule[] removeRules;
+	string[] splitRules;
 	uint lookaheadCount, tabWidth = 8;
 
 	args = args.filter!(
@@ -153,8 +156,8 @@ int main(string[] args)
 
 	getopt(args,
 		"force", &force,
-		"reduceonly|reduce-only", &reduceOnly,
-		"noremove|no-remove", &noRemoveStr,
+		"reduceonly|reduce-only", (string opt, string value) { removeRules ~= RemoveRule(Regex!char.init, value, true); },
+		"noremove|no-remove"    , (string opt, string value) { removeRules ~= RemoveRule(regex(value, "mg"), null, false); },
 		"strip-comments", &stripComments,
 		"coverage", &coverageDir,
 		"obfuscate", &obfuscate,
@@ -294,7 +297,7 @@ EOS");
 	enforce(root.children.length, "No files in specified directory");
 
 	applyNoRemoveMagic(root);
-	applyNoRemoveRegex(root, noRemoveStr, reduceOnly);
+	applyNoRemoveRules(root, removeRules);
 	applyNoRemoveDeps(root);
 	if (coverageDir)
 		loadCoverage(root, coverageDir);
@@ -1990,16 +1993,16 @@ void applyNoRemoveMagic(Entity root)
 	scan(root);
 }
 
-void applyNoRemoveRegex(Entity root, string[] noRemoveStr, string[] reduceOnly)
+void applyNoRemoveRules(Entity root, RemoveRule[] removeRules)
 {
-	auto noRemove = array(map!((string s) { return regex(s, "mg"); })(noRemoveStr));
+	if (!removeRules.length)
+		return;
 
-	void mark(Entity e)
-	{
-		e.noRemove = true;
-		foreach (c; e.children)
-			mark(c);
-	}
+	// By default, for content not covered by any of the specified
+	// rules, do the opposite of the first rule.
+	// I.e., if the default rule is "remove only", then by default
+	// don't remove anything except what's specified by the rule.
+	bool defaultRemove = !removeRules.front.remove;
 
 	auto files = root.isFile ? [root] : root.children;
 
@@ -2007,69 +2010,49 @@ void applyNoRemoveRegex(Entity root, string[] noRemoveStr, string[] reduceOnly)
 	{
 		assert(f.isFile);
 
-		if
-		(
-			(reduceOnly.length && !reduceOnly.any!(mask => globMatch(f.filename, mask)))
-		||
-			(noRemove.any!(a => !match(f.filename, a).empty))
-		)
+		// Check file name
+		bool removeFile = defaultRemove;
+		foreach (rule; removeRules)
 		{
-			mark(f);
-			root.noRemove = true;
-			continue;
+			if (
+				(rule.shellGlob && f.filename.globMatch(rule.shellGlob))
+			||
+				(rule.regexp !is Regex!char.init && f.filename.match(rule.regexp))
+			)
+				removeFile = rule.remove;
 		}
 
-		immutable(char)*[] starts, ends;
+		auto removeChar = new bool[f.contents.length];
+		removeChar[] = removeFile;
 
-		foreach (r; noRemove)
-			foreach (c; match(f.contents, r))
-			{
-				assert(c.hit.ptr >= f.contents.ptr && c.hit.ptr < f.contents.ptr+f.contents.length);
-				starts ~= c.hit.ptr;
-				ends ~= c.hit.ptr + c.hit.length;
-			}
-
-		starts.sort();
-		ends.sort();
-
-		int noRemoveLevel = 0;
+		foreach (rule; removeRules)
+			if (rule.regexp !is Regex!char.init)
+				foreach (m; f.contents.matchAll(rule.regexp))
+				{
+					auto start = m.hit.ptr - f.contents.ptr;
+					auto end = start + m.hit.length;
+					removeChar[start .. end] = rule.remove;
+				}
 
 		bool scanString(string s)
 		{
 			if (!s.length)
-				return noRemoveLevel > 0;
-
-			auto start = s.ptr;
+				return true;
+			auto start = s.ptr - f.contents.ptr;
 			auto end = start + s.length;
-			assert(start >= f.contents.ptr && end <= f.contents.ptr+f.contents.length);
-
-			while (starts.length && starts[0] < end)
-			{
-				noRemoveLevel++;
-				starts = starts[1..$];
-			}
-			bool result = noRemoveLevel > 0;
-			while (ends.length && ends[0] <= end)
-			{
-				noRemoveLevel--;
-				ends = ends[1..$];
-			}
-			return result;
+			return removeChar[start .. end].all;
 		}
 
 		bool scan(Entity e)
 		{
-			bool result = false;
-			if (scanString(e.head))
-				result = true;
+			bool remove = true;
+			remove &= scanString(e.head);
 			foreach (c; e.children)
-				if (scan(c))
-					result = true;
-			if (scanString(e.tail))
-				result = true;
-			if (result)
+				remove &= scan(c);
+			remove &= scanString(e.tail);
+			if (!remove)
 				e.noRemove = root.noRemove = true;
-			return result;
+			return remove;
 		}
 
 		scan(f);
