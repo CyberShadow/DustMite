@@ -212,10 +212,10 @@ Supported options:
                        (may be used multiple times)
   --strip-comments   Attempt to remove comments from source code.
   --coverage DIR     Load .lst files corresponding to source files from DIR
-  --obfuscate        Instead of reducing, obfuscate the input by replacing
-                       words with random substitutions
   --fuzz             Instead of reducing, fuzz the input by performing random
                        changes until TESTER returns 0
+  --obfuscate        Instead of reducing, obfuscate the input by replacing
+                       words with random substitutions
   --keep-length      Preserve word length when obfuscating
   --split MASK:MODE  Parse and reduce files specified by MASK using the given
                        splitter. Can be repeated. MODE must be one of:
