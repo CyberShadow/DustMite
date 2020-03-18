@@ -301,7 +301,7 @@ EOS");
 		}
 	}
 
-	auto nullResult = test(root, nullReduction);
+	auto nullResult = test(root, [nullReduction]);
 	if (!nullResult.success)
 	{
 		auto testerFile = dir.buildNormalizedPath(tester);
@@ -1226,7 +1226,7 @@ bool tryReduction(ref Entity root, Reduction r)
 		writeln(r, " => N/A");
 		return false;
 	}
-	if (test(newRoot, r).success)
+	if (test(newRoot, [r]).success)
 	{
 		foundAnything = true;
 		root = newRoot;
@@ -1576,11 +1576,11 @@ struct TestResult
 }
 
 TestResult test(
-	Entity root,         /// New root, with reduction already applied
-	Reduction reduction, /// For display purposes only
+	Entity root,            /// New root, with reduction already applied
+	Reduction[] reductions, /// For display purposes only
 )
 {
-	write(reduction, " => "); stdout.flush();
+	writef("%-(%s, %) => ", reductions); stdout.flush();
 
 	EntityHash digest = root.hash;
 
@@ -1767,16 +1767,20 @@ TestResult test(
 	}
 
 	auto result = ramCached(diskCached(lookahead(doTest())));
-	if (trace) saveTrace(root, reduction, dirSuffix("trace"), result.success);
+	if (trace) saveTrace(root, reductions, dirSuffix("trace"), result.success);
 	return result;
 }
 
-void saveTrace(Entity root, Reduction reduction, string dir, bool result)
+void saveTrace(Entity root, Reduction[] reductions, string dir, bool result)
 {
 	if (!exists(dir)) mkdir(dir);
 	static size_t count;
-	auto target = reduction.address ? findEntityEx(root, reduction.address).entity : null;
-	string countStr = format("%08d-#%08d-%d", count++, target ? target.id : 0, result ? 1 : 0);
+	string countStr = format("%08d-%(#%08d-%|%)%d",
+		count++,
+		reductions
+			.map!(reduction => reduction.address ? findEntityEx(root, reduction.address).entity : null)
+			.map!(target => target ? target.id : 0),
+		result ? 1 : 0);
 	auto traceDir = buildPath(dir, countStr);
 	save(root, traceDir);
 	if (doDump && result)
