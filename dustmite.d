@@ -58,7 +58,7 @@ struct Reduction
 	Entity root;
 
 	// Remove / Unwrap / Concat
-	size_t[] address; // TODO replace type with Address
+	const(Address)* address;
 
 	// ReplaceWord
 	string from, to;
@@ -77,6 +77,8 @@ struct Reduction
 			case Reduction.Type.Remove:
 			case Reduction.Type.Unwrap:
 			case Reduction.Type.Concat:
+			{
+				auto address = addressToArr(this.address);
 				string[] segments = new string[address.length];
 				Entity e = root;
 				size_t progress;
@@ -96,6 +98,7 @@ struct Reduction
 				progress += e.descendants;
 				auto progressPM = (origDescendants-progress) * 1000 / origDescendants; // per-mille
 				return format("[%2d.%d%%] %s [%s]", progressPM/10, progressPM%10, name, segments.join(binary ? "" : ", "));
+			}
 		}
 	}
 }
@@ -463,7 +466,7 @@ struct ReductionIterator
 	}
 
 	@property ref Entity root() { return strategy.root; }
-	@property Reduction front() { return Reduction(type, root, strategy.front); }
+	@property Reduction front() { return Reduction(type, root, strategy.front.addressFromArr); }
 
 	void nextEntity(bool success) /// Iterate strategy until the next non-dead node
 	{
@@ -1169,12 +1172,23 @@ Entity entityAt(Entity root, size_t[] address) // TODO: replace uses with findEn
 	return e;
 }
 
-Address* convertAddress(size_t[] address) // TODO: replace uses with findEntity and remove
+Address* addressFromArr(size_t[] address) // TODO: replace uses with findEntity and remove
 {
 	Address* a = &rootAddress;
 	foreach (index; address)
 		a = a.child(index);
 	return a;
+}
+
+size_t[] addressToArr(const(Address)* address)
+{
+	auto result = new size_t[address.depth];
+	while (address.parent)
+	{
+		result[address.depth - 1] = address.index;
+		address = address.parent;
+	}
+	return result;
 }
 
 /// Return true if these two addresses are the same
@@ -1305,7 +1319,7 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 			break;
 		case Reduction.Type.Remove:
 		{
-			assert(!findEntity(root, r.address.convertAddress).entity.dead, "Trying to remove a tombstone");
+			assert(!findEntity(root, r.address).entity.dead, "Trying to remove a tombstone");
 			void remove(const(Address)* address)
 			{
 				auto n = edit(address);
@@ -1316,12 +1330,12 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 					remove(dep);
 				n.kill(); // Convert to tombstone
 			}
-			remove(r.address.convertAddress);
+			remove(r.address);
 			break;
 		}
 		case Reduction.Type.Unwrap:
-			assert(!findEntity(root, r.address.convertAddress).entity.dead, "Trying to unwrap a tombstone");
-			with (edit(r.address.convertAddress))
+			assert(!findEntity(root, r.address).entity.dead, "Trying to unwrap a tombstone");
+			with (edit(r.address))
 				head = tail = null;
 			break;
 		case Reduction.Type.Concat:
@@ -1343,7 +1357,7 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 				{
 					// Skip noRemove files, except when they are the target
 					// (in which case they will keep their contents after the reduction).
-					if (e.noRemove && !equal(addr, r.address.convertAddress))
+					if (e.noRemove && !equal(addr, r.address))
 						return;
 
 					if (!e.children.canFind!(c => !c.dead))
@@ -1375,7 +1389,7 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 				break;
 			}
 
-			auto n = edit(r.address.convertAddress);
+			auto n = edit(r.address);
 
 			auto temp = new Entity;
 			temp.children = allData;
@@ -1395,7 +1409,7 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 				}
 			}
 			foreach (i, child; temp.children)
-				makeRedirects(r.address.convertAddress.child(n.children.length + i), child);
+				makeRedirects(r.address.child(n.children.length + i), child);
 
 			n.children ~= temp.children;
 
@@ -1761,7 +1775,7 @@ void saveTrace(Entity root, Reduction reduction, string dir, bool result)
 {
 	if (!exists(dir)) mkdir(dir);
 	static size_t count;
-	auto target = entityAt(root, reduction.address);
+	auto target = reduction.address ? findEntityEx(root, reduction.address).entity : null;
 	string countStr = format("%08d-#%08d-%d", count++, target ? target.id : 0, result ? 1 : 0);
 	auto traceDir = buildPath(dir, countStr);
 	save(root, traceDir);
