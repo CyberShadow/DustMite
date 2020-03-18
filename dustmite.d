@@ -59,7 +59,6 @@ struct Reduction
 
 	// Remove / Unwrap / Concat
 	size_t[] address; // TODO replace type with Address
-	Entity target; // TODO remove!
 
 	// ReplaceWord
 	string from, to;
@@ -464,7 +463,7 @@ struct ReductionIterator
 	}
 
 	@property ref Entity root() { return strategy.root; }
-	@property Reduction front() { return Reduction(type, root, strategy.front, e); }
+	@property Reduction front() { return Reduction(type, root, strategy.front); }
 
 	void nextEntity(bool success) /// Iterate strategy until the next non-dead node
 	{
@@ -1762,7 +1761,8 @@ void saveTrace(Entity root, Reduction reduction, string dir, bool result)
 {
 	if (!exists(dir)) mkdir(dir);
 	static size_t count;
-	string countStr = format("%08d-#%08d-%d", count++, reduction.target ? reduction.target.id : 0, result ? 1 : 0);
+	auto target = entityAt(root, reduction.address);
+	string countStr = format("%08d-#%08d-%d", count++, target ? target.id : 0, result ? 1 : 0);
 	auto traceDir = buildPath(dir, countStr);
 	save(root, traceDir);
 	if (doDump && result)
