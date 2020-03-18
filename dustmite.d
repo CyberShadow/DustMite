@@ -53,12 +53,14 @@ void measure(string what)(void delegate() p)
 
 struct Reduction
 {
-	enum Type { None, Remove, Unwrap, Concat, ReplaceWord }
+	enum Type { None, Remove, Unwrap, Concat, ReplaceWord, Swap }
 	Type type;
 	Entity root;
 
-	// Remove / Unwrap / Concat
+	// Remove / Unwrap / Concat / Swap
 	const(Address)* address;
+	// Swap
+	const(Address)* address2;
 
 	// ReplaceWord
 	string from, to;
@@ -98,6 +100,29 @@ struct Reduction
 				progress += e.descendants;
 				auto progressPM = (origDescendants-progress) * 1000 / origDescendants; // per-mille
 				return format("[%2d.%d%%] %s [%s]", progressPM/10, progressPM%10, name, segments.join(binary ? "" : ", "));
+			}
+			case Reduction.Type.Swap:
+			{
+				static string addressToString(Entity root, const(Address)* addressPtr)
+				{
+					auto address = addressToArr(findEntityEx(root, addressPtr).address);
+					string[] segments = new string[address.length];
+					bool binary = maxBreadth == 2;
+					Entity e = root;
+					foreach (i, a; address)
+					{
+						auto p = a;
+						foreach (c; e.children[0..a])
+							if (c.dead)
+								p--;
+						segments[i] = binary ? text(p) : format("%d/%d", e.children.length-a, e.children.length);
+						e = e.children[a];
+					}
+					return segments.join(binary ? "" : ", ");
+				}
+				return format("[%s] <-> [%s]",
+					addressToString(root, address),
+					addressToString(root, address2));
 			}
 		}
 	}
@@ -562,6 +587,7 @@ struct ReductionIterator
 					continue;
 
 				case Reduction.Type.ReplaceWord:
+				case Reduction.Type.Swap:
 					assert(false);
 			}
 		}
@@ -1413,6 +1439,79 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 
 			n.children ~= temp.children;
 
+			break;
+		}
+		case Reduction.Type.Swap:
+		{
+			// Cannot swap child and parent.
+			assert(
+				!r.address.startsWith(r.address2) &&
+				!r.address2.startsWith(r.address),
+				"Invalid swap");
+			// Corollary: neither address may be the root address.
+
+			// Cannot swap siblings (special case).
+			if (equal(r.address.parent, r.address2.parent))
+				break;
+
+			static struct SwapSite
+			{
+				Entity source;       /// Entity currently at this site's address
+				Entity* target;      /// Where to place the other site's entity
+				Address* newAddress; /// Address of target
+				Entity tombstone;    /// Redirect to the other site's swap target
+			}
+
+			SwapSite prepareSwap(const(Address)* address)
+			{
+				auto p = edit(address.parent);
+				assert(address.index < p.children.length);
+
+				SwapSite result;
+				// Duplicate children.
+				// Replace the first half with redirects to the second half.
+				// The second half is the same as the old children,
+				// except with the target node replaced with the swap target.
+				auto children = new Entity[p.children.length * 2];
+				// First half:
+				foreach (i; 0 .. p.children.length)
+				{
+					auto tombstone = new Entity;
+					tombstone.kill();
+					if (i == address.index)
+						result.tombstone = tombstone;
+					else
+						tombstone.redirect = address.parent.child(p.children.length + i);
+					children[i] = tombstone;
+				}
+				// Second half:
+				foreach (i; 0 .. p.children.length)
+				{
+					if (i == address.index)
+					{
+						result.source = p.children[i];
+						result.target = &children[p.children.length + i];
+						result.newAddress = address.parent.child(p.children.length + i);
+					}
+					else
+						children[p.children.length + i] = p.children[i];
+				}
+				p.children = children;
+				return result;
+			}
+
+			auto site1 = prepareSwap(r.address);
+			auto site2 = prepareSwap(r.address2);
+
+			void finalizeSwap(ref SwapSite thisSite, ref SwapSite otherSite)
+			{
+				assert(otherSite.source);
+				*thisSite.target = otherSite.source;
+				thisSite.tombstone.redirect = otherSite.newAddress;
+			}
+
+			finalizeSwap(site1, site2);
+			finalizeSwap(site2, site1);
 			break;
 		}
 	}
