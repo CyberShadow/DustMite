@@ -134,7 +134,7 @@ auto nullReduction = Reduction(Reduction.Type.None);
 
 int main(string[] args)
 {
-	bool force, dumpHtml, showTimes, stripComments, obfuscate, keepLength, showHelp, showVersion, noOptimize, inPlace;
+	bool force, dumpHtml, showTimes, stripComments, obfuscate, fuzz, keepLength, showHelp, showVersion, noOptimize, inPlace;
 	string coverageDir;
 	string[] reduceOnly, noRemoveStr, splitRules;
 	uint lookaheadCount, tabWidth = 8;
@@ -158,6 +158,7 @@ int main(string[] args)
 		"strip-comments", &stripComments,
 		"coverage", &coverageDir,
 		"obfuscate", &obfuscate,
+		"fuzz", &fuzz,
 		"keep-length", &keepLength,
 		"strategy", &strategy,
 		"split", &splitRules,
@@ -207,6 +208,8 @@ Supported options:
   --coverage DIR     Load .lst files corresponding to source files from DIR
   --obfuscate        Instead of reducing, obfuscate the input by replacing
                        words with random substitutions
+  --fuzz             Instead of reducing, fuzz the input by performing random
+                       changes until TESTER returns 0
   --keep-length      Preserve word length when obfuscating
   --split MASK:MODE  Parse and reduce files specified by MASK using the given
                        splitter. Can be repeated. MODE must be one of:
@@ -326,32 +329,48 @@ EOS");
 		}
 	}
 
-	auto nullResult = test(root, [nullReduction]);
-	if (!nullResult.success)
+	if (!fuzz)
 	{
-		auto testerFile = dir.buildNormalizedPath(tester);
-		version (Posix)
+		auto nullResult = test(root, [nullReduction]);
+		if (!nullResult.success)
 		{
-			if (testerFile.exists && (testerFile.getAttributes() & octal!111) == 0)
-				writeln("Hint: test program seems to be a non-executable file, try: chmod +x " ~ testerFile.escapeShellFileName());
+			auto testerFile = dir.buildNormalizedPath(tester);
+			version (Posix)
+			{
+				if (testerFile.exists && (testerFile.getAttributes() & octal!111) == 0)
+					writeln("Hint: test program seems to be a non-executable file, try: chmod +x " ~ testerFile.escapeShellFileName());
+			}
+			if (!testerFile.exists && tester.exists)
+				writeln("Hint: test program path should be relative to the source directory, try " ~
+					tester.absolutePath.relativePath(dir.absolutePath).escapeShellFileName() ~
+					" instead of " ~ tester.escapeShellFileName());
+			if (!noRedirect)
+				writeln("Hint: use --no-redirect to see test script output");
+			writeln("Hint: read https://github.com/CyberShadow/DustMite/wiki#initial-test-fails");
+			throw new Exception("Initial test fails: " ~ nullResult.reason);
 		}
-		if (!testerFile.exists && tester.exists)
-			writeln("Hint: test program path should be relative to the source directory, try " ~
-				tester.absolutePath.relativePath(dir.absolutePath).escapeShellFileName() ~
-				" instead of " ~ tester.escapeShellFileName());
-		if (!noRedirect)
-			writeln("Hint: use --no-redirect to see test script output");
-		writeln("Hint: read https://github.com/CyberShadow/DustMite/wiki#initial-test-fails");
-		throw new Exception("Initial test fails: " ~ nullResult.reason);
 	}
 
 	lookaheadProcesses = new Lookahead[lookaheadCount];
 
 	foundAnything = false;
+	string resultAdjective;
 	if (obfuscate)
+	{
+		resultAdjective = "obfuscated";
 		.obfuscate(root, keepLength);
+	}
 	else
+	if (fuzz)
+	{
+		resultAdjective = "fuzzed";
+		.fuzz(root);
+	}
+	else
+	{
+		resultAdjective = "reduced";
 		reduce(root);
+	}
 
 	auto duration = times.total.peek();
 	duration = dur!"msecs"(duration.total!"msecs"); // truncate anything below ms, users aren't interested in that
@@ -361,12 +380,12 @@ EOS");
 		{
 			if (noSave)
 				measure!"resultSave"({safeSave(root, resultDir);});
-			writefln("Done in %s tests and %s; reduced version is in %s", tests, duration, resultDir);
+			writefln("Done in %s tests and %s; %s version is in %s", tests, duration, resultAdjective, resultDir);
 		}
 		else
 		{
 			writeln("Hint: read https://github.com/CyberShadow/DustMite/wiki#reduced-to-empty-set");
-			writefln("Done in %s tests and %s; reduced to empty set", tests, duration);
+			writefln("Done in %s tests and %s; %s to empty set", tests, duration, resultAdjective);
 		}
 	}
 	else
@@ -1100,6 +1119,58 @@ void obfuscate(ref Entity root, bool keepLength)
 		wordSet[r.to] = true;
 
 		tryReduction(root, r);
+	}
+}
+
+void fuzz(ref Entity root)
+{
+	debug {} else rng.seed(unpredictableSeed);
+
+	Address*[] allAddresses;
+	void collectAddresses(Entity e, Address* addr)
+	{
+		allAddresses ~= addr;
+		foreach (i, c; e.children)
+			collectAddresses(c, addr.child(i));
+	}
+	collectAddresses(root, &rootAddress);
+
+	while (true)
+	{
+		import std.math : log2;
+		auto newRoot = root;
+		auto numReductions = uniform(1, cast(int)log2(allAddresses.length), rng);
+		Reduction[] reductions;
+		foreach (n; 0 .. numReductions)
+		{
+			static immutable Reduction.Type[] reductionTypes = [Reduction.Type.Swap];
+			auto r = Reduction(reductionTypes[uniform(0, $, rng)], newRoot);
+			switch (r.type)
+			{
+				case Reduction.Type.Swap:
+					r.address  = findEntity(newRoot, allAddresses[uniform(0, $, rng)]).address;
+					r.address2 = findEntity(newRoot, allAddresses[uniform(0, $, rng)]).address;
+					if (r.address.startsWith(r.address2) ||
+						r.address2.startsWith(r.address))
+						continue;
+					break;
+				default:
+					assert(false);
+			}
+			newRoot = applyReduction(newRoot, r);
+			reductions ~= r;
+		}
+		if (newRoot is root)
+			continue;
+
+		auto result = test(newRoot, reductions);
+		if (result.success)
+		{
+			foundAnything = true;
+			root = newRoot;
+			saveResult(root);
+			return;
+		}
 	}
 }
 
