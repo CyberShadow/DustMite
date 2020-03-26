@@ -1,4 +1,4 @@
-/// DustMite, a D test case minimization tool
+/// DustMite, a general-purpose data reduction tool
 /// Written by Vladimir Panteleev <vladimir@thecybershadow.net>
 /// License: Boost Software License, Version 1.0
 
