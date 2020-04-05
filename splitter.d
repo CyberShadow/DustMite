@@ -38,10 +38,10 @@ struct Address
 	}
 }
 
-struct EntityRef           /// Reference to another Entity in the same tree
+struct EntityRef             /// Reference to another Entity in the same tree
 {
-	Entity entity;         /// Pointer - only valid during splitting / optimizing
-	Address* address;      /// Address - assigned after splitting / optimizing
+	Entity entity;           /// Pointer - only valid during splitting / optimizing
+	const(Address)* address; /// Address - assigned after splitting / optimizing
 }
 
 enum largest64bitPrime = 18446744073709551557UL; // 0xFFFFFFFF_FFFFFFC5
