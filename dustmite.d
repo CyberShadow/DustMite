@@ -16,6 +16,7 @@ import std.datetime.stopwatch : StopWatch;
 import std.exception;
 import std.file;
 import std.getopt;
+import std.math : nextPow2;
 import std.path;
 import std.parallelism : totalCPUs;
 import std.process;
@@ -23,6 +24,7 @@ import std.random;
 import std.regex;
 import std.stdio;
 import std.string;
+import std.typecons;
 
 import splitter;
 
@@ -1462,7 +1464,7 @@ bool tryReduction(ref Entity root, Reduction r)
 /// Apply a reduction to this tree, and return the resulting tree.
 /// The original tree remains unchanged.
 /// Copies only modified parts of the tree, and whatever references them.
-Entity applyReduction(Entity origRoot, ref Reduction r)
+Entity applyReductionImpl(Entity origRoot, ref Reduction r)
 {
 	Entity root = origRoot;
 
@@ -1733,6 +1735,61 @@ Entity applyReduction(Entity origRoot, ref Reduction r)
 	debug checkDescendants(root);
 
 	return root;
+}
+
+/// Polyfill for object.require
+static if (!__traits(hasMember, object, "require"))
+ref V require(K, V)(ref V[K] aa, K key, lazy V value = V.init)
+{
+	auto p = key in aa;
+	if (p)
+		return *p;
+	return aa[key] = value;
+}
+
+// std.functional.memoize evicts old entries after a hash collision.
+// We have much to gain by evicting in strictly chronological order.
+struct RoundRobinCache(K, V)
+{
+	V[K] lookup;
+	K[] keys;
+	size_t pos;
+
+	void requireSize(size_t size)
+	{
+		if (keys.length >= size)
+			return;
+		T roundUpToPowerOfTwo(T)(T x) { return nextPow2(x-1); }
+		keys.length = roundUpToPowerOfTwo(size);
+	}
+
+	ref V get(ref K key, lazy V value)
+	{
+		return lookup.require(key,
+			{
+				lookup.remove(keys[pos]);
+				keys[pos++] = key;
+				if (pos == keys.length)
+					pos = 0;
+				return value;
+			}());
+	}
+}
+alias ReductionCacheKey = Tuple!(Entity, q{origRoot}, Reduction, q{r});
+RoundRobinCache!(ReductionCacheKey, Entity) reductionCache;
+
+Entity applyReduction(Entity origRoot, ref Reduction r)
+{
+	if (lookaheadProcesses.length)
+	{
+		if (!reductionCache.keys)
+			reductionCache.requireSize(1 + lookaheadProcesses.length);
+
+		auto cacheKey = ReductionCacheKey(origRoot, r);
+		return reductionCache.get(cacheKey, applyReductionImpl(origRoot, r));
+	}
+	else
+		return applyReductionImpl(origRoot, r);
 }
 
 string applyReductionToPath(string path, Reduction reduction)
