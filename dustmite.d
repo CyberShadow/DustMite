@@ -21,6 +21,7 @@ import std.path;
 import std.parallelism : totalCPUs;
 import std.process;
 import std.random;
+import std.range;
 import std.regex;
 import std.stdio;
 import std.string;
@@ -420,17 +421,52 @@ size_t getMaxBreadth(Entity e)
 	return breadth;
 }
 
+/// An output range which only allocates a new copy on the first write
+/// that's different from a given original copy.
+auto cowRange(E)(E[] arr)
+{
+	static struct Range
+	{
+		void put(ref E item)
+		{
+			if (pos != size_t.max)
+			{
+				if (pos == arr.length || item != arr[pos])
+				{
+					arr = arr[0 .. pos];
+					pos = size_t.max;
+					// continue to append (appending to a slice will copy)
+				}
+				else
+				{
+					pos++;
+					return;
+				}
+			}
+
+			arr ~= item;
+		}
+
+		E[] get() { return pos == size_t.max ? arr : arr[0 .. pos]; }
+
+	private:
+		E[] arr;
+		size_t pos; // if size_t.max, then the copy has occurred
+	}
+	return Range(arr);
+}
+
 /// Update computed fields for dirty nodes
 void recalculate(Entity root)
 {
 	// Pass 1 - length + hash (and some other calculated fields)
 	{
-		void pass1(Entity e, Address *addr)
+		bool pass1(Entity e, Address *addr)
 		{
 			if (e.clean)
-				return;
+				return false;
 
-			e.allDependents = null;
+			auto allDependents = e.allDependents.cowRange();
 			e.descendants = 1;
 			e.hash = e.deadHash = EntityHash.init;
 			e.contents = e.deadContents = null;
@@ -455,18 +491,22 @@ void recalculate(Entity root)
 			putString(e.filename);
 			putString(e.head);
 
-			void addDependents(R)(R range)
+			void addDependents(R)(R range, bool fresh)
 			{
 				if (e.dead)
 					return;
 
-				auto oldDependents = e.allDependents;
+				auto oldDependents = allDependents.get();
 			dependentLoop:
 				foreach (const(Address)* d; range)
 				{
-					d = findEntity(root, d).address;
-					if (!d)
-						continue; // Gone
+					if (!fresh)
+					{
+						d = findEntity(root, d).address;
+						if (!d)
+							continue; // Gone
+					}
+
 					if (d.startsWith(addr))
 						continue; // Internal
 
@@ -475,21 +515,36 @@ void recalculate(Entity root)
 						if (equal(d, o))
 							continue dependentLoop;
 
-					e.allDependents ~= d;
+					allDependents.put(d);
 				}
 			}
-			if (e.dead) assert(!e.dependents);
-			addDependents(e.dependents.map!(d => d.address));
+			if (e.dead)
+				assert(!e.dependents);
+			else
+			{
+				// Update dependents' addresses
+				auto dependents = cowRange(e.dependents);
+				foreach (d; e.dependents)
+				{
+					d.address = findEntity(root, d.address).address;
+					if (d.address)
+						dependents.put(d);
+				}
+				e.dependents = dependents.get();
+			}
+			addDependents(e.dependents.map!(d => d.address), true);
 
 			foreach (i, c; e.children)
 			{
-				pass1(c, addr.child(i));
+				bool fresh = pass1(c, addr.child(i));
 				e.descendants += c.descendants;
 				e.hash.put(c.hash);
 				e.deadHash.put(c.deadHash);
-				addDependents(c.allDependents);
+				addDependents(c.allDependents, fresh);
 			}
 			putString(e.tail);
+
+			e.allDependents = allDependents.get();
 
 			assert(e.deadHash.length == (whiteout ? e.hash.length : 0));
 
@@ -500,6 +555,8 @@ void recalculate(Entity root)
 				// This is irreversible (in child nodes).
 				e.hash = e.deadHash;
 			}
+
+			return true;
 		}
 		pass1(root, &rootAddress);
 	}
@@ -1429,6 +1486,7 @@ bool equal(const(Address)* a, const(Address)* b)
 	assert(a.parent && b.parent); // If we are at the root node, then the address check should have passed
 	return equal(a.parent, b.parent);
 }
+alias equal = std.algorithm.comparison.equal;
 
 /// Returns true if the `haystack` address starts with the `needle` address,
 /// i.e. the entity that needle points at is a child of the entity that haystack points at.
