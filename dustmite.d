@@ -1954,12 +1954,23 @@ TestResult test(
 			foreach (ref process; lookaheadProcesses)
 				if (process.thread)
 				{
+					debug (DETERMINISTIC_LOOKAHEAD)
+					{
+						process.thread.join(/*rethrow:*/true);
+						process.thread = null;
+					}
+
 					auto pid = cast()atomicLoad(process.pid);
 					if (pid)
 					{
-						auto waitResult = pid.tryWait();
-						if (waitResult.terminated)
-							reap(process, waitResult.status);
+						debug (DETERMINISTIC_LOOKAHEAD)
+							reap(process, pid.wait());
+						else
+						{
+							auto waitResult = pid.tryWait();
+							if (waitResult.terminated)
+								reap(process, waitResult.status);
+						}
 					}
 				}
 
