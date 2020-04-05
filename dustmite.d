@@ -2034,10 +2034,12 @@ TestResult test(
 			// Start new lookahead jobs
 
 			auto lookaheadIter = iter;
+			size_t numSteps;
 
 			foreach (ref process; lookaheadProcesses)
 				while (!process.thread && !lookaheadIter.done)
 				{
+					reductionCache.requireSize(lookaheadProcesses.length + ++numSteps);
 					auto reduction = lookaheadIter.front;
 					auto newRoot = lookaheadIter.root.applyReduction(reduction);
 					if (newRoot is lookaheadIter.root)
