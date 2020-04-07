@@ -47,7 +47,7 @@ string strategy = "inbreadth";
 struct Times { StopWatch total, load, testSave, resultSave, test, clean, globalCache, misc; }
 Times times;
 static this() { times.total.start(); times.misc.start(); }
-void measure(string what)(void delegate() p)
+void measure(string what)(scope void delegate() p)
 {
 	times.misc.stop(); mixin("times."~what~".start();");
 	p();
