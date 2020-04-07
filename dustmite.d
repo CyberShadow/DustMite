@@ -10,6 +10,7 @@ import core.thread;
 import std.algorithm;
 import std.array;
 import std.ascii;
+import std.container.rbtree;
 import std.conv;
 import std.datetime;
 import std.datetime.stopwatch : StopWatch;
@@ -1961,7 +1962,11 @@ Lookahead[] lookaheadProcesses;
 
 TestResult[EntityHash] lookaheadResults;
 
-bool lookaheadPredict(Entity currentRoot, ref Reduction proposedReduction) { return false; }
+/// Return the predicted probability that this reduction will be successful.
+double lookaheadPredict(Entity currentRoot, ref Reduction proposedReduction)
+{
+	return 0.135;
+}
 
 version (Windows)
 	enum nullFileName = "nul";
@@ -2096,36 +2101,51 @@ TestResult test(
 					}
 				}
 
+			static struct PredictedState
+			{
+				double probability;
+				ReductionIterator iter;
+			}
+
+			auto initialState = new PredictedState(1.0, iter);
+			alias PredictionTree = RedBlackTree!(PredictedState*, (a, b) => a.probability > b.probability, true);
+			auto predictionTree = new PredictionTree((&initialState)[0..1]);
+
 			// Start new lookahead jobs
 
-			auto lookaheadIter = iter;
 			size_t numSteps;
 
 			foreach (ref process; lookaheadProcesses)
-				while (!process.thread && !lookaheadIter.done)
+				while (!process.thread && !predictionTree.empty)
 				{
+					auto state = predictionTree.front;
+					predictionTree.removeFront();
+
+				retryIter:
+					if (state.iter.done)
+						continue;
 					reductionCache.requireSize(lookaheadProcesses.length + ++numSteps);
-					auto reduction = lookaheadIter.front;
+					auto reduction = state.iter.front;
 					Entity newRoot;
-					measure!"lookaheadApply"({ newRoot = lookaheadIter.root.applyReduction(reduction); });
-					if (newRoot is lookaheadIter.root)
+					measure!"lookaheadApply"({ newRoot = state.iter.root.applyReduction(reduction); });
+					if (newRoot is state.iter.root)
 					{
-						lookaheadIter.next(false);
-						continue; // inapplicable reduction
+						state.iter.next(false);
+						goto retryIter; // inapplicable reduction
 					}
 
 					auto digest = newRoot.hash;
 
-					bool prediction;
+					double prediction;
 					if (digest in cache || digest in lookaheadResults || lookaheadProcesses[].canFind!(p => p.thread && p.digest == digest))
 					{
 						if (digest in cache)
-							prediction = cache[digest];
+							prediction = cache[digest] ? 1 : 0;
 						else
 						if (digest in lookaheadResults)
-							prediction = lookaheadResults[digest].success;
+							prediction = lookaheadResults[digest].success ? 1 : 0;
 						else
-							prediction = lookaheadPredict(lookaheadIter.root, reduction);
+							prediction = lookaheadPredict(state.iter.root, reduction);
 					}
 					else
 					{
@@ -2149,12 +2169,21 @@ TestResult test(
 						}
 						runThread(newRoot, process, tester);
 
-						prediction = lookaheadPredict(lookaheadIter.root, reduction);
+						prediction = lookaheadPredict(state.iter.root, reduction);
 					}
 
-					if (prediction)
-						lookaheadIter.root = newRoot;
-					lookaheadIter.next(prediction);
+					foreach (outcome; 0 .. 2)
+					{
+						auto probability = outcome ? prediction : 1 - prediction;
+						if (probability == 0)
+							continue; // no chance
+						probability *= state.probability; // accumulate
+						auto nextState = new PredictedState(probability, state.iter);
+						if (outcome)
+							nextState.iter.root = newRoot;
+						nextState.iter.next(!!outcome);
+						predictionTree.insert(nextState);
+					}
 				}
 
 			// Find a result for the current test.
