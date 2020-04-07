@@ -1216,6 +1216,7 @@ void reduceByStrategy(Strategy strategy)
 		auto result = tryReduction(iter.root, iter.front);
 
 		iter.next(result);
+		predictor.put(result);
 	}
 }
 
@@ -1962,11 +1963,23 @@ Lookahead[] lookaheadProcesses;
 
 TestResult[EntityHash] lookaheadResults;
 
-/// Return the predicted probability that this reduction will be successful.
-double lookaheadPredict(Entity currentRoot, ref Reduction proposedReduction)
+struct AccumulatingPredictor(double exp)
 {
-	return 0.135;
+	double r = 0.5;
+
+	void put(bool outcome)
+	{
+		r = (1 - exp) * r + exp * outcome;
+	}
+
+	double predict()
+	{
+		return r;
+	}
 }
+// Parameters found through empirical testing (gradient descent)
+alias Predictor = AccumulatingPredictor!(0.01);
+Predictor predictor;
 
 version (Windows)
 	enum nullFileName = "nul";
@@ -2105,9 +2118,10 @@ TestResult test(
 			{
 				double probability;
 				ReductionIterator iter;
+				Predictor predictor;
 			}
 
-			auto initialState = new PredictedState(1.0, iter);
+			auto initialState = new PredictedState(1.0, iter, predictor);
 			alias PredictionTree = RedBlackTree!(PredictedState*, (a, b) => a.probability > b.probability, true);
 			auto predictionTree = new PredictionTree((&initialState)[0..1]);
 
@@ -2145,7 +2159,7 @@ TestResult test(
 						if (digest in lookaheadResults)
 							prediction = lookaheadResults[digest].success ? 1 : 0;
 						else
-							prediction = lookaheadPredict(state.iter.root, reduction);
+							prediction = state.predictor.predict();
 					}
 					else
 					{
@@ -2169,7 +2183,7 @@ TestResult test(
 						}
 						runThread(newRoot, process, tester);
 
-						prediction = lookaheadPredict(state.iter.root, reduction);
+						prediction = state.predictor.predict();
 					}
 
 					foreach (outcome; 0 .. 2)
@@ -2178,10 +2192,11 @@ TestResult test(
 						if (probability == 0)
 							continue; // no chance
 						probability *= state.probability; // accumulate
-						auto nextState = new PredictedState(probability, state.iter);
+						auto nextState = new PredictedState(probability, state.iter, state.predictor);
 						if (outcome)
 							nextState.iter.root = newRoot;
 						nextState.iter.next(!!outcome);
+						nextState.predictor.put(!!outcome);
 						predictionTree.insert(nextState);
 					}
 				}
