@@ -44,7 +44,7 @@ int tests, maxSteps = -1; bool foundAnything;
 bool noSave, trace, noRedirect, doDump, whiteout;
 string strategy = "inbreadth";
 
-struct Times { StopWatch total, load, testSave, resultSave, test, clean, globalCache, misc; }
+struct Times { StopWatch total, load, testSave, resultSave, apply, lookaheadApply, lookaheadWaitThread, lookaheadWaitProcess, test, clean, globalCache, misc; }
 Times times;
 static this() { times.total.start(); times.misc.start(); }
 void measure(string what)(scope void delegate() p)
@@ -1508,7 +1508,8 @@ bool startsWith(const(Address)* haystack, const(Address)* needle)
 /// Try specified reduction. If it succeeds, apply it permanently and save intermediate result.
 bool tryReduction(ref Entity root, Reduction r)
 {
-	auto newRoot = root.applyReduction(r);
+	Entity newRoot;
+	measure!"apply"({ newRoot = root.applyReduction(r); });
 	if (newRoot is root)
 	{
 		assert(r.type != Reduction.Type.None);
@@ -2105,7 +2106,8 @@ TestResult test(
 				{
 					reductionCache.requireSize(lookaheadProcesses.length + ++numSteps);
 					auto reduction = lookaheadIter.front;
-					auto newRoot = lookaheadIter.root.applyReduction(reduction);
+					Entity newRoot;
+					measure!"lookaheadApply"({ newRoot = lookaheadIter.root.applyReduction(reduction); });
 					if (newRoot is lookaheadIter.root)
 					{
 						lookaheadIter.next(false);
@@ -2171,11 +2173,12 @@ TestResult test(
 					// Current test is already being tested in the background, wait for its result.
 
 					// Join the thread first, to guarantee that there is a pid
-					process.thread.join(/*rethrow:*/true);
+					measure!"lookaheadWaitThread"({ process.thread.join(/*rethrow:*/true); });
 					process.thread = null;
 
 					auto pid = cast()atomicLoad(process.pid);
-					auto exitCode = pid.wait();
+					int exitCode;
+					measure!"lookaheadWaitProcess"({ exitCode = pid.wait(); });
 
 					auto result = reap(process, exitCode);
 					writeln(result.success ? "Yes" : "No", " (lookahead-wait)");
