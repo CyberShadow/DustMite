@@ -1437,7 +1437,8 @@ void save(Entity root, string savedir)
 
 		void handleText(string s)
 		{
-			binaryWriter.put(s);
+			if (o.isOpen) // Text outside a file may occur in white-out + trace mode
+				binaryWriter.put(s);
 		}
 	}
 	FastWriter!DiskWriter writer;
