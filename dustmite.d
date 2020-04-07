@@ -40,7 +40,7 @@ string dirSuffix(string suffix) { return (dir.absolutePath().buildNormalizedPath
 
 size_t maxBreadth;
 size_t origDescendants;
-int tests; bool foundAnything;
+int tests, maxSteps = -1; bool foundAnything;
 bool noSave, trace, noRedirect, doDump, whiteout;
 string strategy = "inbreadth";
 
@@ -179,6 +179,7 @@ int main(string[] args)
 		"nosave|no-save", &noSave, // for research
 		"nooptimize|no-optimize", &noOptimize, // for research
 		"tab-width", &tabWidth,
+		"max-steps", &maxSteps, // for research / benchmarking
 		"i|in-place", &inPlace,
 		"h|help", &showHelp,
 		"V|version", &showVersion,
@@ -252,6 +253,7 @@ Less interesting options:
   --no-save          Disable saving in-progress results
   --no-optimize      Disable tree optimization step
                        (may be useful with --dump)
+  --max-steps N      Perform no more than N steps when reducing
   --tab-width N      How many spaces one tab is equivalent to
                        (for the "indent" split mode)
 EOS");
@@ -1185,11 +1187,15 @@ void reduceByStrategy(Strategy strategy)
 	int lastIteration = -1;
 	int lastDepth = -1;
 	int lastProgressGeneration = -1;
+	int steps = 0;
 
 	iter = ReductionIterator(strategy);
 
 	while (!iter.done)
 	{
+		if (maxSteps >= 0 && steps++ == maxSteps)
+			return;
+
 		if (lastIteration != strategy.getIteration())
 		{
 			writefln("############### ITERATION %d ################", strategy.getIteration());
