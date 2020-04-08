@@ -1357,30 +1357,30 @@ void fuzz(ref Entity root)
 
 void dump(Writer)(Entity root, Writer writer)
 {
-	void dumpEntity(Entity e)
+	void dumpEntity(bool inFile)(Entity e)
 	{
 		if (e.dead)
 		{
-			if (e.contents.length)
+			if (inFile && e.contents.length)
 				writer.handleText(e.contents[e.filename.length .. $]);
 		}
 		else
-		if (e.isFile)
+		if (!inFile && e.isFile)
 		{
 			writer.handleFile(e.filename);
 			foreach (c; e.children)
-				dumpEntity(c);
+				dumpEntity!true(c);
 		}
 		else
 		{
-			if (e.head.length) writer.handleText(e.head);
+			if (inFile && e.head.length) writer.handleText(e.head);
 			foreach (c; e.children)
-				dumpEntity(c);
-			if (e.tail.length) writer.handleText(e.tail);
+				dumpEntity!inFile(c);
+			if (inFile && e.tail.length) writer.handleText(e.tail);
 		}
 	}
 
-	dumpEntity(root);
+	dumpEntity!false(root);
 }
 
 static struct FastWriter(Next) /// Accelerates Writer interface by bulking contiguous strings
@@ -1437,8 +1437,7 @@ void save(Entity root, string savedir)
 
 		void handleText(string s)
 		{
-			if (o.isOpen) // Text outside a file may occur in white-out + trace mode
-				binaryWriter.put(s);
+			binaryWriter.put(s);
 		}
 	}
 	FastWriter!DiskWriter writer;
