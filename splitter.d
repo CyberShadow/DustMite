@@ -917,7 +917,7 @@ struct DSplitter
 
 	static void postProcessBlockKeywords(ref Entity[] entities)
 	{
-		for (size_t i=0; i<entities.length;)
+		foreach_reverse (i; 0 .. entities.length)
 		{
 			if (blockKeywordTokens.canFind(entities[i].token) && i+1 < entities.length)
 			{
@@ -926,13 +926,8 @@ struct DSplitter
 					j++;
 				j++; // ; or {
 				if (j <= entities.length)
-				{
 					entities = entities[0..i] ~ group(group(entities[i..j-1]) ~ entities[j-1..j]) ~ entities[j..$];
-					continue;
-				}
 			}
-
-			i++;
 		}
 	}
 
