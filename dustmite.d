@@ -278,13 +278,16 @@ EOS");
 
 	bool isDotName(string fn) { return fn.startsWith(".") && !(fn=="." || fn==".."); }
 
+	bool suspiciousFilesFound;
 	if (!force && isDir(dir))
 		foreach (string path; dirEntries(dir, SpanMode.breadth))
 			if (isDotName(baseName(path)) || isDotName(baseName(dirName(path))) || extension(path)==".o" || extension(path)==".obj" || extension(path)==".exe")
 			{
-				stderr.writefln("Suspicious file found: %s\nYou should use a clean copy of the source tree.\nIf it was your intention to include this file in the file-set to be reduced,\nre-run dustmite with the --force option.", path);
-				return 1;
+				stderr.writeln("Warning: Suspicious file found: ", path);
+				suspiciousFilesFound = true;
 			}
+	if (suspiciousFilesFound)
+		stderr.writeln("You should use a clean copy of the source tree.\nIf it was your intention to include this file in the file-set to be reduced,\nyou can use --force to silence this message.");
 
 	ParseRule parseSplitRule(string rule)
 	{
