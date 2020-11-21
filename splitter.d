@@ -143,12 +143,13 @@ enum Splitter
 {
 	files,     /// Load entire files only
 	lines,     /// Split by line ends
+	null_,     /// Split by the \0 (NUL) character
 	words,     /// Split by whitespace
 	D,         /// Parse D source code
 	diff,      /// Unified diffs
 	indent,    /// Indentation (Python, YAML...)
 }
-immutable string[] splitterNames = [EnumMembers!Splitter].map!(e => e.text().toLower()).array();
+immutable string[] splitterNames = [EnumMembers!Splitter].map!(e => e.text().toLower().chomp("_")).array();
 
 struct ParseRule
 {
@@ -265,6 +266,9 @@ Entity loadFile(string name, string path, ParseOptions options)
 					return result;
 				case Splitter.words:
 					result.children = parseToWords(result.contents);
+					return result;
+				case Splitter.null_:
+					result.children = parseToNull(result.contents);
 					return result;
 				case Splitter.D:
 				{
@@ -1265,6 +1269,7 @@ Entity[] parseSplit(alias fun)(string text)
 
 alias parseToWords = parseSplit!isNotAlphaNum;
 alias parseToLines = parseSplit!isNewline;
+alias parseToNull  = parseSplit!(c => c == '\0');
 
 /// Split s on end~start, preserving end and start on each chunk
 private string[] split2(string end, string start)(string s)
