@@ -1,0 +1,115 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "head": "module",
+                        "tail": " "
+                    },
+                    {
+                        "head": "secretmodule",
+                        "tail": ";\n\nimport "
+                    },
+                    {
+                        "head": "std",
+                        "tail": "."
+                    },
+                    {
+                        "head": "stdio",
+                        "tail": ";\n\n"
+                    },
+                    {
+                        "head": "struct",
+                        "tail": " "
+                    },
+                    {
+                        "head": "SecretUDA",
+                        "tail": " {}\n\n"
+                    },
+                    {
+                        "head": "@"
+                    },
+                    {
+                        "head": "SecretUDA",
+                        "tail": "\n"
+                    },
+                    {
+                        "head": "void",
+                        "tail": " "
+                    },
+                    {
+                        "head": "doIt",
+                        "tail": "()\n{\n\t"
+                    },
+                    {
+                        "head": "string",
+                        "tail": " "
+                    },
+                    {
+                        "head": "message1",
+                        "tail": " = "
+                    },
+                    {
+                        "head": "\"Hello\"",
+                        "tail": ";\n\t"
+                    },
+                    {
+                        "head": "string",
+                        "tail": " "
+                    },
+                    {
+                        "head": "message2",
+                        "tail": " = "
+                    },
+                    {
+                        "head": "\"world\"",
+                        "tail": ";\n\t"
+                    },
+                    {
+                        "head": "writeln",
+                        "tail": "("
+                    },
+                    {
+                        "head": "message1",
+                        "tail": " ~ "
+                    },
+                    {
+                        "head": "\", \"",
+                        "tail": " ~ "
+                    },
+                    {
+                        "head": "message2",
+                        "tail": ");\n}\n"
+                    }
+                ],
+                "filename": "secretmodule.d"
+            },
+            {
+                "children": [
+                    {
+                        "tail": "import "
+                    },
+                    {
+                        "head": "secretmodule",
+                        "tail": ";\n\n"
+                    },
+                    {
+                        "head": "void",
+                        "tail": " "
+                    },
+                    {
+                        "head": "main",
+                        "tail": "()\n{\n\t"
+                    },
+                    {
+                        "head": "doIt",
+                        "tail": "();\n}\n"
+                    }
+                ],
+                "filename": "test.d"
+            }
+        ]
+    },
+    "version": 1
+}

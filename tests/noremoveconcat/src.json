@@ -1,0 +1,117 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "module "
+                                                            },
+                                                            {
+                                                                "head": "sub"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "label": "10",
+                                                        "tail": "."
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "sub"
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "10"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {}
+                        ]
+                    }
+                ],
+                "filename": "sub\/sub.d"
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "sub"
+                                                    },
+                                                    {
+                                                        "label": "21",
+                                                        "tail": "."
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "sub"
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "21"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "\/\/ DustMiteNoRemoveStart\nunittest\n",
+                                        "noRemove": true
+                                    },
+                                    {
+                                        "head": "{\n",
+                                        "noRemove": true,
+                                        "tail": "}\n"
+                                    }
+                                ],
+                                "noRemove": true
+                            },
+                            {
+                                "head": "\/\/ DustMiteNoRemoveStop\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "test.d",
+                "noRemove": true
+            }
+        ],
+        "noRemove": true
+    },
+    "version": 1
+}

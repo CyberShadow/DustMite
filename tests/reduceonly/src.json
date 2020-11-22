@@ -1,0 +1,626 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "static ",
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "head": "this",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "head": "(",
+                                                "noRemove": true,
+                                                "tail": ") "
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "import ",
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "std",
+                                                                        "noRemove": true
+                                                                    },
+                                                                    {
+                                                                        "label": "16",
+                                                                        "noRemove": true,
+                                                                        "tail": "."
+                                                                    }
+                                                                ],
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "stdio",
+                                                                        "noRemove": true
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "16"
+                                                                ],
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "noRemove": true,
+                                                "tail": "; "
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "writeln",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "__MODULE__ ",
+                                                                                        "noRemove": true
+                                                                                    },
+                                                                                    {
+                                                                                        "label": "26",
+                                                                                        "noRemove": true,
+                                                                                        "tail": "~ "
+                                                                                    }
+                                                                                ],
+                                                                                "noRemove": true
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "head": "__MODULE__ ",
+                                                                                                        "noRemove": true
+                                                                                                    },
+                                                                                                    {
+                                                                                                        "label": "31",
+                                                                                                        "noRemove": true,
+                                                                                                        "tail": "~ "
+                                                                                                    }
+                                                                                                ],
+                                                                                                "noRemove": true
+                                                                                            },
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "head": "__MODULE__",
+                                                                                                        "noRemove": true
+                                                                                                    }
+                                                                                                ],
+                                                                                                "dependents": [
+                                                                                                    "31"
+                                                                                                ],
+                                                                                                "noRemove": true
+                                                                                            }
+                                                                                        ],
+                                                                                        "noRemove": true
+                                                                                    }
+                                                                                ],
+                                                                                "dependents": [
+                                                                                    "26"
+                                                                                ],
+                                                                                "noRemove": true
+                                                                            }
+                                                                        ],
+                                                                        "label": "23",
+                                                                        "noRemove": true
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "noRemove": true,
+                                                                "tail": ")"
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "noRemove": true,
+                                                "tail": "; }"
+                                            }
+                                        ],
+                                        "head": "{ ",
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "dependents": [
+                                                    "23"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true
+                            }
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "a.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "static ",
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "head": "this",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "head": "(",
+                                                "noRemove": true,
+                                                "tail": ") "
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "import ",
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "std",
+                                                                        "noRemove": true
+                                                                    },
+                                                                    {
+                                                                        "label": "51",
+                                                                        "noRemove": true,
+                                                                        "tail": "."
+                                                                    }
+                                                                ],
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "stdio",
+                                                                        "noRemove": true
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "51"
+                                                                ],
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "noRemove": true,
+                                                "tail": "; "
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "writeln",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "__MODULE__ ",
+                                                                                        "noRemove": true
+                                                                                    },
+                                                                                    {
+                                                                                        "label": "61",
+                                                                                        "noRemove": true,
+                                                                                        "tail": "~ "
+                                                                                    }
+                                                                                ],
+                                                                                "noRemove": true
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "head": "__MODULE__ ",
+                                                                                                        "noRemove": true
+                                                                                                    },
+                                                                                                    {
+                                                                                                        "label": "66",
+                                                                                                        "noRemove": true,
+                                                                                                        "tail": "~ "
+                                                                                                    }
+                                                                                                ],
+                                                                                                "noRemove": true
+                                                                                            },
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "head": "__MODULE__",
+                                                                                                        "noRemove": true
+                                                                                                    }
+                                                                                                ],
+                                                                                                "dependents": [
+                                                                                                    "66"
+                                                                                                ],
+                                                                                                "noRemove": true
+                                                                                            }
+                                                                                        ],
+                                                                                        "noRemove": true
+                                                                                    }
+                                                                                ],
+                                                                                "dependents": [
+                                                                                    "61"
+                                                                                ],
+                                                                                "noRemove": true
+                                                                            }
+                                                                        ],
+                                                                        "label": "58",
+                                                                        "noRemove": true
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "noRemove": true,
+                                                                "tail": ")"
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "noRemove": true,
+                                                "tail": "; }"
+                                            }
+                                        ],
+                                        "head": "{ ",
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "dependents": [
+                                                    "58"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true
+                            }
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "b.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "static ",
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "head": "this",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "head": "(",
+                                                "noRemove": true,
+                                                "tail": ") "
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "import ",
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "std",
+                                                                        "noRemove": true
+                                                                    },
+                                                                    {
+                                                                        "label": "86",
+                                                                        "noRemove": true,
+                                                                        "tail": "."
+                                                                    }
+                                                                ],
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "stdio",
+                                                                        "noRemove": true
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "86"
+                                                                ],
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "noRemove": true,
+                                                "tail": "; "
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "writeln",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "__MODULE__ ",
+                                                                                        "noRemove": true
+                                                                                    },
+                                                                                    {
+                                                                                        "label": "96",
+                                                                                        "noRemove": true,
+                                                                                        "tail": "~ "
+                                                                                    }
+                                                                                ],
+                                                                                "noRemove": true
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "head": "__MODULE__ ",
+                                                                                                        "noRemove": true
+                                                                                                    },
+                                                                                                    {
+                                                                                                        "label": "101",
+                                                                                                        "noRemove": true,
+                                                                                                        "tail": "~ "
+                                                                                                    }
+                                                                                                ],
+                                                                                                "noRemove": true
+                                                                                            },
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "head": "__MODULE__",
+                                                                                                        "noRemove": true
+                                                                                                    }
+                                                                                                ],
+                                                                                                "dependents": [
+                                                                                                    "101"
+                                                                                                ],
+                                                                                                "noRemove": true
+                                                                                            }
+                                                                                        ],
+                                                                                        "noRemove": true
+                                                                                    }
+                                                                                ],
+                                                                                "dependents": [
+                                                                                    "96"
+                                                                                ],
+                                                                                "noRemove": true
+                                                                            }
+                                                                        ],
+                                                                        "label": "93",
+                                                                        "noRemove": true
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "noRemove": true,
+                                                                "tail": ")"
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "noRemove": true,
+                                                "tail": "; }"
+                                            }
+                                        ],
+                                        "head": "{ ",
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "dependents": [
+                                                    "93"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true
+                            }
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "c.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "head": "a"
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "head": "b"
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "head": "c"
+                                    }
+                                ],
+                                "tail": ";\n\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "void "
+                                                    },
+                                                    {
+                                                        "head": "main"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "head": "(",
+                                                "tail": ")\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "head": "{\n",
+                                        "tail": "}\n"
+                                    }
+                                ]
+                            },
+                            {}
+                        ]
+                    }
+                ],
+                "filename": "test.d"
+            }
+        ],
+        "noRemove": true
+    },
+    "version": 1
+}

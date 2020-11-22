@@ -1,0 +1,234 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum "
+                                                            },
+                                                            {
+                                                                "head": "a "
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "label": "10",
+                                                        "tail": "= "
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1"
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "10"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum "
+                                                            },
+                                                            {
+                                                                "head": "b "
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "label": "19",
+                                                        "tail": "= "
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "2"
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "19"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum "
+                                                            },
+                                                            {
+                                                                "head": "c "
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "label": "28",
+                                                        "tail": "= "
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "3"
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "28"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "head": "pragma"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "msg"
+                                                                    },
+                                                                    {
+                                                                        "label": "38",
+                                                                        "tail": ", "
+                                                                    }
+                                                                ],
+                                                                "label": "36"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "head": "a "
+                                                                                                    },
+                                                                                                    {
+                                                                                                        "label": "45",
+                                                                                                        "tail": "+ "
+                                                                                                    }
+                                                                                                ]
+                                                                                            },
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "head": "c "
+                                                                                                    }
+                                                                                                ],
+                                                                                                "dependents": [
+                                                                                                    "45"
+                                                                                                ]
+                                                                                            }
+                                                                                        ]
+                                                                                    },
+                                                                                    {
+                                                                                        "label": "48",
+                                                                                        "tail": "== "
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "4"
+                                                                                    }
+                                                                                ],
+                                                                                "dependents": [
+                                                                                    "48"
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "38"
+                                                                ],
+                                                                "label": "39"
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "head": "(",
+                                                "tail": ")"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "dependents": [
+                                                    "36"
+                                                ]
+                                            },
+                                            {
+                                                "dependents": [
+                                                    "39"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "filename": "test.d"
+            }
+        ]
+    },
+    "version": 1
+}

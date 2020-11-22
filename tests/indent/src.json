@@ -1,0 +1,79 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "head": "    grandchild\n"
+                                    },
+                                    {
+                                        "head": "    grandsibling\n"
+                                    }
+                                ],
+                                "head": "  child\n"
+                            },
+                            {
+                                "head": "  sibling\n"
+                            }
+                        ],
+                        "head": "root\n"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "        child4\n"
+                                                    },
+                                                    {
+                                                        "head": "\ttabtest\n"
+                                                    }
+                                                ],
+                                                "head": "      child3\n"
+                                            }
+                                        ],
+                                        "head": "    child2\n"
+                                    }
+                                ],
+                                "head": "  child1\n"
+                            }
+                        ],
+                        "head": "root2\n"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "head": "\n"
+                                            }
+                                        ],
+                                        "head": "  \n"
+                                    }
+                                ],
+                                "head": "  emptystart\n"
+                            },
+                            {
+                                "head": "  emptyend\n"
+                            }
+                        ],
+                        "head": "root3\n"
+                    },
+                    {}
+                ],
+                "filename": "indent-test.txt"
+            }
+        ]
+    },
+    "version": 1
+}

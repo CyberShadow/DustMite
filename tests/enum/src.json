@@ -1,0 +1,100 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "head": "class "
+                                            },
+                                            {
+                                                "head": "C\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\tvoid "
+                                                                    },
+                                                                    {
+                                                                        "head": "f"
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "head": "(",
+                                                                "tail": ")\n"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "head": "\t{\n",
+                                                        "tail": "\t}\n"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\t\n\tenum "
+                                                                            },
+                                                                            {
+                                                                                "head": "X "
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "label": "22",
+                                                                        "tail": "= "
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\"foo\""
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "22"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            }
+                                        ],
+                                        "head": "{\n",
+                                        "tail": "}\n"
+                                    }
+                                ]
+                            },
+                            {}
+                        ]
+                    }
+                ],
+                "filename": "test.d"
+            }
+        ]
+    },
+    "version": 1
+}

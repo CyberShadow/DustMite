@@ -1,0 +1,219 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "std"
+                                                    },
+                                                    {
+                                                        "label": "9",
+                                                        "tail": "."
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "stdio"
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "9"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "void "
+                                                    },
+                                                    {
+                                                        "head": "f",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "string ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "s"
+                                                            }
+                                                        ],
+                                                        "label": "18",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "head": "(",
+                                                "noRemove": true,
+                                                "tail": ")\n"
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    },
+                                    {
+                                        "head": "{\n",
+                                        "tail": "}\n\n"
+                                    }
+                                ],
+                                "noRemove": true
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "void "
+                                                    },
+                                                    {
+                                                        "head": "main"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "head": "(",
+                                                "tail": ")\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\twriteln"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\"foo\"",
+                                                                        "label": "33"
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "tail": ")"
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\twriteln"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\"bar\"",
+                                                                        "label": "38"
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "tail": ")"
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\twriteln"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\"baz\"",
+                                                                        "label": "43"
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "tail": ")"
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            }
+                                        ],
+                                        "head": "{\n",
+                                        "tail": "}\n"
+                                    }
+                                ]
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "dependents": [
+                                                    "18"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "dependents": [
+                                                    "33",
+                                                    "38",
+                                                    "43"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "noRemove": true
+                            }
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "test.d",
+                "noRemove": true
+            }
+        ],
+        "noRemove": true
+    },
+    "version": 1
+}

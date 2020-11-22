@@ -1,0 +1,302 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "int "
+                                                    },
+                                                    {
+                                                        "head": "f"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "int "
+                                                            },
+                                                            {
+                                                                "head": "i"
+                                                            }
+                                                        ],
+                                                        "label": "10"
+                                                    }
+                                                ],
+                                                "head": "(",
+                                                "tail": ")\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\tif ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "i ",
+                                                                                        "noRemove": true
+                                                                                    },
+                                                                                    {
+                                                                                        "label": "21",
+                                                                                        "noRemove": true,
+                                                                                        "tail": "== "
+                                                                                    }
+                                                                                ],
+                                                                                "noRemove": true
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "0",
+                                                                                        "noRemove": true
+                                                                                    }
+                                                                                ],
+                                                                                "dependents": [
+                                                                                    "21"
+                                                                                ],
+                                                                                "noRemove": true
+                                                                            }
+                                                                        ],
+                                                                        "noRemove": true
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "noRemove": true,
+                                                                "tail": ")\n"
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\t\treturn "
+                                                                            },
+                                                                            {
+                                                                                "head": "0"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "tail": ";\n"
+                                                            }
+                                                        ],
+                                                        "head": "\t{\n",
+                                                        "tail": "\t}\n"
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\treturn ",
+                                                                                "noRemove": true
+                                                                            },
+                                                                            {
+                                                                                "head": "i ",
+                                                                                "noRemove": true
+                                                                            }
+                                                                        ],
+                                                                        "noRemove": true
+                                                                    },
+                                                                    {
+                                                                        "label": "35",
+                                                                        "noRemove": true,
+                                                                        "tail": "* "
+                                                                    }
+                                                                ],
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "i",
+                                                                        "noRemove": true
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "35"
+                                                                ],
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "noRemove": true,
+                                                "tail": ";\n"
+                                            }
+                                        ],
+                                        "head": "{\n",
+                                        "noRemove": true,
+                                        "tail": "}\n\n"
+                                    }
+                                ],
+                                "noRemove": true
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "void "
+                                                    },
+                                                    {
+                                                        "head": "main"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "head": "(",
+                                                "tail": ")\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\tassert",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "head": "f",
+                                                                                                "noRemove": true
+                                                                                            },
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "head": "5",
+                                                                                                        "noRemove": true
+                                                                                                    }
+                                                                                                ],
+                                                                                                "head": "(",
+                                                                                                "noRemove": true,
+                                                                                                "tail": ") "
+                                                                                            }
+                                                                                        ],
+                                                                                        "noRemove": true
+                                                                                    },
+                                                                                    {
+                                                                                        "label": "55",
+                                                                                        "noRemove": true,
+                                                                                        "tail": "== "
+                                                                                    }
+                                                                                ],
+                                                                                "noRemove": true
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "30",
+                                                                                        "noRemove": true
+                                                                                    }
+                                                                                ],
+                                                                                "dependents": [
+                                                                                    "55"
+                                                                                ],
+                                                                                "noRemove": true
+                                                                            }
+                                                                        ],
+                                                                        "label": "49",
+                                                                        "noRemove": true
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "noRemove": true,
+                                                                "tail": ")"
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "noRemove": true,
+                                                "tail": ";\n"
+                                            }
+                                        ],
+                                        "head": "{\n",
+                                        "noRemove": true,
+                                        "tail": "}\n"
+                                    }
+                                ],
+                                "noRemove": true
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "dependents": [
+                                                    "49"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "dependents": [
+                                                    "10"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "test.d",
+                "noRemove": true
+            }
+        ]
+    },
+    "version": 1
+}

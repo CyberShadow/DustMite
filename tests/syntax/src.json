@@ -1,0 +1,270 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "void "
+                                                    },
+                                                    {
+                                                        "head": "main"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "head": "(",
+                                                "tail": ")\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\tchar "
+                                                                            },
+                                                                            {
+                                                                                "head": "c1 "
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "label": "17",
+                                                                        "tail": "= "
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "'a'"
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "17"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\tchar "
+                                                                            },
+                                                                            {
+                                                                                "head": "c2 "
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "label": "26",
+                                                                        "tail": "= "
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "'\\n'"
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "26"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\tstring "
+                                                                            },
+                                                                            {
+                                                                                "head": "s1 "
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "label": "35",
+                                                                        "tail": "= "
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\"a\\n\\x01\\u0123\\U00012345\""
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "35"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\tstring "
+                                                                            },
+                                                                            {
+                                                                                "head": "s2 "
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "label": "44",
+                                                                        "tail": "= "
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\\n"
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "44"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": "; \/\/ D1 naked escape string\n"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\tstring "
+                                                                            },
+                                                                            {
+                                                                                "head": "s3 "
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "label": "53",
+                                                                        "tail": "= "
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "r\"abc\\def\""
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "53"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\tstring "
+                                                                            },
+                                                                            {
+                                                                                "head": "s4 "
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "label": "62",
+                                                                        "tail": "= "
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "`ab\\cd\"ef`"
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "62"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            },
+                                            {
+                                                "head": "\t\/* comment 1 *\/\n\t\/** comment 2 *\/\n\t\/+ a \/++ b +\/ c *\/ d \/* e +\/\n\t\/++ a \/+ b +\/ c *\/ d \/* e +\/\n\t#line 1\n"
+                                            }
+                                        ],
+                                        "head": "{\n",
+                                        "tail": "}\n"
+                                    }
+                                ]
+                            },
+                            {}
+                        ]
+                    }
+                ],
+                "filename": "syntax.d"
+            }
+        ]
+    },
+    "version": 1
+}

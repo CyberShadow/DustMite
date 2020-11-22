@@ -1,0 +1,988 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "head": "import "
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "head": "std"
+                                            },
+                                            {
+                                                "label": "8",
+                                                "tail": "."
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "head": "stdio"
+                                            }
+                                        ],
+                                        "dependents": [
+                                            "8"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        "tail": ";\n\n"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "head": "void "
+                                            },
+                                            {
+                                                "head": "main"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "head": "(",
+                                        "tail": ")\n"
+                                    }
+                                ]
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "\tbool "
+                                                    },
+                                                    {
+                                                        "head": "pointless"
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "tail": "; \n"
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\tint "
+                                                                    },
+                                                                    {
+                                                                        "head": "total "
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "label": "28",
+                                                                "tail": "= "
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "1"
+                                                            }
+                                                        ],
+                                                        "dependents": [
+                                                            "28"
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "tail": ";\n\n"
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "\t\n\tdo\n"
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\t\twriteln"
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "\"Doo dee doo\"",
+                                                                                        "label": "39"
+                                                                                    }
+                                                                                ],
+                                                                                "head": "(",
+                                                                                "tail": ")"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "tail": ";\n"
+                                                            }
+                                                        ],
+                                                        "head": "\t{\n",
+                                                        "tail": "\t} "
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "while "
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "false"
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "tail": ")"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {}
+                                                        ],
+                                                        "tail": ";\n\n"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "\tdo\n"
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\t\twriteln"
+                                                                    },
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\"Dee doo dee\"",
+                                                                                "label": "54"
+                                                                            }
+                                                                        ],
+                                                                        "head": "(",
+                                                                        "tail": ")"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "tail": ";\n"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\twhile "
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "false"
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "tail": ")"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {}
+                                                        ],
+                                                        "tail": ";\n\n"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "\t\n\ttry\n"
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\t\twriteln"
+                                                                    },
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\"Doo dee doo\"",
+                                                                                "label": "69"
+                                                                            }
+                                                                        ],
+                                                                        "head": "(",
+                                                                        "tail": ")"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "tail": ";\n"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\tcatch"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "Throwable "
+                                                                            },
+                                                                            {
+                                                                                "head": "e"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "tail": ")\n"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {},
+                                                                    {
+                                                                        "head": "\t\twriteln"
+                                                                    },
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\"Dee doo dee\"",
+                                                                                "label": "82"
+                                                                            }
+                                                                        ],
+                                                                        "head": "(",
+                                                                        "tail": ")"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "tail": ";\n\n"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "\ttry\n"
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\t\twriteln"
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "\"Doo dee doo\"",
+                                                                                        "label": "91"
+                                                                                    }
+                                                                                ],
+                                                                                "head": "(",
+                                                                                "tail": ")"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "tail": ";\n"
+                                                            }
+                                                        ],
+                                                        "head": "\t{\n",
+                                                        "tail": "\t}\n"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\tcatch"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "Throwable "
+                                                                            },
+                                                                            {
+                                                                                "head": "e"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "tail": ")\n"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {},
+                                                                    {
+                                                                        "head": "\t\twriteln"
+                                                                    },
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\"Dee doo dee\"",
+                                                                                "label": "104"
+                                                                            }
+                                                                        ],
+                                                                        "head": "(",
+                                                                        "tail": ")"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "tail": ";\n\n"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "\ttry\n"
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\t\twriteln"
+                                                                    },
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\"Doo dee doo\"",
+                                                                                "label": "112"
+                                                                            }
+                                                                        ],
+                                                                        "head": "(",
+                                                                        "tail": ")"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "tail": ";\n"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\tcatch"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "Throwable "
+                                                                            },
+                                                                            {
+                                                                                "head": "e"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "tail": ")\n"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\t\twriteln"
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "\"Dee doo dee\"",
+                                                                                        "label": "125"
+                                                                                    }
+                                                                                ],
+                                                                                "head": "(",
+                                                                                "tail": ")"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "tail": ";\n"
+                                                            }
+                                                        ],
+                                                        "head": "\t{\n",
+                                                        "tail": "\t}\n\n"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "\ttry\n"
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\t\twriteln"
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "\"Doo dee doo\"",
+                                                                                        "label": "134"
+                                                                                    }
+                                                                                ],
+                                                                                "head": "(",
+                                                                                "tail": ")"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "tail": ";\n"
+                                                            }
+                                                        ],
+                                                        "head": "\t{\n",
+                                                        "tail": "\t}\n"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\tcatch"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "Throwable "
+                                                                            },
+                                                                            {
+                                                                                "head": "e"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "tail": ")\n"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\t\twriteln"
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "\"Dee doo dee\"",
+                                                                                        "label": "147"
+                                                                                    }
+                                                                                ],
+                                                                                "head": "(",
+                                                                                "tail": ")"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "tail": ";\n"
+                                                            }
+                                                        ],
+                                                        "head": "\t{\n",
+                                                        "tail": "\t}\n\n"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\t\n\n\tvoid "
+                                                            },
+                                                            {
+                                                                "head": "foo"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "head": "(",
+                                                        "tail": ")\n"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "\tin\n"
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\t\twriteln"
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "\"Doo dee doo\"",
+                                                                                        "label": "161"
+                                                                                    }
+                                                                                ],
+                                                                                "head": "(",
+                                                                                "tail": ")"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "tail": ";\n"
+                                                            }
+                                                        ],
+                                                        "head": "\t{\n",
+                                                        "tail": "\t}\n"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "\tout\n"
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\t\twriteln"
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "\"Dee doo dee\"",
+                                                                                        "label": "169"
+                                                                                    }
+                                                                                ],
+                                                                                "head": "(",
+                                                                                "tail": ")"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "tail": ";\n"
+                                                            }
+                                                        ],
+                                                        "head": "\t{\n",
+                                                        "tail": "\t}\n"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "\tbody\n"
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\t\twriteln"
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "\"Dee dee doo\"",
+                                                                                        "label": "177"
+                                                                                    }
+                                                                                ],
+                                                                                "head": "(",
+                                                                                "tail": ")"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "tail": ";\n"
+                                                            }
+                                                        ],
+                                                        "head": "\t{\n",
+                                                        "tail": "\t}\n\n"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\t\n\n\tif "
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "false"
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "tail": ")\n"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {},
+                                                                    {
+                                                                        "head": "\t\twriteln"
+                                                                    },
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\"Doo dee doo\"",
+                                                                                "label": "189"
+                                                                            }
+                                                                        ],
+                                                                        "head": "(",
+                                                                        "tail": ")"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "tail": ";\n"
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "191"
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "label": "191",
+                                                        "tail": "\telse \n"
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\t\ttotal"
+                                                                    }
+                                                                ],
+                                                                "tail": "++"
+                                                            }
+                                                        ],
+                                                        "tail": ";\n"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\t\t\n\tif "
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "false"
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "tail": ")\n"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "\t\twriteln"
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "\"Doo dee doo\"",
+                                                                                        "label": "206"
+                                                                                    }
+                                                                                ],
+                                                                                "head": "(",
+                                                                                "tail": ")"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "tail": ";\n"
+                                                            }
+                                                        ],
+                                                        "head": "\t{\n",
+                                                        "tail": "\t}\n"
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "208"
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "label": "208",
+                                                        "tail": "\telse \n"
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\t\ttotal"
+                                                                    }
+                                                                ],
+                                                                "tail": "++"
+                                                            }
+                                                        ],
+                                                        "tail": ";\n\n"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "\t\n\n\tif "
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "true"
+                                                            }
+                                                        ],
+                                                        "head": "(",
+                                                        "tail": ")\n"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\t\t\n\t\ttotal"
+                                                                    }
+                                                                ],
+                                                                "tail": "++"
+                                                            }
+                                                        ],
+                                                        "tail": ";\n"
+                                                    }
+                                                ],
+                                                "head": "\t{\n",
+                                                "tail": "\t}\n\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "\twriteln"
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "total"
+                                                                            },
+                                                                            {
+                                                                                "label": "228",
+                                                                                "tail": "=="
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "4"
+                                                                            }
+                                                                        ],
+                                                                        "dependents": [
+                                                                            "228"
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "label": "225"
+                                                            }
+                                                        ],
+                                                        "head": "(",
+                                                        "tail": ")"
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "tail": ";\n"
+                                    }
+                                ],
+                                "head": "{\n",
+                                "tail": "}\n"
+                            }
+                        ]
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "dependents": [
+                                            "39",
+                                            "54",
+                                            "69",
+                                            "82",
+                                            "91",
+                                            "104",
+                                            "112",
+                                            "125",
+                                            "134",
+                                            "147",
+                                            "161",
+                                            "169",
+                                            "177",
+                                            "189",
+                                            "206",
+                                            "225"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "filename": "src.d"
+    },
+    "version": 1
+}

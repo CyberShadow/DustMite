@@ -99,6 +99,12 @@ void main(string[] args)
 		enforce(status == 0, "Dustmite dump failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
 
+		stderr.writefln("runtests: test %s: dumping JSON", test);
+		status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ (target ? ["--dump-json", "--no-optimize", target] : []),
+			stdin, output, output, null, Config.retainStdout | Config.retainStderr).wait();
+		enforce(status == 0, "Dustmite JSON dump failed with status %s".format(status));
+		stderr.writefln("runtests: test %s: done", test);
+
 		if (!tester.exists)
 			continue; // dump only
 

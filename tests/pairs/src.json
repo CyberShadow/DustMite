@@ -1,0 +1,342 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "std"
+                                                    },
+                                                    {
+                                                        "label": "9",
+                                                        "tail": "."
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "stdio"
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "9"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "head": "class "
+                                            },
+                                            {
+                                                "head": "C\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "head": "{\n",
+                                        "tail": "}\n\n"
+                                    }
+                                ]
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "void "
+                                                    },
+                                                    {
+                                                        "head": "f"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "head": "(",
+                                                "tail": ")\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "head": "{\n",
+                                        "tail": "}\n\n"
+                                    }
+                                ]
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "private "
+                                                    },
+                                                    {
+                                                        "head": "void "
+                                                    },
+                                                    {
+                                                        "head": "ft"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "head": "(",
+                                                "tail": ")"
+                                            },
+                                            {
+                                                "head": "(",
+                                                "tail": ")\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "head": "{\n",
+                                        "tail": "}\n\n"
+                                    }
+                                ]
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "struct "
+                                                    },
+                                                    {
+                                                        "head": "ST"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "T",
+                                                        "label": "39"
+                                                    }
+                                                ],
+                                                "head": "(",
+                                                "tail": ")\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "head": "{\n",
+                                        "tail": "}\n\n"
+                                    }
+                                ]
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "unittest\n"
+                                    },
+                                    {
+                                        "head": "{\n",
+                                        "tail": "}\n\n"
+                                    }
+                                ]
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "head": "struct "
+                                            },
+                                            {
+                                                "head": "S\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "    int "
+                                                            },
+                                                            {
+                                                                "head": "i"
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n\n"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "    static if "
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "false"
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "tail": ")\n"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {},
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "        enum "
+                                                                            },
+                                                                            {
+                                                                                "head": "e"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "tail": ";\n\n"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "    void "
+                                                                    },
+                                                                    {
+                                                                        "head": "e"
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "head": "(",
+                                                                "tail": ")\n"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "head": "    {\n",
+                                                        "tail": "    }\n"
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "head": "{\n",
+                                        "tail": "}\n\n"
+                                    }
+                                ]
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "void "
+                                                    },
+                                                    {
+                                                        "head": "main"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "head": "(",
+                                                "tail": ")\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\twriteln"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\"Hello, world!\"",
+                                                                        "label": "82"
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "tail": ")"
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            }
+                                        ],
+                                        "head": "{\n",
+                                        "tail": "}\n"
+                                    }
+                                ]
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "dependents": [
+                                                    "39"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "dependents": [
+                                                    "82"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "filename": "test.d"
+            }
+        ]
+    },
+    "version": 1
+}

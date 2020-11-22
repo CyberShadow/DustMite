@@ -1,0 +1,35 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [
+                            {}
+                        ]
+                    }
+                ],
+                "filename": "empty.d"
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "head": "ï"
+                                    }
+                                ],
+                                "tail": ";\n\n"
+                            },
+                            {}
+                        ]
+                    }
+                ],
+                "filename": "strip.d"
+            }
+        ]
+    },
+    "version": 1
+}

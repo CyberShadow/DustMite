@@ -1,0 +1,2379 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "10",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "10"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "a.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "22",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "22"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "b.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "34",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "34"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "c.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "46",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "46"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "d.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "58",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "58"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "e.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "70",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "70"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "f.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "82",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "82"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "g.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "94",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "94"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "h.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "106",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "106"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "i.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "118",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "118"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "j.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "130",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "130"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "k.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "142",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "142"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "l.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "154",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "154"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "m.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "166",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "166"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "n.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "178",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "178"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "o.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "190",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "190"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "p.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "202",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "202"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "q.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "214",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "214"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "r.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "226",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "226"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "s.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "238",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "238"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "t.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "head": "a"
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "b"
+                                                    },
+                                                    {
+                                                        "label": "252",
+                                                        "tail": ", "
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "c"
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "252"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "d"
+                                                    },
+                                                    {
+                                                        "label": "260",
+                                                        "tail": ", "
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "e"
+                                                                    },
+                                                                    {
+                                                                        "label": "265",
+                                                                        "tail": ", "
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "f"
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "265"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "260"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "g "
+                                                    },
+                                                    {
+                                                        "label": "273",
+                                                        "tail": ": "
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "one"
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "273"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "hh "
+                                                    },
+                                                    {
+                                                        "label": "281",
+                                                        "tail": "= "
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "h"
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "281"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "i "
+                                                                    },
+                                                                    {
+                                                                        "label": "291",
+                                                                        "tail": ": "
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "ione "
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "291"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "label": "294",
+                                                        "tail": "= "
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "one"
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "294"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "static "
+                                    },
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "head": "j"
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "static "
+                                    },
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "k"
+                                                    },
+                                                    {
+                                                        "label": "307",
+                                                        "tail": ", "
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "l"
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "307"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "static "
+                                    },
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "l"
+                                                    },
+                                                    {
+                                                        "label": "316",
+                                                        "tail": ", "
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "m"
+                                                                    },
+                                                                    {
+                                                                        "label": "321",
+                                                                        "tail": ", "
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "n"
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "321"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "316"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "head": "o"
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "head": "p"
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "unused ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "336",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "336"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "q"
+                                                    },
+                                                    {
+                                                        "label": "344",
+                                                        "tail": ", "
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "r"
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "344"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "used ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "353",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "353"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "s "
+                                                                    },
+                                                                    {
+                                                                        "label": "363",
+                                                                        "tail": ": "
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "uone "
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "363"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "label": "366",
+                                                        "tail": "= "
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "one"
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "366"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "t"
+                                                    },
+                                                    {
+                                                        "label": "374",
+                                                        "tail": ", "
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "u"
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "374"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "v"
+                                                    },
+                                                    {
+                                                        "label": "382",
+                                                        "tail": ", "
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "w"
+                                                                    },
+                                                                    {
+                                                                        "label": "387",
+                                                                        "tail": ", "
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "x"
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "387"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "382"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "head": "y"
+                                    }
+                                ],
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "head": "z"
+                                    }
+                                ],
+                                "tail": ";\n\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "head": "pragma",
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "msg",
+                                                                        "noRemove": true
+                                                                    },
+                                                                    {
+                                                                        "label": "403",
+                                                                        "noRemove": true,
+                                                                        "tail": ", "
+                                                                    }
+                                                                ],
+                                                                "label": "401",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "children": [
+                                                                                                            {
+                                                                                                                "head": "one ",
+                                                                                                                "noRemove": true
+                                                                                                            },
+                                                                                                            {
+                                                                                                                "label": "411",
+                                                                                                                "noRemove": true,
+                                                                                                                "tail": "+ "
+                                                                                                            }
+                                                                                                        ],
+                                                                                                        "noRemove": true
+                                                                                                    },
+                                                                                                    {
+                                                                                                        "children": [
+                                                                                                            {
+                                                                                                                "children": [
+                                                                                                                    {
+                                                                                                                        "head": "ione ",
+                                                                                                                        "noRemove": true
+                                                                                                                    },
+                                                                                                                    {
+                                                                                                                        "label": "415",
+                                                                                                                        "noRemove": true,
+                                                                                                                        "tail": "+ "
+                                                                                                                    }
+                                                                                                                ],
+                                                                                                                "noRemove": true
+                                                                                                            }
+                                                                                                        ],
+                                                                                                        "dependents": [
+                                                                                                            "411"
+                                                                                                        ],
+                                                                                                        "noRemove": true
+                                                                                                    }
+                                                                                                ],
+                                                                                                "noRemove": true
+                                                                                            },
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "children": [
+                                                                                                            {
+                                                                                                                "children": [
+                                                                                                                    {
+                                                                                                                        "children": [
+                                                                                                                            {
+                                                                                                                                "children": [
+                                                                                                                                    {
+                                                                                                                                        "head": "m",
+                                                                                                                                        "noRemove": true
+                                                                                                                                    },
+                                                                                                                                    {
+                                                                                                                                        "label": "422",
+                                                                                                                                        "noRemove": true,
+                                                                                                                                        "tail": "."
+                                                                                                                                    }
+                                                                                                                                ],
+                                                                                                                                "noRemove": true
+                                                                                                                            },
+                                                                                                                            {
+                                                                                                                                "children": [
+                                                                                                                                    {
+                                                                                                                                        "head": "one ",
+                                                                                                                                        "noRemove": true
+                                                                                                                                    }
+                                                                                                                                ],
+                                                                                                                                "dependents": [
+                                                                                                                                    "422"
+                                                                                                                                ],
+                                                                                                                                "noRemove": true
+                                                                                                                            }
+                                                                                                                        ],
+                                                                                                                        "noRemove": true
+                                                                                                                    },
+                                                                                                                    {
+                                                                                                                        "label": "425",
+                                                                                                                        "noRemove": true,
+                                                                                                                        "tail": "+ "
+                                                                                                                    }
+                                                                                                                ],
+                                                                                                                "noRemove": true
+                                                                                                            },
+                                                                                                            {
+                                                                                                                "children": [
+                                                                                                                    {
+                                                                                                                        "head": "used ",
+                                                                                                                        "noRemove": true
+                                                                                                                    }
+                                                                                                                ],
+                                                                                                                "dependents": [
+                                                                                                                    "425"
+                                                                                                                ],
+                                                                                                                "noRemove": true
+                                                                                                            }
+                                                                                                        ],
+                                                                                                        "noRemove": true
+                                                                                                    }
+                                                                                                ],
+                                                                                                "dependents": [
+                                                                                                    "415"
+                                                                                                ],
+                                                                                                "noRemove": true
+                                                                                            }
+                                                                                        ],
+                                                                                        "noRemove": true
+                                                                                    },
+                                                                                    {
+                                                                                        "label": "428",
+                                                                                        "noRemove": true,
+                                                                                        "tail": "== "
+                                                                                    }
+                                                                                ],
+                                                                                "noRemove": true
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "4",
+                                                                                        "noRemove": true
+                                                                                    }
+                                                                                ],
+                                                                                "dependents": [
+                                                                                    "428"
+                                                                                ],
+                                                                                "noRemove": true
+                                                                            }
+                                                                        ],
+                                                                        "noRemove": true
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "403"
+                                                                ],
+                                                                "label": "404",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "head": "(",
+                                                "noRemove": true,
+                                                "tail": ")"
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "dependents": [
+                                                    "401"
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "dependents": [
+                                                    "404"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true
+                            }
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "test.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "443",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "443"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "u.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "455",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "455"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "v.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "467",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "467"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "w.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "479",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "479"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "x.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "491",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "491"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "y.d",
+                "noRemove": true
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "enum ",
+                                                                "noRemove": true
+                                                            },
+                                                            {
+                                                                "head": "one ",
+                                                                "noRemove": true
+                                                            }
+                                                        ],
+                                                        "noRemove": true
+                                                    },
+                                                    {
+                                                        "label": "503",
+                                                        "noRemove": true,
+                                                        "tail": "= "
+                                                    }
+                                                ],
+                                                "noRemove": true
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "1",
+                                                        "noRemove": true
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "503"
+                                                ],
+                                                "noRemove": true
+                                            }
+                                        ],
+                                        "noRemove": true
+                                    }
+                                ],
+                                "noRemove": true,
+                                "tail": ";\n"
+                            },
+                            {}
+                        ],
+                        "noRemove": true
+                    }
+                ],
+                "filename": "z.d",
+                "noRemove": true
+            }
+        ],
+        "noRemove": true
+    },
+    "version": 1
+}

@@ -1,0 +1,1439 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "head": "import "
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "std"
+                                                    },
+                                                    {
+                                                        "label": "9",
+                                                        "tail": "."
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "stdio"
+                                                    }
+                                                ],
+                                                "dependents": [
+                                                    "9"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "head": "int "
+                                            },
+                                            {
+                                                "head": "total"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tail": ";\n\n"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "void "
+                                                    },
+                                                    {
+                                                        "head": "a"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "int "
+                                                                            },
+                                                                            {
+                                                                                "head": "foo"
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "label": "27",
+                                                                        "tail": ", "
+                                                                    }
+                                                                ],
+                                                                "label": "23"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "head": "int "
+                                                                                            },
+                                                                                            {
+                                                                                                "head": "bar"
+                                                                                            }
+                                                                                        ]
+                                                                                    },
+                                                                                    {
+                                                                                        "label": "34",
+                                                                                        "tail": ", "
+                                                                                    }
+                                                                                ],
+                                                                                "label": "30"
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "head": "int "
+                                                                                            },
+                                                                                            {
+                                                                                                "head": "baz"
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                ],
+                                                                                "dependents": [
+                                                                                    "34"
+                                                                                ],
+                                                                                "label": "35"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "27"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "head": "(",
+                                                "tail": ")\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\ttotal"
+                                                            }
+                                                        ],
+                                                        "tail": "++"
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            }
+                                        ],
+                                        "head": "{\n",
+                                        "tail": "}\n\n"
+                                    }
+                                ]
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "void "
+                                                    },
+                                                    {
+                                                        "head": "b"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "int "
+                                                                            },
+                                                                            {
+                                                                                "head": "foo"
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "label": "54",
+                                                                        "tail": ", "
+                                                                    }
+                                                                ],
+                                                                "label": "50"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "int "
+                                                                            },
+                                                                            {
+                                                                                "head": "bar"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "54"
+                                                                ],
+                                                                "label": "55"
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "head": "(",
+                                                "tail": ")"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "int "
+                                                            },
+                                                            {
+                                                                "head": "baz"
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "head": "(",
+                                                "tail": ")\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\ttotal"
+                                                            }
+                                                        ],
+                                                        "tail": "++"
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            }
+                                        ],
+                                        "head": "{\n",
+                                        "tail": "}\n\n"
+                                    }
+                                ]
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "void "
+                                                    },
+                                                    {
+                                                        "head": "c"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "int "
+                                                                            },
+                                                                            {
+                                                                                "head": "foo"
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "label": "78",
+                                                                        "tail": ", "
+                                                                    }
+                                                                ],
+                                                                "label": "74"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "head": "int "
+                                                                                            },
+                                                                                            {
+                                                                                                "head": "bar"
+                                                                                            }
+                                                                                        ]
+                                                                                    },
+                                                                                    {
+                                                                                        "label": "85",
+                                                                                        "tail": ", "
+                                                                                    }
+                                                                                ],
+                                                                                "label": "81"
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "head": "int "
+                                                                                            },
+                                                                                            {
+                                                                                                "head": "baz"
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                ],
+                                                                                "dependents": [
+                                                                                    "85"
+                                                                                ],
+                                                                                "label": "86"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "78"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "head": "(",
+                                                "tail": ")"
+                                            },
+                                            {
+                                                "head": "(",
+                                                "tail": ")\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\ttotal"
+                                                            }
+                                                        ],
+                                                        "tail": "++"
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            }
+                                        ],
+                                        "head": "{\n",
+                                        "tail": "}\n\n"
+                                    }
+                                ]
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "void "
+                                                    },
+                                                    {
+                                                        "head": "d1"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "int "
+                                                                            },
+                                                                            {
+                                                                                "head": "foo"
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "label": "106",
+                                                                        "tail": ", "
+                                                                    }
+                                                                ],
+                                                                "label": "102"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "head": "int "
+                                                                                            },
+                                                                                            {
+                                                                                                "head": "bar"
+                                                                                            }
+                                                                                        ]
+                                                                                    },
+                                                                                    {
+                                                                                        "label": "113",
+                                                                                        "tail": ", "
+                                                                                    }
+                                                                                ],
+                                                                                "label": "109"
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "head": "int "
+                                                                                            },
+                                                                                            {
+                                                                                                "head": "baz"
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                ],
+                                                                                "dependents": [
+                                                                                    "113"
+                                                                                ],
+                                                                                "label": "114"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "106"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "head": "(",
+                                                "tail": ")\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\ttotal "
+                                                                    },
+                                                                    {
+                                                                        "label": "123",
+                                                                        "tail": "+= "
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "foo"
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "123"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            }
+                                        ],
+                                        "head": "{\n",
+                                        "tail": "}\n\n"
+                                    }
+                                ]
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "void "
+                                                    },
+                                                    {
+                                                        "head": "d2"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "int "
+                                                                            },
+                                                                            {
+                                                                                "head": "foo"
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "label": "137",
+                                                                        "tail": ", "
+                                                                    }
+                                                                ],
+                                                                "label": "133"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "head": "int "
+                                                                                            },
+                                                                                            {
+                                                                                                "head": "bar"
+                                                                                            }
+                                                                                        ]
+                                                                                    },
+                                                                                    {
+                                                                                        "label": "144",
+                                                                                        "tail": ", "
+                                                                                    }
+                                                                                ],
+                                                                                "label": "140"
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "head": "int "
+                                                                                            },
+                                                                                            {
+                                                                                                "head": "baz"
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                ],
+                                                                                "dependents": [
+                                                                                    "144"
+                                                                                ],
+                                                                                "label": "145"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "137"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "head": "(",
+                                                "tail": ")\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\ttotal "
+                                                                    },
+                                                                    {
+                                                                        "label": "154",
+                                                                        "tail": "+= "
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "bar"
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "154"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            }
+                                        ],
+                                        "head": "{\n",
+                                        "tail": "}\n\n"
+                                    }
+                                ]
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "void "
+                                                    },
+                                                    {
+                                                        "head": "d3"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "head": "int "
+                                                                            },
+                                                                            {
+                                                                                "head": "foo"
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "label": "168",
+                                                                        "tail": ", "
+                                                                    }
+                                                                ],
+                                                                "label": "164"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "head": "int "
+                                                                                            },
+                                                                                            {
+                                                                                                "head": "bar"
+                                                                                            }
+                                                                                        ]
+                                                                                    },
+                                                                                    {
+                                                                                        "label": "175",
+                                                                                        "tail": ", "
+                                                                                    }
+                                                                                ],
+                                                                                "label": "171"
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "head": "int "
+                                                                                            },
+                                                                                            {
+                                                                                                "head": "baz"
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                ],
+                                                                                "dependents": [
+                                                                                    "175"
+                                                                                ],
+                                                                                "label": "176"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "168"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "head": "(",
+                                                "tail": ")\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\ttotal "
+                                                                    },
+                                                                    {
+                                                                        "label": "185",
+                                                                        "tail": "+= "
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "baz"
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "185"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            }
+                                        ],
+                                        "head": "{\n",
+                                        "tail": "}\n\n"
+                                    }
+                                ]
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "head": "void "
+                                                    },
+                                                    {
+                                                        "head": "main"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "head": "(",
+                                                "tail": ")\n"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\ta"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "1"
+                                                                                    },
+                                                                                    {
+                                                                                        "label": "202",
+                                                                                        "tail": ", "
+                                                                                    }
+                                                                                ],
+                                                                                "label": "200"
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "head": "2"
+                                                                                                    },
+                                                                                                    {
+                                                                                                        "label": "207",
+                                                                                                        "tail": ", "
+                                                                                                    }
+                                                                                                ],
+                                                                                                "label": "205"
+                                                                                            },
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "head": "3"
+                                                                                                    }
+                                                                                                ],
+                                                                                                "dependents": [
+                                                                                                    "207"
+                                                                                                ],
+                                                                                                "label": "208"
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                ],
+                                                                                "dependents": [
+                                                                                    "202"
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "tail": ")"
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\tb"
+                                                                    },
+                                                                    {
+                                                                        "label": "214",
+                                                                        "tail": "!"
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "dependents": [
+                                                                                    "214",
+                                                                                    "219"
+                                                                                ]
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "children": [
+                                                                                                            {
+                                                                                                                "head": "1"
+                                                                                                            },
+                                                                                                            {
+                                                                                                                "label": "223",
+                                                                                                                "tail": ", "
+                                                                                                            }
+                                                                                                        ],
+                                                                                                        "label": "221"
+                                                                                                    },
+                                                                                                    {
+                                                                                                        "children": [
+                                                                                                            {
+                                                                                                                "head": "2"
+                                                                                                            }
+                                                                                                        ],
+                                                                                                        "dependents": [
+                                                                                                            "223"
+                                                                                                        ],
+                                                                                                        "label": "224"
+                                                                                                    }
+                                                                                                ]
+                                                                                            }
+                                                                                        ],
+                                                                                        "head": "(",
+                                                                                        "label": "219",
+                                                                                        "tail": ")"
+                                                                                    },
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "head": "3"
+                                                                                            }
+                                                                                        ],
+                                                                                        "head": "(",
+                                                                                        "tail": ")"
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "214"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "\tc"
+                                                                    },
+                                                                    {
+                                                                        "label": "232",
+                                                                        "tail": "!"
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "head": "1"
+                                                                                            },
+                                                                                            {
+                                                                                                "label": "238",
+                                                                                                "tail": ", "
+                                                                                            }
+                                                                                        ],
+                                                                                        "label": "236"
+                                                                                    },
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "children": [
+                                                                                                            {
+                                                                                                                "head": "2"
+                                                                                                            },
+                                                                                                            {
+                                                                                                                "label": "243",
+                                                                                                                "tail": ", "
+                                                                                                            }
+                                                                                                        ],
+                                                                                                        "label": "241"
+                                                                                                    },
+                                                                                                    {
+                                                                                                        "children": [
+                                                                                                            {
+                                                                                                                "head": "3"
+                                                                                                            }
+                                                                                                        ],
+                                                                                                        "dependents": [
+                                                                                                            "243"
+                                                                                                        ],
+                                                                                                        "label": "244"
+                                                                                                    }
+                                                                                                ]
+                                                                                            }
+                                                                                        ],
+                                                                                        "dependents": [
+                                                                                            "238"
+                                                                                        ]
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        ],
+                                                                        "head": "(",
+                                                                        "tail": ")"
+                                                                    }
+                                                                ],
+                                                                "dependents": [
+                                                                    "232"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n\n"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\td1"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "1"
+                                                                                    },
+                                                                                    {
+                                                                                        "label": "253",
+                                                                                        "tail": ", "
+                                                                                    }
+                                                                                ],
+                                                                                "label": "251"
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "head": "0"
+                                                                                                    },
+                                                                                                    {
+                                                                                                        "label": "258",
+                                                                                                        "tail": ", "
+                                                                                                    }
+                                                                                                ],
+                                                                                                "label": "256"
+                                                                                            },
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "head": "0"
+                                                                                                    }
+                                                                                                ],
+                                                                                                "dependents": [
+                                                                                                    "258"
+                                                                                                ],
+                                                                                                "label": "259"
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                ],
+                                                                                "dependents": [
+                                                                                    "253"
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "tail": ")"
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\td2"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "0"
+                                                                                    },
+                                                                                    {
+                                                                                        "label": "268",
+                                                                                        "tail": ", "
+                                                                                    }
+                                                                                ],
+                                                                                "label": "266"
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "head": "1"
+                                                                                                    },
+                                                                                                    {
+                                                                                                        "label": "273",
+                                                                                                        "tail": ", "
+                                                                                                    }
+                                                                                                ],
+                                                                                                "label": "271"
+                                                                                            },
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "head": "0"
+                                                                                                    }
+                                                                                                ],
+                                                                                                "dependents": [
+                                                                                                    "273"
+                                                                                                ],
+                                                                                                "label": "274"
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                ],
+                                                                                "dependents": [
+                                                                                    "268"
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "tail": ")"
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\td3"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "0"
+                                                                                    },
+                                                                                    {
+                                                                                        "label": "283",
+                                                                                        "tail": ", "
+                                                                                    }
+                                                                                ],
+                                                                                "label": "281"
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "head": "0"
+                                                                                                    },
+                                                                                                    {
+                                                                                                        "label": "288",
+                                                                                                        "tail": ", "
+                                                                                                    }
+                                                                                                ],
+                                                                                                "label": "286"
+                                                                                            },
+                                                                                            {
+                                                                                                "children": [
+                                                                                                    {
+                                                                                                        "head": "1"
+                                                                                                    }
+                                                                                                ],
+                                                                                                "dependents": [
+                                                                                                    "288"
+                                                                                                ],
+                                                                                                "label": "289"
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                ],
+                                                                                "dependents": [
+                                                                                    "283"
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "tail": ")"
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n\n"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "head": "\twriteln"
+                                                            },
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "total"
+                                                                                    },
+                                                                                    {
+                                                                                        "label": "298",
+                                                                                        "tail": "=="
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "head": "6"
+                                                                                    }
+                                                                                ],
+                                                                                "dependents": [
+                                                                                    "298"
+                                                                                ]
+                                                                            }
+                                                                        ],
+                                                                        "label": "295"
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "tail": ")"
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "tail": ";\n"
+                                            }
+                                        ],
+                                        "head": "{\n",
+                                        "tail": "}\n"
+                                    }
+                                ]
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "dependents": [
+                                                    "23",
+                                                    "200"
+                                                ]
+                                            },
+                                            {
+                                                "dependents": [
+                                                    "30",
+                                                    "205"
+                                                ]
+                                            },
+                                            {
+                                                "dependents": [
+                                                    "35",
+                                                    "208"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "dependents": [
+                                                    "50",
+                                                    "221"
+                                                ]
+                                            },
+                                            {
+                                                "dependents": [
+                                                    "55",
+                                                    "224"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "dependents": [
+                                                    "74",
+                                                    "236"
+                                                ]
+                                            },
+                                            {
+                                                "dependents": [
+                                                    "81",
+                                                    "241"
+                                                ]
+                                            },
+                                            {
+                                                "dependents": [
+                                                    "86",
+                                                    "244"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "dependents": [
+                                                    "102",
+                                                    "251"
+                                                ]
+                                            },
+                                            {
+                                                "dependents": [
+                                                    "109",
+                                                    "256"
+                                                ]
+                                            },
+                                            {
+                                                "dependents": [
+                                                    "114",
+                                                    "259"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "dependents": [
+                                                    "133",
+                                                    "266"
+                                                ]
+                                            },
+                                            {
+                                                "dependents": [
+                                                    "140",
+                                                    "271"
+                                                ]
+                                            },
+                                            {
+                                                "dependents": [
+                                                    "145",
+                                                    "274"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "dependents": [
+                                                    "164",
+                                                    "281"
+                                                ]
+                                            },
+                                            {
+                                                "dependents": [
+                                                    "171",
+                                                    "286"
+                                                ]
+                                            },
+                                            {
+                                                "dependents": [
+                                                    "176",
+                                                    "289"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "dependents": [
+                                                    "295"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "filename": "test.d"
+            }
+        ]
+    },
+    "version": 1
+}
