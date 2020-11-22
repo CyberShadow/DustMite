@@ -141,7 +141,7 @@ struct RemoveRule { Regex!char regexp; string shellGlob; bool remove; }
 
 int main(string[] args)
 {
-	bool force, dumpHtml, dumpJson, showTimes, stripComments, obfuscate, fuzz, keepLength, showHelp, showVersion, noOptimize, inPlace;
+	bool force, dumpHtml, dumpJson, readJson, showTimes, stripComments, obfuscate, fuzz, keepLength, showHelp, showVersion, noOptimize, inPlace;
 	string coverageDir;
 	RemoveRule[] removeRules;
 	string[] splitRules;
@@ -185,6 +185,7 @@ int main(string[] args)
 		"tab-width", &tabWidth,
 		"max-steps", &maxSteps, // for research / benchmarking
 		"i|in-place", &inPlace,
+		"json", &readJson,
 		"h|help", &showHelp,
 		"V|version", &showVersion,
 	);
@@ -232,6 +233,7 @@ Supported options:
   --split MASK:MODE  Parse and reduce files specified by MASK using the given
                        splitter. Can be repeated. MODE must be one of:
                        %-(%s, %)
+  --json             Load PATH as a JSON file (same syntax as --dump-json)
   --no-redirect      Don't redirect stdout/stderr streams of test command
   -j[N]              Use N look-ahead processes (%d by default)
 EOS", args[0], splitterNames, totalCPUs);
@@ -284,16 +286,18 @@ EOS");
 
 	bool isDotName(string fn) { return fn.startsWith(".") && !(fn=="." || fn==".."); }
 
-	bool suspiciousFilesFound;
-	if (!force && isDir(dir))
+	if (!readJson && !force && isDir(dir))
+	{
+		bool suspiciousFilesFound;
 		foreach (string path; dirEntries(dir, SpanMode.breadth))
 			if (isDotName(baseName(path)) || isDotName(baseName(dirName(path))) || extension(path)==".o" || extension(path)==".obj" || extension(path)==".exe")
 			{
 				stderr.writeln("Warning: Suspicious file found: ", path);
 				suspiciousFilesFound = true;
 			}
-	if (suspiciousFilesFound)
-		stderr.writeln("You should use a clean copy of the source tree.\nIf it was your intention to include this file in the file-set to be reduced,\nyou can use --force to silence this message.");
+		if (suspiciousFilesFound)
+			stderr.writeln("You should use a clean copy of the source tree.\nIf it was your intention to include this file in the file-set to be reduced,\nyou can use --force to silence this message.");
+	}
 
 	ParseRule parseSplitRule(string rule)
 	{
@@ -308,13 +312,21 @@ EOS");
 
 	Entity root;
 
-	ParseOptions parseOptions;
-	parseOptions.stripComments = stripComments;
-	parseOptions.mode = obfuscate ? ParseOptions.Mode.words : ParseOptions.Mode.source;
-	parseOptions.rules = splitRules.map!parseSplitRule().array();
-	parseOptions.tabWidth = tabWidth;
-	measure!"load"({root = loadFiles(dir, parseOptions);});
-	enforce(root.children.length, "No files in specified directory");
+	if (readJson)
+	{
+		measure!"load"({root = loadJson(dir);});
+		enforce(root.children.length, "No files in specified directory");
+	}
+	else
+	{
+		ParseOptions parseOptions;
+		parseOptions.stripComments = stripComments;
+		parseOptions.mode = obfuscate ? ParseOptions.Mode.words : ParseOptions.Mode.source;
+		parseOptions.rules = splitRules.map!parseSplitRule().array();
+		parseOptions.tabWidth = tabWidth;
+		measure!"load"({root = loadFiles(dir, parseOptions);});
+		enforce(root.children.length, "No files in specified directory");
+	}
 
 	applyNoRemoveMagic(root);
 	applyNoRemoveRules(root, removeRules);
@@ -2819,6 +2831,91 @@ void dumpToJson(Entity root, string fn)
 	]);
 
 	std.file.write(fn, jsonDoc.toPrettyString());
+}
+
+Entity loadJson(string fn)
+{
+	import std.json : JSONValue, parseJSON;
+
+	auto jsonDoc = parseJSON(cast(string)read(fn));
+	enforce(jsonDoc["version"].integer == 1, "Unknown JSON version");
+
+	// Pass 1: calculate the total size of all data.
+	// --no-remove and some optimizations require that entity strings
+	// are arranged in contiguous memory.
+	size_t totalSize;
+	void scanSize(ref JSONValue v)
+	{
+		if (auto p = "head" in v.object)
+			totalSize += p.str.length;
+		if (auto p = "children" in v.object)
+			p.array.each!scanSize();
+		if (auto p = "tail" in v.object)
+			totalSize += p.str.length;
+	}
+	scanSize(jsonDoc["root"]);
+
+	auto buf = new char[totalSize];
+	size_t pos = 0;
+
+	Entity[string] labeledEntities;
+	JSONValue[][Entity] entityDependents;
+
+	// Pass 2: Create the entity tree
+	Entity parse(ref JSONValue v)
+	{
+		auto e = new Entity;
+
+		if (auto p = "filename" in v.object)
+		{
+			e.filename = p.str.buildNormalizedPath;
+			enforce(e.filename.length &&
+				!e.filename.isAbsolute &&
+				!e.filename.pathSplitter.canFind(`..`),
+				"Invalid filename in JSON file: " ~ p.str);
+		}
+
+		if (auto p = "head" in v.object)
+		{
+			auto end = pos + p.str.length;
+			buf[pos .. end] = p.str;
+			e.head = buf[pos .. end].assumeUnique;
+			pos = end;
+		}
+		if (auto p = "children" in v.object)
+			e.children = p.array.map!parse.array;
+		if (auto p = "tail" in v.object)
+		{
+			auto end = pos + p.str.length;
+			buf[pos .. end] = p.str;
+			e.tail = buf[pos .. end].assumeUnique;
+			pos = end;
+		}
+
+		if (auto p = "noRemove" in v.object)
+			e.noRemove = p.boolean;
+
+		if (auto p = "label" in v.object)
+			labeledEntities.update(p.str, () => e,
+				(ref Entity e) { throw new Exception("Duplicate label in JSON file: " ~ p.str); });
+		if (auto p = "dependents" in v.object)
+			entityDependents[e] = p.array;
+
+		return e;
+	}
+	auto root = parse(jsonDoc["root"]);
+
+	// Pass 3: Resolve dependents
+	foreach (e, dependents; entityDependents)
+		e.dependents = dependents
+			.map!((ref d) => labeledEntities
+				.get(d.str, null)
+				.enforce("Unknown label in dependents: " ~ d.str)
+				.EntityRef
+			)
+			.array;
+
+	return root;
 }
 
 // void dumpText(string fn, ref Reduction r = nullReduction)
