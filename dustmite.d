@@ -43,6 +43,7 @@ size_t maxBreadth;
 size_t origDescendants;
 int tests, maxSteps = -1; bool foundAnything;
 bool noSave, trace, noRedirect, doDump, whiteout;
+RemoveRule[] rejectRules;
 string strategy = "inbreadth";
 
 struct Times { StopWatch total, load, testSave, resultSave, apply, lookaheadApply, lookaheadWaitThread, lookaheadWaitProcess, test, clean, globalCache, misc; }
@@ -163,6 +164,7 @@ int main(string[] args)
 		"reduceonly|reduce-only", (string opt, string value) { removeRules ~= RemoveRule(Regex!char.init, value, true); },
 		"remove"                , (string opt, string value) { removeRules ~= RemoveRule(regex(value, "mg"), null, true); },
 		"noremove|no-remove"    , (string opt, string value) { removeRules ~= RemoveRule(regex(value, "mg"), null, false); },
+		"reject"                , (string opt, string value) { rejectRules ~= RemoveRule(regex(value, "mg"), null, true); },
 		"strip-comments", &stripComments,
 		"whiteout|white-out", &whiteout,
 		"coverage", &coverageDir,
@@ -215,6 +217,8 @@ Supported options:
   --remove REGEXP    Only reduce blocks covered by REGEXP
                        (may be used multiple times)
   --no-remove REGEXP Do not reduce blocks containing REGEXP
+                       (may be used multiple times)
+  --reject REGEXP    Reject reductions which cause REGEXP to occur in output
                        (may be used multiple times)
   --strip-comments   Attempt to remove comments from source code
   --white-out        Replace deleted text with spaces to preserve line numbers
@@ -1421,36 +1425,60 @@ static struct FastWriter(Next) /// Accelerates Writer interface by bulking conti
 	~this() { finish(); }
 }
 
+static struct DiskWriter
+{
+	string dir;
+
+	File o;
+	typeof(o.lockingBinaryWriter()) binaryWriter;
+
+	void handleFile(string fn)
+	{
+		static Appender!(char[]) pathBuf;
+		pathBuf.clear();
+		pathBuf.put(dir.chainPath(fn));
+		auto path = pathBuf.data;
+		if (!exists(dirName(path)))
+			safeMkdir(dirName(path));
+
+		o.open(cast(string)path, "wb");
+		binaryWriter = o.lockingBinaryWriter;
+	}
+
+	void handleText(string s)
+	{
+		binaryWriter.put(s);
+	}
+}
+
+struct MemoryWriter
+{
+	char[] buf;
+	size_t pos;
+
+	void handleFile(string fn) {}
+
+	void handleText(string s)
+	{
+		auto end = pos + s.length;
+		if (buf.length < end)
+		{
+			buf.length = end;
+			buf.length = buf.capacity;
+		}
+		buf[pos .. end] = s;
+		pos = end;
+	}
+
+	void reset() { pos = 0; }
+	char[] data() { return buf[0 .. pos]; }
+}
+
 void save(Entity root, string savedir)
 {
 	safeDelete(savedir);
 	safeMkdir(savedir);
 
-	static struct DiskWriter
-	{
-		string dir;
-
-		File o;
-		typeof(o.lockingBinaryWriter()) binaryWriter;
-
-		void handleFile(string fn)
-		{
-			static Appender!(char[]) pathBuf;
-			pathBuf.clear();
-			pathBuf.put(dir.chainPath(fn));
-			auto path = pathBuf.data;
-			if (!exists(dirName(path)))
-				safeMkdir(dirName(path));
-
-			o.open(cast(string)path, "wb");
-			binaryWriter = o.lockingBinaryWriter;
-		}
-
-		void handleText(string s)
-		{
-			binaryWriter.put(s);
-		}
-	}
 	FastWriter!DiskWriter writer;
 	writer.next.dir = savedir;
 	dump(root, &writer);
@@ -2002,6 +2030,7 @@ struct TestResult
 		lookahead,
 		diskCache,
 		ramCache,
+		reject,
 	}
 	Source source;
 
@@ -2022,6 +2051,8 @@ struct TestResult
 				return "Test result was cached on disk as " ~ (success ? "success" : "failure");
 			case Source.ramCache:
 				return "Test result was cached in memory as " ~ (success ? "success" : "failure");
+			case Source.reject:
+				return "Test result was rejected by a --reject rule";
 		}
 	}
 }
@@ -2237,6 +2268,54 @@ TestResult test(
 		return fallback;
 	}
 
+	TestResult testReject(lazy TestResult fallback)
+	{
+		if (rejectRules.length)
+		{
+			bool defaultReject = !rejectRules.front.remove;
+
+			bool scan(Entity e)
+			{
+				if (e.isFile)
+				{
+					static MemoryWriter writer;
+					writer.reset();
+					dump(e, &writer);
+
+					static bool[] removeCharBuf;
+					if (removeCharBuf.length < writer.data.length)
+						removeCharBuf.length = writer.data.length;
+					auto removeChar = removeCharBuf[0 .. writer.data.length];
+					removeChar[] = defaultReject;
+
+					foreach (ref rule; rejectRules)
+						if (rule.regexp !is Regex!char.init)
+							foreach (m; writer.data.matchAll(rule.regexp))
+							{
+								auto start = m.hit.ptr - writer.data.ptr;
+								auto end = start + m.hit.length;
+								removeChar[start .. end] = rule.remove;
+							}
+
+					if (removeChar.canFind(true))
+						return true;
+				}
+				else
+					foreach (c; e.children)
+						if (scan(c))
+							return true;
+				return false;
+			}
+
+			if (scan(root))
+			{
+				writeln("No (rejected)");
+				return TestResult(false, TestResult.Source.reject);
+			}
+		}
+		return fallback;
+	}
+
 	TestResult doTest()
 	{
 		string testdir = dirSuffix("test");
@@ -2258,7 +2337,7 @@ TestResult test(
 		return result;
 	}
 
-	auto result = ramCached(diskCached(lookahead(doTest())));
+	auto result = ramCached(diskCached(testReject(lookahead(doTest()))));
 	if (trace) saveTrace(root, reductions, dirSuffix("trace"), result.success);
 	return result;
 }
