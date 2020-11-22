@@ -249,9 +249,9 @@ EOS");
 Less interesting options:
   -V, --version      Show program version
   --strategy STRAT   Set strategy (careful/lookback/pingpong/indepth/inbreadth)
-  --dump             Dump parsed tree to DIR.dump file
-  --dump-html        Dump parsed tree to DIR.html file
-  --dump-json        Dump parsed tree to DIR.json file
+  --dump             Dump parsed tree to PATH.dump file
+  --dump-html        Dump parsed tree to PATH.html file
+  --dump-json        Dump parsed tree to PATH.json file
   --times            Display verbose spent time breakdown
   --cache DIR        Use DIR as persistent disk cache
                        (in addition to memory cache)
