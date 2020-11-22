@@ -2893,11 +2893,17 @@ Entity loadJson(string fn)
 		}
 
 		if (auto p = "noRemove" in v.object)
-			e.noRemove = p.boolean;
+			e.noRemove = (){
+				if (*p == JSONValue(true)) return true;
+				if (*p == JSONValue(false)) return false;
+				throw new Exception("noRemove is not a boolean");
+			}();
 
 		if (auto p = "label" in v.object)
-			labeledEntities.update(p.str, () => e,
-				(ref Entity e) { throw new Exception("Duplicate label in JSON file: " ~ p.str); });
+		{
+			enforce(p.str !in labeledEntities, "Duplicate label in JSON file: " ~ p.str);
+			labeledEntities[p.str] = e;
+		}
 		if (auto p = "dependents" in v.object)
 			entityDependents[e] = p.array;
 
