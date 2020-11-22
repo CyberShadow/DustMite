@@ -141,7 +141,7 @@ struct RemoveRule { Regex!char regexp; string shellGlob; bool remove; }
 
 int main(string[] args)
 {
-	bool force, dumpHtml, showTimes, stripComments, obfuscate, fuzz, keepLength, showHelp, showVersion, noOptimize, inPlace;
+	bool force, dumpHtml, dumpJson, showTimes, stripComments, obfuscate, fuzz, keepLength, showHelp, showVersion, noOptimize, inPlace;
 	string coverageDir;
 	RemoveRule[] removeRules;
 	string[] splitRules;
@@ -175,6 +175,7 @@ int main(string[] args)
 		"split", &splitRules,
 		"dump", &doDump,
 		"dump-html", &dumpHtml,
+		"dump-json", &dumpJson,
 		"times", &showTimes,
 		"noredirect|no-redirect", &noRedirect,
 		"cache", &globalCache, // for research
@@ -250,6 +251,7 @@ Less interesting options:
   --strategy STRAT   Set strategy (careful/lookback/pingpong/indepth/inbreadth)
   --dump             Dump parsed tree to DIR.dump file
   --dump-html        Dump parsed tree to DIR.html file
+  --dump-json        Dump parsed tree to DIR.json file
   --times            Display verbose spent time breakdown
   --cache DIR        Use DIR as persistent disk cache
                        (in addition to memory cache)
@@ -331,6 +333,8 @@ EOS");
 		dumpSet(root, dirSuffix("dump"));
 	if (dumpHtml)
 		dumpToHtml(root, dirSuffix("html"));
+	if (dumpJson)
+		dumpToJson(root, dirSuffix("json"));
 
 	if (tester is null)
 	{
@@ -2760,6 +2764,61 @@ EOT");
 	dump(root);
 
 	std.file.write(fn, buf.data());
+}
+
+void dumpToJson(Entity root, string fn)
+{
+	import std.json : JSONValue;
+
+	bool[const(Address)*] needLabel;
+
+	void scan(Entity e, const(Address)* addr)
+	{
+		foreach (dependent; e.dependents)
+		{
+			assert(dependent.address);
+			needLabel[dependent.address] = true;
+		}
+		foreach (i, child; e.children)
+			scan(child, addr.child(i));
+	}
+	scan(root, &rootAddress);
+
+	JSONValue toJson(Entity e, const(Address)* addr)
+	{
+		JSONValue[string] o;
+
+		if (e.isFile)
+			o["filename"] = e.filename;
+
+		if (e.head.length)
+			o["head"] = e.head;
+		if (e.children.length)
+			o["children"] = e.children.length.iota.map!(i =>
+				toJson(e.children[i], addr.child(i))
+			).array;
+		if (e.tail.length)
+			o["tail"] = e.tail;
+
+		if (e.noRemove)
+			o["noRemove"] = true;
+
+		if (addr in needLabel)
+			o["label"] = e.id.to!string;
+		if (e.dependents.length)
+			o["dependents"] = e.dependents.map!((ref dependent) =>
+				root.findEntity(dependent.address).entity.id.to!string
+			).array;
+
+		return JSONValue(o);
+	}
+
+	auto jsonDoc = JSONValue([
+		"version" : JSONValue(1),
+		"root" : toJson(root, &rootAddress),
+	]);
+
+	std.file.write(fn, jsonDoc.toPrettyString());
 }
 
 // void dumpText(string fn, ref Reduction r = nullReduction)
