@@ -305,9 +305,18 @@ EOS");
 	ParseRule parseSplitRule(string rule)
 	{
 		auto p = rule.lastIndexOf(':');
-		enforce(p > 0, "Invalid parse rule: " ~ rule);
-		auto pattern = rule[0..p];
-		auto splitterName = rule[p+1..$];
+		string pattern, splitterName;
+		if (p < 0)
+		{
+			pattern = "*";
+			splitterName = rule;
+		}
+		else
+		{
+			enforce(p > 0, "Invalid parse rule: " ~ rule);
+			pattern = rule[0 .. p];
+			splitterName = rule[p + 1 .. $];
+		}
 		auto splitterIndex = splitterNames.countUntil(splitterName);
 		enforce(splitterIndex >= 0, "Unknown splitter: " ~ splitterName);
 		return ParseRule(pattern, cast(Splitter)splitterIndex);
