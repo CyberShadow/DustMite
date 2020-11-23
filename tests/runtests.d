@@ -68,6 +68,9 @@ void main(string[] args)
 		if (exists(test ~ "/src.d"))
 			base = "src", target = "src.d";
 		else
+		if (exists(test ~ "/stdin"))
+			base = "stdin", target = "-";
+		else
 		if (exists(test ~ "/src.json"))
 			base = target = "src.json";
 		else
@@ -99,19 +102,21 @@ void main(string[] args)
 			target = reducedDir.baseName;
 		}
 
+		File input() { return target == "-" ? File(base, "rb") : stdin; }
+
 		auto outputFile = test~"/output.txt";
 		File output;
 		synchronized(mutex) output.open(outputFile, "wb");
 
 		stderr.writefln("runtests: test %s: dumping", test);
 		auto status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ (target ? ["--dump", "--no-optimize", target] : []),
-			stdin, output, output, null, Config.retainStdout | Config.retainStderr, test).wait();
+			input, output, output, null, Config.retainStdout | Config.retainStderr, test).wait();
 		enforce(status == 0, "Dustmite dump failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
 
 		stderr.writefln("runtests: test %s: dumping JSON", test);
 		status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ (target ? ["--dump-json", "--no-optimize", target] : []),
-			stdin, output, output, null, Config.retainStdout | Config.retainStderr, test).wait();
+			input, output, output, null, Config.retainStdout | Config.retainStderr, test).wait();
 		enforce(status == 0, "Dustmite JSON dump failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
 
@@ -121,7 +126,7 @@ void main(string[] args)
 		synchronized(mutex) output.reopen(outputFile, "ab"); // Reopen because spawnProcess closes it
 		stderr.writefln("runtests: test %s: reducing", test);
 		status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ ["--times", target, testerCmd],
-			stdin, output, output, null, Config.retainStdout | Config.retainStderr, test).wait();
+			input, output, output, null, Config.retainStdout | Config.retainStderr, test).wait();
 		enforce(status == 0, "Dustmite run failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
 
