@@ -83,7 +83,7 @@ void main(string[] args)
 		if (cacheDir.exists) cacheDir.rmdirRecurse();
 
 		string[] opts;
-		auto optsFile = test~"/opts.txt";
+		auto optsFile = test~"/args.txt";
 		if (optsFile.exists)
 			opts = optsFile.readText().splitLines();
 		if (opts.canFind("--in-place"))
