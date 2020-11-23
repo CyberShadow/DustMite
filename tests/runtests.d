@@ -59,8 +59,11 @@ void main(string[] args)
 		scope(failure) stderr.writefln("runtests: Error with test %s", test);
 
 		auto target = test~"/src";
+		auto base = target;
 		if (!target.exists)
 			target = test~"/src.d";
+		if (!target.exists)
+			target = base = test~"/src.json";
 		if (!target.exists)
 			target = null;
 		version (Windows)
@@ -70,13 +73,13 @@ void main(string[] args)
 		auto tester = test~"/" ~ testFile;
 		auto testerCmd = ".." ~ dirSeparator ~ testFile;
 
-		auto tempDir = target.setExtension("temp");
+		auto tempDir = base ~ ".temp";
 		if (tempDir.exists) tempDir.rmdirRecurse();
-		auto reducedDir = target.setExtension("reduced");
+		auto reducedDir = base ~ ".reduced";
 		if (reducedDir.exists) reducedDir.rmdirRecurse();
-		auto resultDir = target.setExtension("result");
+		auto resultDir = base ~ ".result";
 		if (resultDir.exists) resultDir.rmdirRecurse();
-		auto cacheDir = target.setExtension("cache");
+		auto cacheDir = base ~ ".cache";
 		if (cacheDir.exists) cacheDir.rmdirRecurse();
 
 		string[] opts;
