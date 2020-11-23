@@ -2939,7 +2939,7 @@ version(testsuite)
 shared static this()
 {
 	import core.runtime;
-	"../cov".mkdir.collectException();
-	dmd_coverDestPath("../cov");
+	"../../cov".mkdir.collectException();
+	dmd_coverDestPath("../../cov");
 	dmd_coverSetMerge(true);
 }

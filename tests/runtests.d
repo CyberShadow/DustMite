@@ -42,13 +42,15 @@ void main(string[] args)
 				dmdVersion, testSuiteDMDVersion);
 	}
 
-	auto dustmite = buildPath("..", "dustmite");
+	auto dustmite = buildPath("..", "..", "dustmite");
 	immutable flags = ["-g", "-debug", "-unittest", "-cov", "-version=testsuite"];
 	buildPath("..", "cov").rmdirRecurse.collectException;
 
 	stderr.writeln("Building...");
 	{
-		auto status = spawnProcess(["rdmd", "--build-only"] ~ flags ~ [dustmite]).wait();
+		auto status = spawnProcess(["rdmd", "--build-only"] ~ flags ~ [dustmite],
+			stdin, stdout, stderr, null, Config.none, tests[0]
+		).wait();
 		enforce(status == 0, "Dustmite build failed with status %s".format(status));
 	}
 
@@ -58,21 +60,26 @@ void main(string[] args)
 	{
 		scope(failure) stderr.writefln("runtests: Error with test %s", test);
 
-		auto target = test~"/src";
-		auto base = target;
-		if (!target.exists)
-			target = test~"/src.d";
-		if (!target.exists)
-			target = base = test~"/src.json";
-		if (!target.exists)
-			target = null;
+		string base, target;
+
+		if (exists(test ~ "/src"))
+			base = target = "src";
+		else
+		if (exists(test ~ "/src.d"))
+			base = "src", target = "src.d";
+		else
+		if (exists(test ~ "/src.json"))
+			base = target = "src.json";
+		else
+			base = "src", target = null;
 		version (Windows)
 			enum testFile = "test.cmd";
 		else
 			enum testFile = "test.sh";
-		auto tester = test~"/" ~ testFile;
+		auto tester = test ~ "/" ~ testFile;
 		auto testerCmd = ".." ~ dirSeparator ~ testFile;
 
+		base = test ~ "/" ~ base;
 		auto tempDir = base ~ ".temp";
 		if (tempDir.exists) tempDir.rmdirRecurse();
 		auto reducedDir = base ~ ".reduced";
@@ -83,13 +90,13 @@ void main(string[] args)
 		if (cacheDir.exists) cacheDir.rmdirRecurse();
 
 		string[] opts;
-		auto optsFile = test~"/args.txt";
+		auto optsFile = test ~ "/args.txt";
 		if (optsFile.exists)
 			opts = optsFile.readText().splitLines();
 		if (opts.canFind("--in-place"))
 		{
-			copyRecurse(target, reducedDir);
-			target = reducedDir;
+			copyRecurse(test ~ "/" ~ target, reducedDir);
+			target = reducedDir.baseName;
 		}
 
 		auto outputFile = test~"/output.txt";
@@ -98,13 +105,13 @@ void main(string[] args)
 
 		stderr.writefln("runtests: test %s: dumping", test);
 		auto status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ (target ? ["--dump", "--no-optimize", target] : []),
-			stdin, output, output, null, Config.retainStdout | Config.retainStderr).wait();
+			stdin, output, output, null, Config.retainStdout | Config.retainStderr, test).wait();
 		enforce(status == 0, "Dustmite dump failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
 
 		stderr.writefln("runtests: test %s: dumping JSON", test);
 		status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ (target ? ["--dump-json", "--no-optimize", target] : []),
-			stdin, output, output, null, Config.retainStdout | Config.retainStderr).wait();
+			stdin, output, output, null, Config.retainStdout | Config.retainStderr, test).wait();
 		enforce(status == 0, "Dustmite JSON dump failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
 
@@ -114,7 +121,7 @@ void main(string[] args)
 		synchronized(mutex) output.reopen(outputFile, "ab"); // Reopen because spawnProcess closes it
 		stderr.writefln("runtests: test %s: reducing", test);
 		status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ ["--times", target, testerCmd],
-			stdin, output, output, null, Config.retainStdout | Config.retainStderr).wait();
+			stdin, output, output, null, Config.retainStdout | Config.retainStderr, test).wait();
 		enforce(status == 0, "Dustmite run failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
 
