@@ -212,8 +212,7 @@ int main(string[] args)
 	{
 		stderr.writef(q"EOS
 Usage: %s [OPTION]... PATH TESTER
-PATH should be a directory containing a clean copy of the file-set to reduce.
-A file path can also be specified. NAME.EXT will be treated like NAME/NAME.EXT.
+PATH should contain a clean copy of the file-set to reduce.
 TESTER should be a shell command which returns 0 for a correct reduction,
 and anything else otherwise.
 Supported options:

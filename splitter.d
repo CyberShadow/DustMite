@@ -191,10 +191,7 @@ Entity loadFiles(ref string path, ParseOptions options)
 		if (path == "-" || path == "/dev/stdin")
 			name = path = "stdin";
 		else
-		{
 			name = realPath.baseName();
-			path = realPath.stripExtension();
-		}
 		return loadFile(name, realPath, options);
 	}
 }

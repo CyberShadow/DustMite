@@ -66,7 +66,7 @@ void main(string[] args)
 			base = target = "src";
 		else
 		if (exists(test ~ "/src.d"))
-			base = "src", target = "src.d";
+			base = target = "src.d";
 		else
 		if (exists(test ~ "/stdin"))
 			base = "stdin", target = "-";
