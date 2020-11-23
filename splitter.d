@@ -269,7 +269,7 @@ Entity loadFile(string name, string path, ParseOptions options)
 		return loadJson(contents);
 
 	auto result = new Entity();
-	result.filename = name.replace(`\`, `/`);
+	result.filename = name.replace(dirSeparator, `/`);
 	result.contents = contents;
 
 	auto base = name.baseName();
