@@ -315,21 +315,16 @@ EOS");
 
 	Entity root;
 
-	if (readJson)
-	{
-		measure!"load"({root = loadJson(dir);});
-		enforce(root.children.length, "No files in specified directory");
-	}
-	else
-	{
-		ParseOptions parseOptions;
-		parseOptions.stripComments = stripComments;
-		parseOptions.mode = obfuscate ? ParseOptions.Mode.words : ParseOptions.Mode.source;
-		parseOptions.rules = splitRules.map!parseSplitRule().array();
-		parseOptions.tabWidth = tabWidth;
-		measure!"load"({root = loadFiles(dir, parseOptions);});
-		enforce(root.children.length, "No files in specified directory");
-	}
+	ParseOptions parseOptions;
+	parseOptions.stripComments = stripComments;
+	parseOptions.mode =
+		readJson ? ParseOptions.Mode.json :
+		obfuscate ? ParseOptions.Mode.words :
+		ParseOptions.Mode.source;
+	parseOptions.rules = splitRules.map!parseSplitRule().array();
+	parseOptions.tabWidth = tabWidth;
+	measure!"load"({root = loadFiles(dir, parseOptions);});
+	enforce(root.children.length, "No files in specified directory");
 
 	applyNoRemoveMagic(root);
 	applyNoRemoveRules(root, removeRules);
@@ -2834,97 +2829,6 @@ void dumpToJson(Entity root, string fn)
 	]);
 
 	std.file.write(fn, jsonDoc.toPrettyString());
-}
-
-Entity loadJson(string fn)
-{
-	import std.json : JSONValue, parseJSON;
-
-	auto jsonDoc = parseJSON(cast(string)read(fn));
-	enforce(jsonDoc["version"].integer == 1, "Unknown JSON version");
-
-	// Pass 1: calculate the total size of all data.
-	// --no-remove and some optimizations require that entity strings
-	// are arranged in contiguous memory.
-	size_t totalSize;
-	void scanSize(ref JSONValue v)
-	{
-		if (auto p = "head" in v.object)
-			totalSize += p.str.length;
-		if (auto p = "children" in v.object)
-			p.array.each!scanSize();
-		if (auto p = "tail" in v.object)
-			totalSize += p.str.length;
-	}
-	scanSize(jsonDoc["root"]);
-
-	auto buf = new char[totalSize];
-	size_t pos = 0;
-
-	Entity[string] labeledEntities;
-	JSONValue[][Entity] entityDependents;
-
-	// Pass 2: Create the entity tree
-	Entity parse(ref JSONValue v)
-	{
-		auto e = new Entity;
-
-		if (auto p = "filename" in v.object)
-		{
-			e.filename = p.str.buildNormalizedPath;
-			enforce(e.filename.length &&
-				!e.filename.isAbsolute &&
-				!e.filename.pathSplitter.canFind(`..`),
-				"Invalid filename in JSON file: " ~ p.str);
-		}
-
-		if (auto p = "head" in v.object)
-		{
-			auto end = pos + p.str.length;
-			buf[pos .. end] = p.str;
-			e.head = buf[pos .. end].assumeUnique;
-			pos = end;
-		}
-		if (auto p = "children" in v.object)
-			e.children = p.array.map!parse.array;
-		if (auto p = "tail" in v.object)
-		{
-			auto end = pos + p.str.length;
-			buf[pos .. end] = p.str;
-			e.tail = buf[pos .. end].assumeUnique;
-			pos = end;
-		}
-
-		if (auto p = "noRemove" in v.object)
-			e.noRemove = (){
-				if (*p == JSONValue(true)) return true;
-				if (*p == JSONValue(false)) return false;
-				throw new Exception("noRemove is not a boolean");
-			}();
-
-		if (auto p = "label" in v.object)
-		{
-			enforce(p.str !in labeledEntities, "Duplicate label in JSON file: " ~ p.str);
-			labeledEntities[p.str] = e;
-		}
-		if (auto p = "dependents" in v.object)
-			entityDependents[e] = p.array;
-
-		return e;
-	}
-	auto root = parse(jsonDoc["root"]);
-
-	// Pass 3: Resolve dependents
-	foreach (e, dependents; entityDependents)
-		e.dependents = dependents
-			.map!((ref d) => labeledEntities
-				.get(d.str, null)
-				.enforce("Unknown label in dependents: " ~ d.str)
-				.EntityRef
-			)
-			.array;
-
-	return root;
 }
 
 // void dumpText(string fn, ref Reduction r = nullReduction)

@@ -134,12 +134,6 @@ private: // Used during parsing only
 	debug string[] comments;  /// Used to debug the splitter
 }
 
-enum Mode
-{
-	source,
-	words,     /// split identifiers, for obfuscation
-}
-
 enum Splitter
 {
 	files,     /// Load entire files only
@@ -160,7 +154,12 @@ struct ParseRule
 
 struct ParseOptions
 {
-	enum Mode { source, words }
+	enum Mode
+	{
+		source,
+		words,     /// split identifiers, for obfuscation
+		json,
+	}
 
 	bool stripComments;
 	ParseRule[] rules;
@@ -264,9 +263,14 @@ void[] readFile(File f)
 Entity loadFile(string name, string path, ParseOptions options)
 {
 	stderr.writeln("Loading ", path);
+	auto contents = cast(string)readFile(path == "-" ? stdin : File(path, "rb"));
+
+	if (options.mode == ParseOptions.Mode.json)
+		return loadJson(contents);
+
 	auto result = new Entity();
 	result.filename = name.replace(`\`, `/`);
-	result.contents = cast(string)readFile(path == "-" ? stdin : File(path, "rb"));
+	result.contents = contents;
 
 	auto base = name.baseName();
 	foreach (rule; chain(options.rules, defaultRules))
@@ -297,6 +301,8 @@ Entity loadFile(string name, string path, ParseOptions options)
 
 					final switch (options.mode)
 					{
+						case ParseOptions.Mode.json:
+							assert(false);
 						case ParseOptions.Mode.source:
 							result.children = splitter.parse(result.contents);
 							return result;
@@ -1376,6 +1382,97 @@ Entity[] parseIndent(string s, uint tabWidth)
 }
 
 private:
+
+Entity loadJson(string contents)
+{
+	import std.json : JSONValue, parseJSON;
+
+	auto jsonDoc = parseJSON(contents);
+	enforce(jsonDoc["version"].integer == 1, "Unknown JSON version");
+
+	// Pass 1: calculate the total size of all data.
+	// --no-remove and some optimizations require that entity strings
+	// are arranged in contiguous memory.
+	size_t totalSize;
+	void scanSize(ref JSONValue v)
+	{
+		if (auto p = "head" in v.object)
+			totalSize += p.str.length;
+		if (auto p = "children" in v.object)
+			p.array.each!scanSize();
+		if (auto p = "tail" in v.object)
+			totalSize += p.str.length;
+	}
+	scanSize(jsonDoc["root"]);
+
+	auto buf = new char[totalSize];
+	size_t pos = 0;
+
+	Entity[string] labeledEntities;
+	JSONValue[][Entity] entityDependents;
+
+	// Pass 2: Create the entity tree
+	Entity parse(ref JSONValue v)
+	{
+		auto e = new Entity;
+
+		if (auto p = "filename" in v.object)
+		{
+			e.filename = p.str.buildNormalizedPath;
+			enforce(e.filename.length &&
+				!e.filename.isAbsolute &&
+				!e.filename.pathSplitter.canFind(`..`),
+				"Invalid filename in JSON file: " ~ p.str);
+		}
+
+		if (auto p = "head" in v.object)
+		{
+			auto end = pos + p.str.length;
+			buf[pos .. end] = p.str;
+			e.head = buf[pos .. end].assumeUnique;
+			pos = end;
+		}
+		if (auto p = "children" in v.object)
+			e.children = p.array.map!parse.array;
+		if (auto p = "tail" in v.object)
+		{
+			auto end = pos + p.str.length;
+			buf[pos .. end] = p.str;
+			e.tail = buf[pos .. end].assumeUnique;
+			pos = end;
+		}
+
+		if (auto p = "noRemove" in v.object)
+			e.noRemove = (){
+				if (*p == JSONValue(true)) return true;
+				if (*p == JSONValue(false)) return false;
+				throw new Exception("noRemove is not a boolean");
+			}();
+
+		if (auto p = "label" in v.object)
+		{
+			enforce(p.str !in labeledEntities, "Duplicate label in JSON file: " ~ p.str);
+			labeledEntities[p.str] = e;
+		}
+		if (auto p = "dependents" in v.object)
+			entityDependents[e] = p.array;
+
+		return e;
+	}
+	auto root = parse(jsonDoc["root"]);
+
+	// Pass 3: Resolve dependents
+	foreach (e, dependents; entityDependents)
+		e.dependents = dependents
+			.map!((ref d) => labeledEntities
+				.get(d.str, null)
+				.enforce("Unknown label in dependents: " ~ d.str)
+				.EntityRef
+			)
+			.array;
+
+	return root;
+}
 
 bool isNewline(char c) { return c == '\r' || c == '\n'; }
 alias isNotAlphaNum = not!isAlphaNum;
