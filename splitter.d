@@ -254,8 +254,8 @@ void[] readFile(File f)
 	import std.range.primitives : put;
 	auto result = appender!(ubyte[]);
 	auto size = f.size;
-	if (size != ulong.max)
-		result.reserve(size);
+	if (size <= uint.max)
+		result.reserve(cast(size_t)size);
 	put(result, f.byChunk(64 * 1024));
 	return result.data;
 }
