@@ -24,7 +24,7 @@ import std.process;
 import std.random;
 import std.range;
 import std.regex;
-import std.stdio;
+import std.stdio : stdout, stderr, File;
 import std.string;
 import std.typecons;
 
@@ -203,7 +203,7 @@ int main(string[] args)
 			enum source = import("source");
 		else
 			enum source = "upstream";
-		writeln("DustMite build ", __DATE__, " (", source, "), built with ", __VENDOR__, " ", __VERSION__);
+		stdout.writeln("DustMite build ", __DATE__, " (", source, "), built with ", __VENDOR__, " ", __VERSION__);
 		if (args.length == 1)
 			return 0;
 	}
@@ -348,7 +348,7 @@ EOS");
 
 	if (tester is null)
 	{
-		writeln("No tester specified, exiting");
+		stderr.writeln("No tester specified, exiting");
 		return 0;
 	}
 
@@ -359,7 +359,7 @@ EOS");
 		resultDir = dirSuffix("reduced");
 		if (resultDir.exists)
 		{
-			writeln("Hint: read https://github.com/CyberShadow/DustMite/wiki#result-directory-already-exists");
+			stderr.writeln("Hint: read https://github.com/CyberShadow/DustMite/wiki#result-directory-already-exists");
 			throw new Exception("Result directory already exists");
 		}
 	}
@@ -373,15 +373,15 @@ EOS");
 			version (Posix)
 			{
 				if (testerFile.exists && (testerFile.getAttributes() & octal!111) == 0)
-					writeln("Hint: test program seems to be a non-executable file, try: chmod +x " ~ testerFile.escapeShellFileName());
+					stderr.writeln("Hint: test program seems to be a non-executable file, try: chmod +x " ~ testerFile.escapeShellFileName());
 			}
 			if (!testerFile.exists && tester.exists)
-				writeln("Hint: test program path should be relative to the source directory, try " ~
+				stderr.writeln("Hint: test program path should be relative to the source directory, try " ~
 					tester.absolutePath.relativePath(dir.absolutePath).escapeShellFileName() ~
 					" instead of " ~ tester.escapeShellFileName());
 			if (!noRedirect)
-				writeln("Hint: use --no-redirect to see test script output");
-			writeln("Hint: read https://github.com/CyberShadow/DustMite/wiki#initial-test-fails");
+				stderr.writeln("Hint: use --no-redirect to see test script output");
+			stderr.writeln("Hint: read https://github.com/CyberShadow/DustMite/wiki#initial-test-fails");
 			throw new Exception("Initial test fails: " ~ nullResult.reason);
 		}
 	}
@@ -415,20 +415,20 @@ EOS");
 		{
 			if (noSave)
 				measure!"resultSave"({safeSave(root, resultDir);});
-			writefln("Done in %s tests and %s; %s version is in %s", tests, duration, resultAdjective, resultDir);
+			stderr.writefln("Done in %s tests and %s; %s version is in %s", tests, duration, resultAdjective, resultDir);
 		}
 		else
 		{
-			writeln("Hint: read https://github.com/CyberShadow/DustMite/wiki#reduced-to-empty-set");
-			writefln("Done in %s tests and %s; %s to empty set", tests, duration, resultAdjective);
+			stderr.writeln("Hint: read https://github.com/CyberShadow/DustMite/wiki#reduced-to-empty-set");
+			stderr.writefln("Done in %s tests and %s; %s to empty set", tests, duration, resultAdjective);
 		}
 	}
 	else
-		writefln("Done in %s tests and %s; no reductions found", tests, duration);
+		stderr.writefln("Done in %s tests and %s; no reductions found", tests, duration);
 
 	if (showTimes)
 		foreach (i, t; times.tupleof)
-			writefln("%s: %s", times.tupleof[i].stringof, times.tupleof[i].peek());
+			stderr.writefln("%s: %s", times.tupleof[i].stringof, times.tupleof[i].peek());
 
 	return 0;
 }
@@ -1220,12 +1220,12 @@ void reduceByStrategy(Strategy strategy)
 
 		if (lastIteration != strategy.getIteration())
 		{
-			writefln("############### ITERATION %d ################", strategy.getIteration());
+			stderr.writefln("############### ITERATION %d ################", strategy.getIteration());
 			lastIteration = strategy.getIteration();
 		}
 		if (lastDepth != strategy.getDepth())
 		{
-			writefln("============= Depth %d =============", strategy.getDepth());
+			stderr.writefln("============= Depth %d =============", strategy.getDepth());
 			lastDepth = strategy.getDepth();
 		}
 		if (lastProgressGeneration != strategy.progressGeneration)
@@ -1560,7 +1560,7 @@ bool tryReduction(ref Entity root, Reduction r)
 	if (newRoot is root)
 	{
 		assert(r.type != Reduction.Type.None);
-		writeln(r, " => N/A");
+		stderr.writeln(r, " => N/A");
 		return false;
 	}
 	if (test(newRoot, [r]).success)
@@ -1936,10 +1936,10 @@ void autoRetry(scope void delegate() fun, lazy const(char)[] operation)
 		}
 		catch (Exception e)
 		{
-			writeln("Error while attempting to " ~ operation ~ ": " ~ e.msg);
+			stderr.writeln("Error while attempting to " ~ operation ~ ": " ~ e.msg);
 			import core.thread;
 			Thread.sleep(dur!"seconds"(1));
-			writeln("Retrying...");
+			stderr.writeln("Retrying...");
 		}
 }
 
@@ -2076,7 +2076,7 @@ TestResult test(
 	Reduction[] reductions, /// For display purposes only
 )
 {
-	writef("%-(%s, %) => ", reductions); stdout.flush();
+	stderr.writef("%-(%s, %) => ", reductions); stdout.flush();
 
 	EntityHash digest = root.hash;
 
@@ -2086,7 +2086,7 @@ TestResult test(
 		if (cacheResult)
 		{
 			// Note: as far as I can see, a cache hit for a positive reduction is not possible (except, perhaps, for a no-op reduction)
-			writeln(*cacheResult ? "Yes" : "No", " (cached)");
+			stderr.writeln(*cacheResult ? "Yes" : "No", " (cached)");
 			return TestResult(*cacheResult, TestResult.Source.ramCache);
 		}
 		auto result = fallback;
@@ -2107,13 +2107,13 @@ TestResult test(
 			measure!"globalCache"({ found = exists(cacheBase~"0"); });
 			if (found)
 			{
-				writeln("No (disk cache)");
+				stderr.writeln("No (disk cache)");
 				return TestResult(false, TestResult.Source.diskCache);
 			}
 			measure!"globalCache"({ found = exists(cacheBase~"1"); });
 			if (found)
 			{
-				writeln("Yes (disk cache)");
+				stderr.writeln("Yes (disk cache)");
 				return TestResult(true, TestResult.Source.diskCache);
 			}
 			auto result = fallback;
@@ -2254,7 +2254,7 @@ TestResult test(
 			auto plookaheadResult = digest in lookaheadResults;
 			if (plookaheadResult)
 			{
-				writeln(plookaheadResult.success ? "Yes" : "No", " (lookahead)");
+				stderr.writeln(plookaheadResult.success ? "Yes" : "No", " (lookahead)");
 				return *plookaheadResult;
 			}
 
@@ -2273,7 +2273,7 @@ TestResult test(
 					measure!"lookaheadWaitProcess"({ exitCode = pid.wait(); });
 
 					auto result = reap(process, exitCode);
-					writeln(result.success ? "Yes" : "No", " (lookahead-wait)");
+					stderr.writeln(result.success ? "Yes" : "No", " (lookahead-wait)");
 					return result;
 				}
 			}
@@ -2323,7 +2323,7 @@ TestResult test(
 
 			if (scan(root))
 			{
-				writeln("No (rejected)");
+				stderr.writeln("No (rejected)");
 				return TestResult(false, TestResult.Source.reject);
 			}
 		}
@@ -2347,7 +2347,7 @@ TestResult test(
 		int status;
 		measure!"test"({status = pid.wait();});
 		auto result = TestResult(status == 0, TestResult.Source.tester, status);
-		writeln(result.success ? "Yes" : "No");
+		stderr.writeln(result.success ? "Yes" : "No");
 		return result;
 	}
 
@@ -2502,7 +2502,7 @@ void loadCoverage(Entity root, string dir)
 		auto fn = buildPath(dir, setExtension(baseName(f.filename), "lst"));
 		if (!exists(fn))
 			return;
-		writeln("Loading coverage file ", fn);
+		stderr.writeln("Loading coverage file ", fn);
 
 		static bool covered(string line)
 		{
