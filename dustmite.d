@@ -147,9 +147,8 @@ int main(string[] args)
 	string[] splitRules;
 	uint lookaheadCount, tabWidth = 8;
 
-	args = args.filter!(
-		(arg)
-		{
+	args = args
+		.filter!((string arg) {
 			if (arg.startsWith("-j"))
 			{
 				arg = arg[2..$];
@@ -157,7 +156,10 @@ int main(string[] args)
 				return false;
 			}
 			return true;
-		}).array();
+		})
+		// Work around getopt's inability to handle "-" in 2.080.0
+		.map!((string arg) => arg == "-" ? "\0" ~ arg : arg)
+		.array();
 
 	getopt(args,
 		"force", &force,
@@ -189,6 +191,8 @@ int main(string[] args)
 		"h|help", &showHelp,
 		"V|version", &showVersion,
 	);
+	foreach (ref arg; args)
+		arg.skipOver("\0"); // Undo getopt hack
 
 	if (showVersion)
 	{
@@ -286,7 +290,7 @@ EOS");
 
 	bool isDotName(string fn) { return fn.startsWith(".") && !(fn=="." || fn==".."); }
 
-	if (!readJson && !force && isDir(dir))
+	if (!readJson && !force && dir.exists && dir.isDir())
 	{
 		bool suspiciousFilesFound;
 		foreach (string path; dirEntries(dir, SpanMode.breadth))

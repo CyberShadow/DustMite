@@ -13,6 +13,7 @@ import std.file;
 import std.functional;
 import std.path;
 import std.range;
+import std.stdio : File, stdin;
 import std.string;
 import std.traits;
 import std.stdio : stderr;
@@ -168,16 +169,10 @@ struct ParseOptions
 }
 
 /// Parse the given file/directory.
-/// For files, modifies path to be the base name for .test / .reduced directories.
+/// For files, modifies `path` to be the base name for .test / .reduced directories.
 Entity loadFiles(ref string path, ParseOptions options)
 {
-	if (isFile(path))
-	{
-		auto filePath = path;
-		path = stripExtension(path);
-		return loadFile(filePath.baseName(), filePath, options);
-	}
-	else
+	if (path.exists && path.isDir)
 	{
 		auto set = new Entity();
 		foreach (string entry; dirEntries(path, SpanMode.breadth).array.sort!((a, b) => a.name < b.name))
@@ -188,6 +183,19 @@ Entity loadFiles(ref string path, ParseOptions options)
 				set.children ~= loadFile(name, entry, options);
 			}
 		return set;
+	}
+	else
+	{
+		auto realPath = path;
+		string name; // For Entity.filename
+		if (path == "-" || path == "/dev/stdin")
+			name = path = "stdin";
+		else
+		{
+			name = realPath.baseName();
+			path = realPath.stripExtension();
+		}
+		return loadFile(name, realPath, options);
 	}
 }
 
@@ -245,12 +253,23 @@ immutable ParseRule[] defaultRules =
 	{ "*"      , Splitter.files },
 ];
 
+void[] readFile(File f)
+{
+	import std.range.primitives : put;
+	auto result = appender!(ubyte[]);
+	auto size = f.size;
+	if (size != ulong.max)
+		result.reserve(size);
+	put(result, f.byChunk(64 * 1024));
+	return result.data;
+}
+
 Entity loadFile(string name, string path, ParseOptions options)
 {
 	stderr.writeln("Loading ", path);
 	auto result = new Entity();
 	result.filename = name.replace(`\`, `/`);
-	result.contents = cast(string)read(path);
+	result.contents = cast(string)readFile(path == "-" ? stdin : File(path, "rb"));
 
 	auto base = name.baseName();
 	foreach (rule; chain(options.rules, defaultRules))
