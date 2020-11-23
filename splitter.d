@@ -273,53 +273,50 @@ Entity loadFile(string name, string path, ParseOptions options)
 	result.contents = contents;
 
 	auto base = name.baseName();
-	foreach (rule; chain(options.rules, defaultRules))
-		if (base.globMatch(rule.pattern))
+	auto rule = chain(options.rules, defaultRules).find!(rule => base.globMatch(rule.pattern)).front;
+
+	final switch (rule.splitter)
+	{
+		case Splitter.files:
+			result.children = [new Entity(result.contents, null, null)];
+			return result;
+		case Splitter.lines:
+			result.children = parseToLines(result.contents);
+			return result;
+		case Splitter.words:
+			result.children = parseToWords(result.contents);
+			return result;
+		case Splitter.null_:
+			result.children = parseToNull(result.contents);
+			return result;
+		case Splitter.D:
 		{
-			final switch (rule.splitter)
+			if (result.contents.startsWith("Ddoc"))
+				goto case Splitter.files;
+
+			DSplitter splitter;
+			if (options.stripComments)
+				result.contents = splitter.stripComments(result.contents);
+
+			final switch (options.mode)
 			{
-				case Splitter.files:
-					result.children = [new Entity(result.contents, null, null)];
+				case ParseOptions.Mode.json:
+					assert(false);
+				case ParseOptions.Mode.source:
+					result.children = splitter.parse(result.contents);
 					return result;
-				case Splitter.lines:
-					result.children = parseToLines(result.contents);
-					return result;
-				case Splitter.words:
-					result.children = parseToWords(result.contents);
-					return result;
-				case Splitter.null_:
-					result.children = parseToNull(result.contents);
-					return result;
-				case Splitter.D:
-				{
-					if (result.contents.startsWith("Ddoc"))
-						goto case Splitter.files;
-
-					DSplitter splitter;
-					if (options.stripComments)
-						result.contents = splitter.stripComments(result.contents);
-
-					final switch (options.mode)
-					{
-						case ParseOptions.Mode.json:
-							assert(false);
-						case ParseOptions.Mode.source:
-							result.children = splitter.parse(result.contents);
-							return result;
-						case ParseOptions.Mode.words:
-							result.children = splitter.parseToWords(result.contents);
-							return result;
-					}
-				}
-				case Splitter.diff:
-					result.children = parseDiff(result.contents);
-					return result;
-				case Splitter.indent:
-					result.children = parseIndent(result.contents, options.tabWidth);
+				case ParseOptions.Mode.words:
+					result.children = splitter.parseToWords(result.contents);
 					return result;
 			}
 		}
-	assert(false); // default * rule should match everything
+		case Splitter.diff:
+			result.children = parseDiff(result.contents);
+			return result;
+		case Splitter.indent:
+			result.children = parseIndent(result.contents, options.tabWidth);
+			return result;
+	}
 }
 
 // *****************************************************************************************************************************************************************************
