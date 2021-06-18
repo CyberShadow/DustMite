@@ -36,8 +36,14 @@ alias Splitter = splitter.Splitter;
 alias std.string.join join;
 alias std.string.startsWith startsWith;
 
-string dir, resultDir, tester, globalCache;
-string dirSuffix(string suffix) { return (dir.absolutePath().buildNormalizedPath() ~ "." ~ suffix).relativePath(); }
+string dir, resultDir, tmpDir, tester, globalCache;
+string dirSuffix(string suffix, Flag!q{temp} temp)
+{
+	return (
+		(temp && tmpDir ? tmpDir.buildPath(dir.baseName) : dir)
+		.absolutePath().buildNormalizedPath() ~ "." ~ suffix
+	).relativePath();
+}
 
 size_t maxBreadth;
 size_t origDescendants;
@@ -185,6 +191,7 @@ int main(string[] args)
 		"nosave|no-save", &noSave, // for research
 		"nooptimize|no-optimize", &noOptimize, // for research
 		"tab-width", &tabWidth,
+		"temp-dir", &tmpDir,
 		"max-steps", &maxSteps, // for research / benchmarking
 		"i|in-place", &inPlace,
 		"json", &readJson,
@@ -238,6 +245,7 @@ Supported options:
                        %-(%s, %)
   --json             Load PATH as a JSON file (same syntax as --dump-json)
   --no-redirect      Don't redirect stdout/stderr streams of test command
+  --temp-dir         Write and run reduction candidates in this directory
   -j[N]              Use N look-ahead processes (%d by default)
 EOS", args[0], splitterNames, totalCPUs);
 
@@ -349,11 +357,11 @@ EOS");
 	resetProgress(root);
 
 	if (doDump)
-		dumpSet(root, dirSuffix("dump"));
+		dumpSet(root, dirSuffix("dump", No.temp));
 	if (dumpHtml)
-		dumpToHtml(root, dirSuffix("html"));
+		dumpToHtml(root, dirSuffix("html", No.temp));
 	if (dumpJson)
-		dumpToJson(root, dirSuffix("json"));
+		dumpToJson(root, dirSuffix("json", No.temp));
 
 	if (tester is null)
 	{
@@ -365,7 +373,7 @@ EOS");
 		resultDir = dir;
 	else
 	{
-		resultDir = dirSuffix("reduced");
+		resultDir = dirSuffix("reduced", No.temp);
 		if (resultDir.exists)
 		{
 			stderr.writeln("Hint: read https://github.com/CyberShadow/DustMite/wiki#result-directory-already-exists");
@@ -2223,7 +2231,7 @@ TestResult test(
 						process.digest = digest;
 
 						static int counter;
-						process.testdir = dirSuffix("lookahead.%d".format(counter++));
+						process.testdir = dirSuffix("lookahead.%d".format(counter++), Yes.temp);
 
 						// Saving and process creation are expensive.
 						// Don't block the main thread, use a worker thread instead.
@@ -2341,7 +2349,7 @@ TestResult test(
 
 	TestResult doTest()
 	{
-		string testdir = dirSuffix("test");
+		string testdir = dirSuffix("test", Yes.temp);
 		measure!"testSave"({save(root, testdir);}); scope(exit) measure!"clean"({safeDelete(testdir);});
 
 		Pid pid;
@@ -2361,7 +2369,7 @@ TestResult test(
 	}
 
 	auto result = ramCached(diskCached(testReject(lookahead(doTest()))));
-	if (trace) saveTrace(root, reductions, dirSuffix("trace"), result.success);
+	if (trace) saveTrace(root, reductions, dirSuffix("trace", No.temp), result.success);
 	return result;
 }
 
