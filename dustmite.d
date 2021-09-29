@@ -1465,6 +1465,8 @@ static struct DiskWriter
 
 	void handleFile(string fn)
 	{
+		finish();
+
 		static Appender!(char[]) pathBuf;
 		pathBuf.clear();
 		pathBuf.put(dir.chainPath(fn));
@@ -1478,8 +1480,21 @@ static struct DiskWriter
 
 	void handleText(string s)
 	{
+		assert(o.isOpen);
 		binaryWriter.put(s);
 	}
+
+	void finish()
+	{
+		if (o.isOpen)
+		{
+			binaryWriter = typeof(binaryWriter).init;
+			o.close();
+			o = File.init; // Avoid crash on Windows
+		}
+	}
+
+	~this() { finish(); }
 }
 
 struct MemoryWriter
