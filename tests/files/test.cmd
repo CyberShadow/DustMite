@@ -1,1 +1,1 @@
-@echo 4 > expected && cat *.txt | grep -c a > result && diff expected result
+@sh -c "echo 4" > expected && cat *.txt | grep -c a > result && diff expected result
