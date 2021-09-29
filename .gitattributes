@@ -1,0 +1,2 @@
+# Ensure Git doesn't mangle tests.
+* -crlf
