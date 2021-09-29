@@ -1,0 +1,22 @@
+name: test
+on: [ push, pull_request ]
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ ubuntu-20.04, windows-2019 ]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Install D compiler
+      uses: dlang-community/setup-dlang@1ccbc70a0eff7f264857b53c562aa45fd7f1e479
+      with:
+        compiler: dmd-2.080.0
+    - name: Test
+      run: |
+        ( cd tests && rdmd runtests.d )
+        git diff --exit-code
+    - name: Upload coverage
+      uses: codecov/codecov-action@v1
