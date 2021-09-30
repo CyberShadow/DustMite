@@ -2367,13 +2367,14 @@ TestResult test(
 		string testdir = dirSuffix("test", Yes.temp);
 		measure!"testSave"({save(root, testdir);}); scope(exit) measure!"clean"({safeDelete(testdir);});
 
+		auto nullRead = File(nullFileName, "rb");
 		Pid pid;
 		if (noRedirect)
-			pid = spawnShell(tester, null, Config.none, testdir);
+			pid = spawnShell(tester, nullRead, stdout   , stderr   , null, Config.none, testdir);
 		else
 		{
-			auto nul = File(nullFileName, "w+");
-			pid = spawnShell(tester, nul, nul, nul, null, Config.none, testdir);
+			auto nullWrite = File(nullFileName, "wb");
+			pid = spawnShell(tester, nullRead, nullWrite, nullWrite, null, Config.none, testdir);
 		}
 
 		int status;
