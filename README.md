@@ -1,4 +1,4 @@
-DustMite [![Build Status](https://travis-ci.org/CyberShadow/DustMite.svg?branch=master)](https://travis-ci.org/CyberShadow/DustMite) [![Build status](https://ci.appveyor.com/api/projects/status/3tsixe0o92b7wmmj/branch/master?svg=true)](https://ci.appveyor.com/project/CyberShadow/dustmite/branch/master) [![Coverage Status](https://coveralls.io/repos/github/CyberShadow/DustMite/badge.svg?branch=master)](https://coveralls.io/github/CyberShadow/DustMite?branch=master)
+DustMite [![test](https://github.com/CyberShadow/DustMite/actions/workflows/test.yml/badge.svg?branch=next)](https://github.com/CyberShadow/DustMite/actions/workflows/test.yml) [![codecov](https://codecov.io/gh/CyberShadow/DustMite/branch/master/graph/badge.svg?token=CxoRmYgdJp)](https://codecov.io/gh/CyberShadow/DustMite)
 ========
 
 DustMite is a general-purpose data reduction tool.
