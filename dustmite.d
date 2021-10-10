@@ -33,8 +33,8 @@ import splitter;
 alias Splitter = splitter.Splitter;
 
 // Issue 314 workarounds
-alias std.string.join join;
-alias std.string.startsWith startsWith;
+alias join = std.string.join;
+alias startsWith = std.algorithm.searching.startsWith;
 
 string dir, resultDir, tmpDir, tester, globalCache;
 string dirSuffix(string suffix, Flag!q{temp} temp)
@@ -155,9 +155,8 @@ int main(string[] args)
 
 	args = args
 		.filter!((string arg) {
-			if (arg.startsWith("-j"))
+			if (arg.skipOver("-j"))
 			{
-				arg = arg[2..$];
 				lookaheadCount = arg.length ? arg.to!uint : totalCPUs;
 				return false;
 			}
