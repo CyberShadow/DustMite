@@ -3,7 +3,7 @@
 DustMite
 ========
 
-[![test](https://github.com/CyberShadow/DustMite/actions/workflows/test.yml/badge.svg?branch=next)](https://github.com/CyberShadow/DustMite/actions/workflows/test.yml)[![codecov](https://codecov.io/gh/CyberShadow/DustMite/branch/master/graph/badge.svg?token=CxoRmYgdJp)](https://codecov.io/gh/CyberShadow/DustMite)
+[![test](https://github.com/CyberShadow/DustMite/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/CyberShadow/DustMite/actions/workflows/test.yml)[![codecov](https://codecov.io/gh/CyberShadow/DustMite/branch/master/graph/badge.svg?token=CxoRmYgdJp)](https://codecov.io/gh/CyberShadow/DustMite)
 
 DustMite is a general-purpose data reduction tool.
 
