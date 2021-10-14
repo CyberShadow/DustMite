@@ -168,7 +168,7 @@ int main(string[] args)
 
 	getopt(args,
 		"force", &force,
-		"reduceonly|reduce-only", (string opt, string value) { removeRules ~= RemoveRule(Regex!char.init, value, true); },
+		"reduceonly|reduce-only", (string opt, string value) { removeRules ~= RemoveRule(Regex!char.init, value, false); },
 		"remove"                , (string opt, string value) { removeRules ~= RemoveRule(regex(value, "mg"), null, true); },
 		"noremove|no-remove"    , (string opt, string value) { removeRules ~= RemoveRule(regex(value, "mg"), null, false); },
 		"reject"                , (string opt, string value) { rejectRules ~= RemoveRule(regex(value, "mg"), null, true); },
