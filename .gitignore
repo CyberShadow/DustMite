@@ -5,5 +5,4 @@
 *.o
 dustmite
 /cov/
-.dub
-libdustmite.a
+/.dub/
