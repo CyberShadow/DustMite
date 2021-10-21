@@ -5,3 +5,4 @@
 *.o
 dustmite
 /cov/
+/.dub/
