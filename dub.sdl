@@ -1,4 +1,5 @@
 name "dustmite"
+description "General-purpose data reduction tool"
 authors "Vladimir Panteleev"
 license "Boost"
 targetPath "."
