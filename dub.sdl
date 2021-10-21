@@ -3,8 +3,5 @@ authors "Vladimir Panteleev"
 license "Boost"
 targetPath "."
 sourceFiles "dustmite.d" "polyhash.d" "splitter.d"
-
-configuration "application" {
-	targetType "executable"
-	mainSourceFile "dustmite.d"
-}
+targetType "executable"
+mainSourceFile "dustmite.d"
