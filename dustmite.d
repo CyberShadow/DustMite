@@ -1153,12 +1153,10 @@ final class PingPongStrategy : LevelStrategy
 		if (!nextInLevel())
 		{
 			// End of level
-			if (levelChanged)
-			{
-				setLevel(currentLevel ? currentLevel - 1 : 0);
-			}
-			else
-			if (!setLevel(currentLevel + 1))
+			immutable nextLevel = (levelChanged)
+				? (currentLevel ? currentLevel - 1 : 0)
+				: currentLevel + 1;
+			if (!setLevel(nextLevel))
 			{
 				if (iterationChanged)
 					nextIteration();
