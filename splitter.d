@@ -262,7 +262,10 @@ void[] readFile(File f)
 
 Entity loadFile(string name, string path, ParseOptions options)
 {
-	stderr.writeln("Loading ", path);
+	auto base = name.baseName();
+	auto rule = chain(options.rules, defaultRules).find!(rule => base.globMatch(rule.pattern)).front;
+
+	stderr.writeln("Loading ", path, " [", rule.splitter, "]");
 	auto contents = cast(string)readFile(path == "-" ? stdin : File(path, "rb"));
 
 	if (options.mode == ParseOptions.Mode.json)
@@ -271,9 +274,6 @@ Entity loadFile(string name, string path, ParseOptions options)
 	auto result = new Entity();
 	result.filename = name.replace(dirSeparator, `/`);
 	result.contents = contents;
-
-	auto base = name.baseName();
-	auto rule = chain(options.rules, defaultRules).find!(rule => base.globMatch(rule.pattern)).front;
 
 	final switch (rule.splitter)
 	{
