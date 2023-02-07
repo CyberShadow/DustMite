@@ -1489,8 +1489,11 @@ static struct DiskWriter
 		{
 			scope(exit) fileProperties = null;
 
+			auto name = o.name;
 			binaryWriter = typeof(binaryWriter).init;
 			o.close();
+			if (!fileProperties.mode.isNull)
+				setAttributes(name, fileProperties.mode.get());
 			o = File.init; // Avoid crash on Windows
 		}
 	}

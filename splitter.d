@@ -17,6 +17,7 @@ import std.stdio : File, stdin;
 import std.string;
 import std.traits;
 import std.stdio : stderr;
+import std.typecons;
 
 import polyhash;
 
@@ -71,6 +72,7 @@ final class Entity
 	struct FileProperties
 	{
 		string name;       /// Relative to the reduction root
+		Nullable!uint mode; /// OS-specific (std.file.getAttributes)
 	}
 	FileProperties* file;  /// If non-null, this node represents a file
 
@@ -270,6 +272,10 @@ Entity loadFile(string name, string path, ParseOptions options)
 	auto base = name.baseName();
 	auto rule = chain(options.rules, defaultRules).find!(rule => base.globMatch(rule.pattern)).front;
 
+	Nullable!uint mode;
+	if (path != "-")
+		mode = getLinkAttributes(path);
+
 	stderr.writeln("Loading ", path, " [", rule.splitter, "]");
 	auto contents = cast(string)readFile(path == "-" ? stdin : File(path, "rb"));
 
@@ -279,6 +285,7 @@ Entity loadFile(string name, string path, ParseOptions options)
 	auto result = new Entity();
 	result.file = new Entity.FileProperties;
 	result.file.name = name.replace(dirSeparator, `/`);
+	result.file.mode = mode;
 	result.contents = contents;
 
 	final switch (rule.splitter)
