@@ -1,0 +1,26 @@
+[
+  [
+    /*** broken-link ***/
+    [ "nonexistent" ]
+  ]
+  [
+    /*** dir-link ***/
+    [ "dir" ]
+  ]
+  [
+    /*** file ***/
+    [ ]
+  ]
+  [
+    /*** file-link ***/
+    [ "file" ]
+  ]
+  [
+    /*** link-link ***/
+    [ "file-link" ]
+  ]
+  [
+    /*** recursive-link ***/
+    [ "." ]
+  ]
+]

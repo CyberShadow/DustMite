@@ -1,0 +1,54 @@
+############### ITERATION 0 ################
+============= Depth 0 =============
+[ 0.0%] Remove [] => No
+============= Depth 1 =============
+[ 0.0%] Remove [1] => No
+[29.4%] Remove [0] => No
+============= Depth 2 =============
+[ 0.0%] Remove [11] => No
+[ 0.0%] Concat [11] => No (error: src.test/broken-link: Bad address)
+[11.7%] Remove [10] => No
+[11.7%] Concat [10] => No (error: src.test/broken-link: Bad address)
+[29.4%] Remove [01] => No
+[58.8%] Remove [00] => No
+============= Depth 3 =============
+[ 0.0%] Remove [110] => No (error: src.test/recursive-link: Bad address)
+[11.7%] Remove [100] => No (error: src.test/link-link: Bad address)
+[29.4%] Remove [011] => No
+[29.4%] Concat [011] => No (error: src.test/broken-link: Bad address)
+[41.1%] Remove [010] => Yes
+[58.8%] Remove [001] => No
+[58.8%] Concat [001] => No (error: src.test/broken-link: Bad address)
+[70.5%] Remove [000] => No
+[70.5%] Concat [000] => No (error: src.test/dir-link: Bad address)
+============= Depth 4 =============
+[33.3%] Remove [0100] => No (error: src.test/file-link: Bad address)
+[53.3%] Remove [0010] => No (error: src.test/dir-link: Bad address)
+[66.6%] Remove [0000] => No (error: src.test/broken-link: Bad address)
+############### ITERATION 1 ################
+============= Depth 0 =============
+[ 0.0%] Remove [] => No (cached)
+============= Depth 1 =============
+[ 0.0%] Remove [1] => No
+[33.3%] Remove [0] => No (cached)
+============= Depth 2 =============
+[ 0.0%] Remove [11] => No
+[ 0.0%] Concat [11] => No (error: src.test/broken-link: Bad address)
+[13.3%] Remove [10] => No
+[13.3%] Concat [10] => No (error: src.test/broken-link: Bad address)
+[33.3%] Remove [01] => No (cached)
+[53.3%] Remove [00] => No
+============= Depth 3 =============
+[ 0.0%] Remove [110] => No (error: src.test/recursive-link: Bad address)
+[13.3%] Remove [100] => No (error: src.test/link-link: Bad address)
+[33.3%] Remove [010] => No (cached)
+[33.3%] Concat [010] => No (error: src.test/broken-link: Bad address)
+[53.3%] Remove [001] => No (cached)
+[53.3%] Concat [001] => No (cached)
+[66.6%] Remove [000] => No (cached)
+[66.6%] Concat [000] => No (cached)
+============= Depth 4 =============
+[33.3%] Remove [0100] => No (cached)
+[53.3%] Remove [0010] => No (cached)
+[66.6%] Remove [0000] => No (cached)
+Done in 31 tests

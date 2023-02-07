@@ -174,15 +174,22 @@ struct ParseOptions
 	uint tabWidth;
 }
 
+version (Posix) {} else
+{
+	// Non-POSIX symlink stubs
+	string readLink(const(char)[]) { throw new Exception("Sorry, symbolic links are only supported on POSIX systems"); }
+	void symlink(const(char)[], const(char)[]) { throw new Exception("Sorry, symbolic links are only supported on POSIX systems"); }
+}
+
 /// Parse the given file/directory.
 /// For files, modifies `path` to be the base name for .test / .reduced directories.
 Entity loadFiles(ref string path, ParseOptions options)
 {
-	if (path.exists && path.isDir)
+	if (path != "-" && !path.isSymlink && path.exists && path.isDir)
 	{
 		auto set = new Entity();
-		foreach (string entry; dirEntries(path, SpanMode.breadth).array.sort!((a, b) => a.name < b.name))
-			if (isFile(entry))
+		foreach (string entry; dirEntries(path, SpanMode.breadth, /*followSymlink:*/false).array.sort!((a, b) => a.name < b.name))
+			if (isSymlink(entry) || isFile(entry))
 			{
 				assert(entry.startsWith(path));
 				auto name = entry[path.length+1..$];
@@ -270,14 +277,20 @@ void[] readFile(File f)
 Entity loadFile(string name, string path, ParseOptions options)
 {
 	auto base = name.baseName();
-	auto rule = chain(options.rules, defaultRules).find!(rule => base.globMatch(rule.pattern)).front;
+	Splitter splitterType = chain(options.rules, defaultRules).find!(rule => base.globMatch(rule.pattern)).front.splitter;
 
 	Nullable!uint mode;
 	if (path != "-")
+	{
 		mode = getLinkAttributes(path);
+		if (attrIsSymlink(mode.get()))
+			splitterType = Splitter.files;
+	}
 
-	stderr.writeln("Loading ", path, " [", rule.splitter, "]");
-	auto contents = cast(string)readFile(path == "-" ? stdin : File(path, "rb"));
+	stderr.writeln("Loading ", path, " [", splitterType, "]");
+	auto contents = attrIsSymlink(mode.get(0))
+		? path.readLink()
+		: cast(string)readFile(path == "-" ? stdin : File(path, "rb"));
 
 	if (options.mode == ParseOptions.Mode.json)
 		return loadJson(contents);
@@ -288,7 +301,7 @@ Entity loadFile(string name, string path, ParseOptions options)
 	result.file.mode = mode;
 	result.contents = contents;
 
-	final switch (rule.splitter)
+	final switch (splitterType)
 	{
 		case Splitter.files:
 			result.children = [new Entity(result.contents, null, null)];

@@ -1492,8 +1492,20 @@ static struct DiskWriter
 			auto name = o.name;
 			binaryWriter = typeof(binaryWriter).init;
 			o.close();
+
 			if (!fileProperties.mode.isNull)
-				setAttributes(name, fileProperties.mode.get());
+			{
+				auto mode = fileProperties.mode.get();
+				if (attrIsSymlink(mode))
+				{
+					auto target = readText(name);
+					remove(name);
+					symlink(target, name);
+				}
+				else
+					setAttributes(name, mode);
+			}
+
 			o = File.init; // Avoid crash on Windows
 		}
 	}

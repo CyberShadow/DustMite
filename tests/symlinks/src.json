@@ -1,0 +1,53 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "head": "nonexistent"
+                    }
+                ],
+                "filename": "broken-link"
+            },
+            {
+                "children": [
+                    {
+                        "head": "dir"
+                    }
+                ],
+                "filename": "dir-link"
+            },
+            {
+                "children": [
+                    {}
+                ],
+                "filename": "file"
+            },
+            {
+                "children": [
+                    {
+                        "head": "file"
+                    }
+                ],
+                "filename": "file-link"
+            },
+            {
+                "children": [
+                    {
+                        "head": "file-link"
+                    }
+                ],
+                "filename": "link-link"
+            },
+            {
+                "children": [
+                    {
+                        "head": "."
+                    }
+                ],
+                "filename": "recursive-link"
+            }
+        ]
+    },
+    "version": 1
+}
