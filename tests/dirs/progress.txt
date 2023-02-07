@@ -1,0 +1,21 @@
+############### ITERATION 0 ################
+============= Depth 0 =============
+[ 0.0%] Remove [] => No
+============= Depth 1 =============
+[ 0.0%] Remove [1] => Yes
+[25.0%] Remove [0] => No (cached)
+============= Depth 2 =============
+[ 0.0%] Remove [01] => Yes
+[33.3%] Remove [00] => No (cached)
+[33.3%] Concat [00] => N/A
+============= Depth 3 =============
+[ 0.0%] Remove [000] => Yes (cached)
+############### ITERATION 1 ################
+============= Depth 0 =============
+[ 0.0%] Remove [] => No (cached)
+============= Depth 1 =============
+[ 0.0%] Remove [0] => No (cached)
+============= Depth 2 =============
+[ 0.0%] Remove [00] => No (cached)
+[ 0.0%] Concat [00] => N/A
+Done in 4 tests

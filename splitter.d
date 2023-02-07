@@ -191,7 +191,7 @@ Entity loadFiles(ref string path, ParseOptions options)
 	{
 		auto set = new Entity();
 		foreach (string entry; dirEntries(path, SpanMode.breadth, /*followSymlink:*/false).array.sort!((a, b) => a.name < b.name))
-			if (isSymlink(entry) || isFile(entry))
+			if (isSymlink(entry) || isFile(entry) || isDir(entry))
 			{
 				assert(entry.startsWith(path));
 				auto name = entry[path.length+1..$];
@@ -285,14 +285,15 @@ Entity loadFile(string name, string path, ParseOptions options)
 	if (path != "-")
 	{
 		mode = getLinkAttributes(path);
-		if (attrIsSymlink(mode.get()))
+		if (attrIsSymlink(mode.get()) || attrIsDir(mode.get()))
 			splitterType = Splitter.files;
 	}
 
 	stderr.writeln("Loading ", path, " [", splitterType, "]");
-	auto contents = attrIsSymlink(mode.get(0))
-		? path.readLink()
-		: cast(string)readFile(path == "-" ? stdin : File(path, "rb"));
+	auto contents =
+		attrIsSymlink(mode.get(0)) ? path.readLink() :
+		attrIsDir(mode.get(0)) ? null :
+		cast(string)readFile(path == "-" ? stdin : File(path, "rb"));
 
 	if (options.mode == ParseOptions.Mode.json)
 		return loadJson(contents);

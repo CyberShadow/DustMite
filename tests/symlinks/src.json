@@ -11,6 +11,12 @@
             },
             {
                 "children": [
+                    {}
+                ],
+                "filename": "dir"
+            },
+            {
+                "children": [
                     {
                         "head": "dir"
                     }

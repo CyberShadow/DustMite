@@ -1,4 +1,8 @@
 [!
+  [
+    /*** something ***/
+    [ ]
+  ]
   [!
     /*** something/test2.d ***/
     [!
@@ -7,11 +11,11 @@
         [!
           [!
             [! "std" ]
-            [! "." /* . */ ] => 10
+            [! "." /* . */ ] => 12
           ]
           [!
             [! "stdio" ]
-          ] =10
+          ] =12
         ]
         ";\n\n"
       ]
@@ -30,7 +34,7 @@
               [! "	writeln" ]
               [! // (
                 "("
-                [! "\"foo\"" /* writeln arg 0 node 0 */ ] => 36
+                [! "\"foo\"" /* writeln arg 0 node 0 */ ] => 38
                 ")"
               ]
             ]
@@ -41,7 +45,7 @@
               [! "	writeln" ]
               [! // (
                 "( "
-                [! "/*canttouchthis*/ \"bar\"" /* writeln arg 0 node 0 */ ] => 36
+                [! "/*canttouchthis*/ \"bar\"" /* writeln arg 0 node 0 */ ] => 38
                 ")"
               ]
             ]
@@ -52,7 +56,7 @@
               [! "	writeln" ]
               [! // (
                 "("
-                [! "\"baz\"" /* writeln arg 0 node 0 */ ] => 36
+                [! "\"baz\"" /* writeln arg 0 node 0 */ ] => 38
                 ")"
               ]
             ]
@@ -63,7 +67,7 @@
       ]
       [! // Args root
         [! // writeln root
-          [! /* writeln param 0 */ ] =36
+          [! /* writeln param 0 */ ] =38
         ]
       ]
     ]
@@ -76,11 +80,11 @@
         [
           [
             [ "std" ]
-            [ "." /* . */ ] => 45
+            [ "." /* . */ ] => 47
           ]
           [
             [ "stdio" ]
-          ] =45
+          ] =47
         ]
         ";\n\n"
       ]
@@ -99,7 +103,7 @@
               [ "	writeln" ]
               [ // (
                 "("
-                [ "\"foo\"" /* writeln arg 0 node 0 */ ] => 71
+                [ "\"foo\"" /* writeln arg 0 node 0 */ ] => 73
                 ")"
               ]
             ]
@@ -110,7 +114,7 @@
               [ "	writeln" ]
               [ // (
                 "( "
-                [ "/*canttouchthis*/ \"bar\"" /* writeln arg 0 node 0 */ ] => 71
+                [ "/*canttouchthis*/ \"bar\"" /* writeln arg 0 node 0 */ ] => 73
                 ")"
               ]
             ]
@@ -121,7 +125,7 @@
               [ "	writeln" ]
               [ // (
                 "("
-                [ "\"baz\"" /* writeln arg 0 node 0 */ ] => 71
+                [ "\"baz\"" /* writeln arg 0 node 0 */ ] => 73
                 ")"
               ]
             ]
@@ -132,7 +136,7 @@
       ]
       [ // Args root
         [ // writeln root
-          [ /* writeln param 0 */ ] =71
+          [ /* writeln param 0 */ ] =73
         ]
       ]
     ]

@@ -1,0 +1,25 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {}
+                ],
+                "filename": "bar"
+            },
+            {
+                "children": [
+                    {}
+                ],
+                "filename": "baz"
+            },
+            {
+                "children": [
+                    {}
+                ],
+                "filename": "foo"
+            }
+        ]
+    },
+    "version": 1
+}
