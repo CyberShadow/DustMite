@@ -1,17 +1,25 @@
 ############### ITERATION 0 ################
 ============= Depth 1 =============
-[56.6%] Remove [0] => No
-[56.6%] Concat [0] => N/A
+[51.5%] Remove [0] => No
 ============= Depth 2 =============
-[56.6%] Remove [00] => No
-============= Depth 3 =============
-[ 0.0%] Remove [101] => Yes
-[56.6%] Remove [001] => Yes (cached)
-[60.0%] Remove [000] => No
-============= Depth 4 =============
-[11.5%] Remove [1000] => Yes
-[53.8%] Remove [0000] => Yes
+[51.5%] Remove [01] => No
+[51.5%] Concat [01] => Yes (cached)
 ############### ITERATION 1 ################
 ============= Depth 1 =============
+[51.5%] Remove [0] => No (cached)
+============= Depth 2 =============
+[51.5%] Remove [01] => No (cached)
+[51.5%] Concat [01] => N/A
+[90.9%] Remove [00] => Yes
+============= Depth 3 =============
+[ 0.0%] Remove [101] => Yes
+[53.1%] Remove [001] => No
+[87.5%] Remove [000] => Yes (cached)
+============= Depth 4 =============
+[10.7%] Remove [1000] => Yes
+[50.0%] Remove [0001] => Yes (cached)
+[53.5%] Remove [0000] => Yes
+############### ITERATION 2 ################
+============= Depth 1 =============
 [60.0%] Remove [0] => Yes
-Done in 8 tests
+Done in 9 tests

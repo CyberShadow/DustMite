@@ -1415,8 +1415,12 @@ void dump(Writer)(Entity root, Writer writer)
 		else
 		{
 			if (inFile && e.head.length) writer.handleText(e.head);
-			foreach (c; e.children)
-				dumpEntity!inFile(c);
+			if (inFile)
+				foreach (c; e.children)
+					dumpEntity!inFile(c);
+			else // Create files in reverse order, so that directories' timestamps get set last
+				foreach_reverse (c; e.children)
+					dumpEntity!inFile(c);
 			if (inFile && e.tail.length) writer.handleText(e.tail);
 		}
 	}
@@ -1502,9 +1506,21 @@ static struct DiskWriter
 {
 	string dir;
 
-	File o;
 	const(Entity.FileProperties)* fileProperties;
+
+	// Regular files
+	File o;
 	typeof(o.lockingBinaryWriter()) binaryWriter;
+	// Symlinks
+	Appender!(char[]) symlinkBuf;
+
+	@property const(char)[] currentFilePath()
+	{
+		static Appender!(char[]) pathBuf;
+		pathBuf.clear();
+		pathBuf.put(dir.chainPath(fileProperties.name));
+		return pathBuf.data;
+	}
 
 	void handleFile(const(Entity.FileProperties)* fileProperties)
 	{
@@ -1513,21 +1529,34 @@ static struct DiskWriter
 		this.fileProperties = fileProperties;
 		scope(failure) this.fileProperties = null;
 
-		static Appender!(char[]) pathBuf;
-		pathBuf.clear();
-		pathBuf.put(dir.chainPath(fileProperties.name));
-		auto path = pathBuf.data;
+		auto path = currentFilePath;
 		if (!exists(dirName(path)))
-			safeMkdir(dirName(path));
+			safeMkdir(dirName(path)); // TODO make directories nested instead
 
-		o.open(cast(string)path, "wb");
-		binaryWriter = o.lockingBinaryWriter;
+		if (attrIsSymlink(fileProperties.mode.get(0)))
+			symlinkBuf.clear();
+		else
+		if (attrIsDir(fileProperties.mode.get(0)))
+		{}
+		else // regular file
+		{
+			o.open(cast(string)path, "wb");
+			binaryWriter = o.lockingBinaryWriter;
+		}
 	}
 
 	void handleText(string s)
 	{
-		assert(o.isOpen);
-		binaryWriter.put(s);
+		if (attrIsSymlink(fileProperties.mode.get(0)))
+			symlinkBuf.put(s);
+		else
+		if (attrIsDir(fileProperties.mode.get(0)))
+			enforce(s.length == 0, "Directories cannot have contents");
+		else // regular file
+		{
+			assert(o.isOpen);
+			binaryWriter.put(s);
+		}
 	}
 
 	void finish()
@@ -1536,26 +1565,29 @@ static struct DiskWriter
 		{
 			scope(exit) fileProperties = null;
 
-			auto name = o.name;
-			binaryWriter = typeof(binaryWriter).init;
-			o.close();
+			auto path = currentFilePath;
+
+			if (attrIsSymlink(fileProperties.mode.get(0)))
+				symlink(symlinkBuf.data, path);
+			else
+			if (attrIsDir(fileProperties.mode.get(0)))
+				mkdirRecurse(path);
+			else // regular file
+			{
+				assert(o.isOpen);
+				binaryWriter = typeof(binaryWriter).init;
+				o.close();
+				o = File.init; // Avoid crash on Windows
+			}
 
 			if (!fileProperties.mode.isNull)
 			{
 				auto mode = fileProperties.mode.get();
-				if (attrIsSymlink(mode))
-				{
-					auto target = readText(name);
-					remove(name);
-					symlink(target, name);
-				}
-				else
-					setAttributes(name, mode);
+				if (!attrIsSymlink(mode))
+					setAttributes(path, mode);
 			}
 			if (!fileProperties.times.isNull)
-				setTimes(name, fileProperties.times.get()[0], fileProperties.times.get()[1]);
-
-			o = File.init; // Avoid crash on Windows
+				setTimes(path, fileProperties.times.get()[0], fileProperties.times.get()[1]);
 		}
 	}
 }

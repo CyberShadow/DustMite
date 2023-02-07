@@ -3,6 +3,12 @@
         "children": [
             {
                 "children": [
+                    {}
+                ],
+                "filename": "something"
+            },
+            {
+                "children": [
                     {
                         "children": [
                             {
@@ -20,7 +26,7 @@
                                                         "noRemove": true
                                                     },
                                                     {
-                                                        "label": "9",
+                                                        "label": "11",
                                                         "noRemove": true,
                                                         "tail": "."
                                                     }
@@ -35,7 +41,7 @@
                                                     }
                                                 ],
                                                 "dependents": [
-                                                    "9"
+                                                    "11"
                                                 ],
                                                 "noRemove": true
                                             }
@@ -85,7 +91,7 @@
                                                                 "children": [
                                                                     {
                                                                         "head": "\"foo\"",
-                                                                        "label": "23",
+                                                                        "label": "25",
                                                                         "noRemove": true
                                                                     }
                                                                 ],
@@ -112,7 +118,7 @@
                                                                 "children": [
                                                                     {
                                                                         "head": "\/*canttouchthis*\/ \"bar\"",
-                                                                        "label": "28",
+                                                                        "label": "30",
                                                                         "noRemove": true
                                                                     }
                                                                 ],
@@ -139,7 +145,7 @@
                                                                 "children": [
                                                                     {
                                                                         "head": "\"baz\"",
-                                                                        "label": "33",
+                                                                        "label": "35",
                                                                         "noRemove": true
                                                                     }
                                                                 ],
@@ -168,9 +174,9 @@
                                         "children": [
                                             {
                                                 "dependents": [
-                                                    "23",
-                                                    "28",
-                                                    "33"
+                                                    "25",
+                                                    "30",
+                                                    "35"
                                                 ],
                                                 "noRemove": true
                                             }
@@ -204,7 +210,7 @@
                                                         "head": "std"
                                                     },
                                                     {
-                                                        "label": "44",
+                                                        "label": "46",
                                                         "tail": "."
                                                     }
                                                 ]
@@ -216,7 +222,7 @@
                                                     }
                                                 ],
                                                 "dependents": [
-                                                    "44"
+                                                    "46"
                                                 ]
                                             }
                                         ]
@@ -257,7 +263,7 @@
                                                                 "children": [
                                                                     {
                                                                         "head": "\"foo\"",
-                                                                        "label": "58"
+                                                                        "label": "60"
                                                                     }
                                                                 ],
                                                                 "head": "(",
@@ -279,7 +285,7 @@
                                                                 "children": [
                                                                     {
                                                                         "head": "\/*canttouchthis*\/ \"bar\"",
-                                                                        "label": "63"
+                                                                        "label": "65"
                                                                     }
                                                                 ],
                                                                 "head": "( ",
@@ -301,7 +307,7 @@
                                                                 "children": [
                                                                     {
                                                                         "head": "\"baz\"",
-                                                                        "label": "68"
+                                                                        "label": "70"
                                                                     }
                                                                 ],
                                                                 "head": "(",
@@ -324,9 +330,9 @@
                                         "children": [
                                             {
                                                 "dependents": [
-                                                    "58",
-                                                    "63",
-                                                    "68"
+                                                    "60",
+                                                    "65",
+                                                    "70"
                                                 ]
                                             }
                                         ]
