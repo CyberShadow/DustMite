@@ -528,7 +528,8 @@ void recalculate(Entity root)
 						e.deadHash.put(c.isWhite ? c : ' ');
 			}
 
-			putString(e.filename);
+			if (e.file)
+				putString(e.file.name);
 			putString(e.head);
 
 			void addDependents(R)(R range, bool fresh)
@@ -636,7 +637,7 @@ void recalculate(Entity root)
 				return;
 			}
 
-			inFile |= e.isFile;
+			inFile |= e.file !is null;
 
 			assert(e.hash.length == e.deadHash.length);
 
@@ -652,7 +653,8 @@ void recalculate(Entity root)
 
 			auto start = pos;
 
-			putString(e.filename);
+			if (e.file)
+				putString(e.file.name);
 			putString(e.head);
 			foreach (c; e.children)
 				passWO(c, inFile);
@@ -812,7 +814,7 @@ struct ReductionIterator
 					// Try next reduction type
 					type = Reduction.Type.Concat;
 
-					if (e.isFile)
+					if (e.file)
 						return; // Try this
 					else
 					{
@@ -1287,7 +1289,7 @@ void obfuscate(ref Entity root, bool keepLength)
 
 	foreach (f; root.children)
 	{
-		foreach (entity; parseToWords(f.filename) ~ f.children)
+		foreach (entity; parseToWords(f.file ? f.file.name : null) ~ f.children)
 			if (entity.head.length && !isDigit(entity.head[0]))
 				if (entity.head !in wordSet)
 				{
@@ -1401,12 +1403,12 @@ void dump(Writer)(Entity root, Writer writer)
 		if (e.dead)
 		{
 			if (inFile && e.contents.length)
-				writer.handleText(e.contents[e.filename.length .. $]);
+				writer.handleText(e.contents[(e.file ? e.file.name : null).length .. $]);
 		}
 		else
-		if (!inFile && e.isFile)
+		if (!inFile && e.file)
 		{
-			writer.handleFile(e.filename);
+			writer.handleFile(e.file);
 			foreach (c; e.children)
 				dumpEntity!true(c);
 		}
@@ -1432,10 +1434,10 @@ static struct FastWriter(Next) /// Accelerates Writer interface by bulking conti
 			next.handleText(start[0 .. end - start]);
 		start = end = null;
 	}
-	void handleFile(string s)
+	void handleFile(const(Entity.FileProperties)* fileProperties)
 	{
 		finish();
-		next.handleFile(s);
+		next.handleFile(fileProperties);
 	}
 	void handleText(string s)
 	{
@@ -1454,15 +1456,19 @@ static struct DiskWriter
 	string dir;
 
 	File o;
+	const(Entity.FileProperties)* fileProperties;
 	typeof(o.lockingBinaryWriter()) binaryWriter;
 
-	void handleFile(string fn)
+	void handleFile(const(Entity.FileProperties)* fileProperties)
 	{
 		finish();
 
+		this.fileProperties = fileProperties;
+		scope(failure) this.fileProperties = null;
+
 		static Appender!(char[]) pathBuf;
 		pathBuf.clear();
-		pathBuf.put(dir.chainPath(fn));
+		pathBuf.put(dir.chainPath(fileProperties.name));
 		auto path = pathBuf.data;
 		if (!exists(dirName(path)))
 			safeMkdir(dirName(path));
@@ -1479,8 +1485,10 @@ static struct DiskWriter
 
 	void finish()
 	{
-		if (o.isOpen)
+		if (fileProperties)
 		{
+			scope(exit) fileProperties = null;
+
 			binaryWriter = typeof(binaryWriter).init;
 			o.close();
 			o = File.init; // Avoid crash on Windows
@@ -1495,7 +1503,7 @@ struct MemoryWriter
 	char[] buf;
 	size_t pos;
 
-	void handleFile(string fn) {}
+	void handleFile(const(Entity.FileProperties)* fileProperties) {}
 
 	void handleText(string s)
 	{
@@ -1673,7 +1681,8 @@ Entity applyReductionImpl(Entity origRoot, ref Reduction r)
 			{
 				auto fa = rootAddress.children[i];
 				auto f = edit(fa);
-				f.filename = applyReductionToPath(f.filename, r);
+				if (f.file)
+					f.file.name = applyReductionToPath(f.file.name, r);
 				foreach (j, const word; f.children)
 					if (word.head == r.from)
 						edit(fa.children[j]).head = r.to;
@@ -1727,7 +1736,7 @@ Entity applyReductionImpl(Entity origRoot, ref Reduction r)
 			{
 				if (e.dead)
 					return;
-				if (e.isFile)
+				if (e.file)
 				{
 					// Skip noRemove files, except when they are the target
 					// (in which case they will keep their contents after the reduction).
@@ -2315,7 +2324,7 @@ TestResult test(
 
 			bool scan(Entity e)
 			{
-				if (e.isFile)
+				if (e.file)
 				{
 					static MemoryWriter writer;
 					writer.reset();
@@ -2442,20 +2451,20 @@ void applyNoRemoveRules(Entity root, RemoveRule[] removeRules)
 	// don't remove anything except what's specified by the rule.
 	bool defaultRemove = !removeRules.front.remove;
 
-	auto files = root.isFile ? [root] : root.children;
+	auto files = root.file ? [root] : root.children;
 
 	foreach (f; files)
 	{
-		assert(f.isFile);
+		assert(f.file);
 
 		// Check file name
 		bool removeFile = defaultRemove;
 		foreach (rule; removeRules)
 		{
 			if (
-				(rule.shellGlob && f.filename.globMatch(rule.shellGlob))
+				(rule.shellGlob && f.file.name.globMatch(rule.shellGlob))
 			||
-				(rule.regexp !is Regex!char.init && f.filename.match(rule.regexp))
+				(rule.regexp !is Regex!char.init && f.file.name.match(rule.regexp))
 			)
 				removeFile = rule.remove;
 		}
@@ -2525,7 +2534,7 @@ void loadCoverage(Entity root, string dir)
 {
 	void scanFile(Entity f)
 	{
-		auto fn = buildPath(dir, setExtension(baseName(f.filename), "lst"));
+		auto fn = buildPath(dir, setExtension(baseName(f.file.name), "lst"));
 		if (!exists(fn))
 			return;
 		stderr.writeln("Loading coverage file ", fn);
@@ -2570,7 +2579,7 @@ void loadCoverage(Entity root, string dir)
 
 	void scanFiles(Entity e)
 	{
-		if (e.isFile)
+		if (e.file)
 			scanFile(e);
 		else
 			foreach (c; e.children)
@@ -2716,7 +2725,7 @@ void dumpSet(Entity root, string fn)
 			f.write(
 				" ",
 				e.redirect ? "-> " ~ text(findEntityEx(root, e.redirect).entity.id) ~ " " : "",
-				e.isFile ? e.filename ? printableFN(e.filename) ~ " " : null : e.head ? printable(e.head) ~ " " : null,
+				e.file ? e.file.name ? printableFN(e.file.name) ~ " " : null : e.head ? printable(e.head) ~ " " : null,
 				e.tail ? printable(e.tail) ~ " " : null,
 				e.comment ? "/* " ~ e.comment ~ " */ " : null,
 				"]"
@@ -2725,7 +2734,7 @@ void dumpSet(Entity root, string fn)
 		else
 		{
 			f.writeln(e.comment ? " // " ~ e.comment : null);
-			if (e.isFile) f.writeln(prefix, "  ", printableFN(e.filename));
+			if (e.file) f.writeln(prefix, "  ", printableFN(e.file.name));
 			if (e.head) f.writeln(prefix, "  ", printable(e.head));
 			foreach (c; e.children)
 				print(c, depth+1);
@@ -2773,10 +2782,10 @@ void dumpToHtml(Entity root, string fn)
 
 	void dump(Entity e)
 	{
-		if (e.isFile)
+		if (e.file)
 		{
 			buf.put("<h1>");
-			dumpText(e.filename);
+			dumpText(e.file.name);
 			buf.put("</h1><pre>");
 			foreach (c; e.children)
 				dump(c);
@@ -2824,8 +2833,8 @@ void dumpToJson(Entity root, string fn)
 	{
 		JSONValue[string] o;
 
-		if (e.isFile)
-			o["filename"] = e.filename;
+		if (e.file)
+			o["filename"] = e.file.name;
 
 		if (e.head.length)
 			o["head"] = e.head;

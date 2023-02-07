@@ -66,8 +66,13 @@ final class Entity
 	Entity[] children;     /// This node's children nodes, e.g. the statements of the statement block.
 	string tail;           /// This node's "tail", e.g. "}" for a statement block.
 
-	string filename, contents;
-	@property bool isFile() { return filename != ""; }
+	string contents;
+
+	struct FileProperties
+	{
+		string name;       /// Relative to the reduction root
+	}
+	FileProperties* file;  /// If non-null, this node represents a file
 
 	bool isPair;           /// Internal hint for --dump output
 	bool noRemove;         /// Don't try removing this entity (children OK)
@@ -272,7 +277,8 @@ Entity loadFile(string name, string path, ParseOptions options)
 		return loadJson(contents);
 
 	auto result = new Entity();
-	result.filename = name.replace(dirSeparator, `/`);
+	result.file = new Entity.FileProperties;
+	result.file.name = name.replace(dirSeparator, `/`);
 	result.contents = contents;
 
 	final switch (rule.splitter)
@@ -1415,10 +1421,11 @@ Entity loadJson(string contents)
 
 		if (auto p = "filename" in v.object)
 		{
-			e.filename = p.str.buildNormalizedPath;
-			enforce(e.filename.length &&
-				!e.filename.isAbsolute &&
-				!e.filename.pathSplitter.canFind(`..`),
+			e.file = new Entity.FileProperties;
+			e.file.name = p.str.buildNormalizedPath;
+			enforce(e.file.name.length &&
+				!e.file.name.isAbsolute &&
+				!e.file.name.pathSplitter.canFind(`..`),
 				"Invalid filename in JSON file: " ~ p.str);
 		}
 
