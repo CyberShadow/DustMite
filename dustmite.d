@@ -1459,6 +1459,45 @@ static struct FastWriter(Next) /// Accelerates Writer interface by bulking conti
 	}
 }
 
+// Workaround for https://issues.dlang.org/show_bug.cgi?id=23683
+// Remove when moving to a DMD version incorporating a fix
+version (Windows)
+{
+	import core.sys.windows.winbase;
+	import core.sys.windows.winnt;
+	import std.windows.syserror;
+
+	alias AliasSeq(Args...) = Args;
+	alias FSChar = WCHAR;
+	void setTimes(const(char)[] name,
+				  SysTime accessTime,
+				  SysTime modificationTime)
+	{
+		auto namez = (name ~ "\0").to!(FSChar[]).ptr;
+
+		import std.datetime.systime : SysTimeToFILETIME;
+		const ta = SysTimeToFILETIME(accessTime);
+		const tm = SysTimeToFILETIME(modificationTime);
+		alias defaults =
+			AliasSeq!(FILE_WRITE_ATTRIBUTES,
+					  0,
+					  null,
+					  OPEN_EXISTING,
+					  FILE_ATTRIBUTE_NORMAL |
+					  FILE_ATTRIBUTE_DIRECTORY |
+					  FILE_FLAG_BACKUP_SEMANTICS,
+					  HANDLE.init);
+		auto h = CreateFileW(namez, defaults);
+
+		wenforce(h != INVALID_HANDLE_VALUE, "CreateFileW: " ~ name);
+
+		scope(exit)
+			wenforce(CloseHandle(h), "CloseHandle: " ~ name);
+
+		wenforce(SetFileTime(h, null, &ta, &tm), "SetFileTime: " ~ name);
+	}
+}
+
 static struct DiskWriter
 {
 	string dir;
@@ -1513,6 +1552,8 @@ static struct DiskWriter
 				else
 					setAttributes(name, mode);
 			}
+			if (!fileProperties.times.isNull)
+				setTimes(name, fileProperties.times.get()[0], fileProperties.times.get()[1]);
 
 			o = File.init; // Avoid crash on Windows
 		}

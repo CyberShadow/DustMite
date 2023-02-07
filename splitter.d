@@ -8,6 +8,7 @@ import std.ascii;
 import std.algorithm;
 import std.array;
 import std.conv;
+import std.datetime.systime;
 import std.exception;
 import std.file;
 import std.functional;
@@ -73,6 +74,7 @@ final class Entity
 	{
 		string name;       /// Relative to the reduction root
 		Nullable!uint mode; /// OS-specific (std.file.getAttributes)
+		Nullable!(SysTime[2]) times; /// Access and modification times
 	}
 	FileProperties* file;  /// If non-null, this node represents a file
 
@@ -299,6 +301,12 @@ Entity loadFile(string name, string path, ParseOptions options)
 	result.file = new Entity.FileProperties;
 	result.file.name = name.replace(dirSeparator, `/`);
 	result.file.mode = mode;
+	if (!mode.isNull() && !attrIsSymlink(mode.get()) && path != "-")
+	{
+		SysTime accessTime, modificationTime;
+		getTimes(path, accessTime, modificationTime);
+		result.file.times = [accessTime, modificationTime];
+	}
 	result.contents = contents;
 
 	final switch (splitterType)
