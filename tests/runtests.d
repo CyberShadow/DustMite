@@ -16,6 +16,11 @@ import std.string;
 // Note: when updating this, also update README.md.
 enum testSuiteDMDVersion = "v2.080.0";
 
+version (Windows)
+	enum scriptExtension = ".cmd";
+else
+	enum scriptExtension = ".sh";
+
 void main(string[] args)
 {
 	string[] exclude;
@@ -72,6 +77,16 @@ void main(string[] args)
 
 		string base, target;
 
+		if (!dirEntries(test, "mksrc.*", SpanMode.shallow).empty)
+		{
+			if (exists(test ~ "/mksrc" ~ scriptExtension))
+				enforce(spawnProcess([absolutePath(test ~ "/mksrc" ~ scriptExtension)], stdin, stdout, stderr, null,
+						Config.retainStdin | Config.retainStdout | Config.retainStderr, test
+					).wait() == 0, "mksrc script failed");
+			else
+				continue; // No mksrc script for this platform
+		}
+
 		if (exists(test ~ "/src"))
 			base = target = "src";
 		else
@@ -85,10 +100,8 @@ void main(string[] args)
 			base = target = "src.json";
 		else
 			base = "src", target = null;
-		version (Windows)
-			enum testFile = "test.cmd";
-		else
-			enum testFile = "test.sh";
+
+		enum testFile = "test" ~ scriptExtension;
 		auto tester = test ~ "/" ~ testFile;
 		auto testerCmd = ".." ~ dirSeparator ~ testFile;
 
