@@ -1,0 +1,13 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {}
+                ],
+                "filename": "file"
+            }
+        ]
+    },
+    "version": 1
+}

@@ -1005,7 +1005,7 @@ bool nextAddress(ref size_t[] address, Entity root, bool descend)
 
 class LevelStrategy : IterativeStrategy
 {
-	bool levelChanged;
+	bool levelChanged; // We found some reductions while traversing this level
 	bool invalid;
 
 	override int getDepth() { return cast(int)address.length; }
@@ -1118,22 +1118,18 @@ final class LookbackStrategy : LevelStrategy
 		if (!nextInLevel())
 		{
 			// End of level
-			if (levelChanged)
-			{
-				setLevel(currentLevel ? currentLevel - 1 : 0);
-			}
-			else
-			if (setLevel(maxLevel + 1))
-			{
-				maxLevel = currentLevel;
-			}
-			else
+			auto nextLevel = levelChanged
+				? currentLevel ? currentLevel - 1 : 0
+				: maxLevel + 1;
+			if (!setLevel(nextLevel))
 			{
 				if (iterationChanged)
 					nextIteration();
 				else
 					done = true;
 			}
+			else
+				maxLevel = max(maxLevel, currentLevel);
 		}
 	}
 }
@@ -1153,12 +1149,10 @@ final class PingPongStrategy : LevelStrategy
 		if (!nextInLevel())
 		{
 			// End of level
-			if (levelChanged)
-			{
-				setLevel(currentLevel ? currentLevel - 1 : 0);
-			}
-			else
-			if (!setLevel(currentLevel + 1))
+			auto nextLevel = levelChanged
+				? currentLevel ? currentLevel - 1 : 0
+				: currentLevel + 1;
+			if (!setLevel(nextLevel))
 			{
 				if (iterationChanged)
 					nextIteration();
