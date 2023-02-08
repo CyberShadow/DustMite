@@ -15,8 +15,8 @@ jobs:
       with:
         compiler: dmd-2.080.0
     - name: Test
-      run: |
-        ( cd tests && rdmd -g runtests.d )
-        git diff --exit-code
+      run: cd tests && rdmd -g runtests.d
+    - name: Check test output
+      run: git diff --exit-code
     - name: Upload coverage
       uses: codecov/codecov-action@v1
