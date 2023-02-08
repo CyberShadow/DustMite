@@ -152,6 +152,7 @@ enum Splitter
 	D,         /// Parse D source code
 	diff,      /// Unified diffs
 	indent,    /// Indentation (Python, YAML...)
+	lisp,      /// Lisp and similar languages
 }
 immutable string[] splitterNames = [EnumMembers!Splitter].map!(e => e.text().toLower().chomp("_")).array();
 
@@ -260,8 +261,15 @@ immutable ParseRule[] defaultRules =
 [
 	{ "*.d"    , Splitter.D     },
 	{ "*.di"   , Splitter.D     },
+
 	{ "*.diff" , Splitter.diff  },
 	{ "*.patch", Splitter.diff  },
+
+	{ "*.lisp" , Splitter.lisp  },
+	{ "*.cl"   , Splitter.lisp  },
+	{ "*.lsp"  , Splitter.lisp  },
+	{ "*.el"   , Splitter.lisp  },
+
 	{ "*"      , Splitter.files },
 ];
 
@@ -350,6 +358,9 @@ Entity loadFile(string name, string path, ParseOptions options)
 			return result;
 		case Splitter.indent:
 			result.children = parseIndent(result.contents, options.tabWidth);
+			return result;
+		case Splitter.lisp:
+			result.children = parseLisp(result.contents);
 			return result;
 	}
 }
@@ -1411,6 +1422,193 @@ Entity[] parseIndent(string s, uint tabWidth)
 	}
 
 	return root;
+}
+
+Entity[] parseLisp(string s)
+{
+	// leaf head: token (non-whitespace)
+	// leaf tail: whitespace
+	// non-leaf head: "(" and any whitespace
+	// non-leaf tail: ")" and any whitespace
+
+	size_t i;
+
+	size_t last;
+	scope(success) assert(last == s.length, "Incomplete slice");
+	string slice(void delegate() advance)
+	{
+		assert(last == i, "Non-contiguous slices");
+		auto start = i;
+		advance();
+		last = i;
+		return s[start .. i];
+	}
+
+	/// How many characters did `advance` move forward by?
+	size_t countAdvance(void delegate() advance)
+	{
+		auto start = i;
+		advance();
+		return i - start;
+	}
+
+	void advanceWhitespace()
+	{
+		while (i < s.length)
+		{
+			switch (s[i])
+			{
+				case ' ':
+				case '\t':
+				case '\r':
+				case '\n':
+				case '\f':
+				case '\v':
+					i++;
+					continue;
+
+				case ';':
+					i++;
+					while (i < s.length && s[i] != '\n')
+						i++;
+					continue;
+
+				default:
+					return; // stop
+			}
+			assert(false); // unreachable
+		}
+	}
+
+	void advanceToken()
+	{
+		assert(countAdvance(&advanceWhitespace) == 0);
+		assert(i < s.length);
+
+		switch (s[i])
+		{
+			case '(':
+			case ')':
+			case '[':
+			case ']':
+				assert(false);
+			case '"':
+				i++;
+				while (i < s.length)
+				{
+					switch (s[i])
+					{
+						case '"':
+							i++;
+							return; // stop
+
+						case '\\':
+							i++;
+							if (i < s.length)
+								i++;
+							continue;
+
+						default:
+							i++;
+							continue;
+					}
+					assert(false); // unreachable
+				}
+				break;
+			default:
+				while (i < s.length)
+				{
+					switch (s[i])
+					{
+						case ' ':
+						case '\t':
+						case '\r':
+						case '\n':
+						case '\f':
+						case '\v':
+						case ';':
+
+						case '"':
+						case '(':
+						case ')':
+						case '[':
+						case ']':
+							return; // stop
+
+						case '\\':
+							i++;
+							if (i < s.length)
+								i++;
+							continue;
+
+						default:
+							i++;
+							continue;
+					}
+					assert(false); // unreachable
+				}
+				break;
+		}
+	}
+
+	void advanceParen(char paren)
+	{
+		assert(i < s.length && s[i] == paren);
+		i++;
+		advanceWhitespace();
+	}
+
+	Entity[] parse(bool topLevel)
+	{
+		Entity[] result;
+		if (topLevel) // Handle reading whitespace at top-level
+		{
+			auto ws = slice(&advanceWhitespace);
+			if (ws.length)
+				result ~= new Entity(ws);
+		}
+
+		Entity parseParen(char open, char close)
+		{
+			auto entity = new Entity(slice({ advanceParen(open); }));
+			entity.children = parse(false);
+			if (i < s.length)
+				entity.tail = slice({ advanceParen(close); });
+			return entity;
+		}
+
+		while (i < s.length)
+		{
+			switch (s[i])
+			{
+				case '(':
+					result ~= parseParen('(', ')');
+					continue;
+				case '[':
+					result ~= parseParen('[', ']');
+					continue;
+
+				case ')':
+				case ']':
+					if (!topLevel)
+						break;
+					result ~= new Entity(slice({ advanceParen(s[i]); }));
+					continue;
+
+				default:
+					result ~= new Entity(
+						slice(&advanceToken),
+						null,
+						slice(&advanceWhitespace),
+					);
+					continue;
+			}
+			break;
+		}
+		return result;
+	}
+
+	return parse(true);
 }
 
 private:
