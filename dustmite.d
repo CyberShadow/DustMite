@@ -55,11 +55,11 @@ string strategy = "inbreadth";
 struct Times { StopWatch total, load, testSave, resultSave, apply, lookaheadApply, lookaheadWaitThread, lookaheadWaitProcess, test, clean, globalCache, misc; }
 Times times;
 static this() { times.total.start(); times.misc.start(); }
-void measure(string what)(scope void delegate() p)
+T measure(string what, T)(scope T delegate() p)
 {
 	times.misc.stop(); mixin("times."~what~".start();");
-	p();
-	mixin("times."~what~".stop();"); times.misc.start();
+	scope(exit) { mixin("times."~what~".stop();"); times.misc.start(); }
+	return p();
 }
 
 struct Reduction
@@ -2080,10 +2080,13 @@ struct TestResult
 		diskCache,
 		ramCache,
 		reject,
+		error,
 	}
 	Source source;
 
 	int status;
+	string error;
+
 	string reason()
 	{
 		final switch (source)
@@ -2102,6 +2105,8 @@ struct TestResult
 				return "Test result was cached in memory as " ~ (success ? "success" : "failure");
 			case Source.reject:
 				return "Test result was rejected by a --reject rule";
+			case Source.error:
+				return "Error: " ~ error;
 		}
 	}
 }
@@ -2165,10 +2170,23 @@ TestResult test(
 		{
 			// Handle existing lookahead jobs
 
-			void reapThread(ref LookaheadSlot slot)
+			Nullable!TestResult reapThread(ref LookaheadSlot slot)
 			{
-				slot.thread.join(/*rethrow:*/true);
-				slot.thread = null;
+				try
+				{
+					slot.thread.join(/*rethrow:*/true);
+					slot.thread = null;
+					return typeof(return)();
+				}
+				catch (Exception e)
+				{
+					scope(success) slot = LookaheadSlot.init;
+					safeDelete(slot.testdir);
+					auto result = TestResult(false, TestResult.Source.error);
+					result.error = e.msg;
+					lookaheadResults[slot.digest] = result;
+					return typeof(return)(result);
+				}
 			}
 
 			TestResult reapProcess(ref LookaheadSlot slot, int status)
@@ -2313,9 +2331,14 @@ TestResult test(
 					// Join the thread first, to guarantee that there is a pid
 					if (slot.thread)
 					{
-						measure!"lookaheadWaitThread"({
-							reapThread(slot);
+						auto result = measure!"lookaheadWaitThread"({
+							return reapThread(slot);
 						});
+						if (!result.isNull)
+						{
+							stderr.writefln("%s (lookahead-wait: %s)", result.get().success ? "Yes" : "No", result.get().source);
+							return result.get();
+						}
 					}
 
 					auto pid = cast()atomicLoad(slot.pid);
@@ -2380,6 +2403,19 @@ TestResult test(
 		return fallback;
 	}
 
+	TestResult handleError(lazy TestResult fallback)
+	{
+		try
+			return fallback;
+		catch (Exception e)
+		{
+			auto result = TestResult(false, TestResult.Source.error);
+			result.error = e.msg;
+			stderr.writefln("No (error: %s)", e.msg);
+			return result;
+		}
+	}
+
 	TestResult doTest()
 	{
 		string testdir = dirSuffix("test", Yes.temp);
@@ -2402,7 +2438,7 @@ TestResult test(
 		return result;
 	}
 
-	auto result = ramCached(diskCached(testReject(lookahead(doTest()))));
+	auto result = ramCached(diskCached(testReject(lookahead(handleError(doTest())))));
 	if (trace) saveTrace(root, reductions, dirSuffix("trace", No.temp), result.success);
 	return result;
 }
