@@ -60,7 +60,15 @@ void main(string[] args)
 
 	foreach (test; tests.parallel)
 	{
-		scope(failure) stderr.writefln("runtests: Error with test %s", test);
+		auto outputFile = test~"/output.txt";
+		outputFile.remove().collectException();
+
+		scope(failure)
+		{
+			stderr.writefln("runtests: Error with test %s", test);
+			if (outputFile.exists)
+				stderr.writefln("Output:\n----------\n%s----------", outputFile.readText);
+		}
 
 		string base, target;
 
@@ -106,7 +114,6 @@ void main(string[] args)
 
 		File input() { return target == "-" ? File(base, "rb") : stdin; }
 
-		auto outputFile = test~"/output.txt";
 		File output;
 		synchronized(mutex) output.open(outputFile, "wb");
 
