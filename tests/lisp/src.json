@@ -1,0 +1,44 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "head": "foo",
+                                        "tail": "\n  "
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "head": "bar"
+                                            }
+                                        ],
+                                        "head": "(",
+                                        "tail": ") ; comment1\n  "
+                                    },
+                                    {
+                                        "head": "baz",
+                                        "tail": ";; comment2)))\n  "
+                                    }
+                                ],
+                                "head": "(",
+                                "tail": ")\n "
+                            },
+                            {
+                                "head": "quux"
+                            }
+                        ],
+                        "head": "(",
+                        "tail": ")\n"
+                    }
+                ],
+                "filename": "test.lisp"
+            }
+        ]
+    },
+    "version": 1
+}
