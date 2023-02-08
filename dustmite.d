@@ -402,7 +402,7 @@ EOS");
 		}
 	}
 
-	lookaheadProcesses = new Lookahead[lookaheadCount];
+	lookaheadProcessSlots = new LookaheadSlot[lookaheadCount];
 
 	foundAnything = false;
 	string resultAdjective;
@@ -1926,10 +1926,10 @@ RoundRobinCache!(ReductionCacheKey, Entity) reductionCache;
 
 Entity applyReduction(Entity origRoot, ref Reduction r)
 {
-	if (lookaheadProcesses.length)
+	if (lookaheadProcessSlots.length)
 	{
 		if (!reductionCache.keys)
-			reductionCache.requireSize(1 + lookaheadProcesses.length);
+			reductionCache.requireSize(1 + lookaheadProcessSlots.length);
 
 		auto cacheKey = ReductionCacheKey(origRoot, r);
 		return reductionCache.get(cacheKey, applyReductionImpl(origRoot, r));
@@ -2031,14 +2031,15 @@ void saveResult(Entity root)
 		measure!"resultSave"({safeSave(root, resultDir);});
 }
 
-struct Lookahead
+struct LookaheadSlot
 {
+	bool active;
 	Thread thread;
 	shared Pid pid;
 	string testdir;
 	EntityHash digest;
 }
-Lookahead[] lookaheadProcesses;
+LookaheadSlot[] lookaheadProcessSlots;
 
 TestResult[EntityHash] lookaheadResults;
 
@@ -2164,34 +2165,44 @@ TestResult test(
 		{
 			// Handle existing lookahead jobs
 
-			TestResult reap(ref Lookahead process, int status)
+			void reapThread(ref LookaheadSlot slot)
 			{
-				scope(success) process = Lookahead.init;
-				safeDelete(process.testdir);
-				if (process.thread)
-					process.thread.join(/*rethrow:*/true);
-				return lookaheadResults[process.digest] = TestResult(status == 0, TestResult.Source.lookahead, status);
+				slot.thread.join(/*rethrow:*/true);
+				slot.thread = null;
 			}
 
-			foreach (ref process; lookaheadProcesses)
-				if (process.thread)
+			TestResult reapProcess(ref LookaheadSlot slot, int status)
+			{
+				scope(success) slot = LookaheadSlot.init;
+				safeDelete(slot.testdir);
+				if (slot.thread)
+					reapThread(slot); // should be null
+				return lookaheadResults[slot.digest] = TestResult(status == 0, TestResult.Source.lookahead, status);
+			}
+
+			foreach (ref slot; lookaheadProcessSlots) // Reap threads
+				if (slot.thread)
 				{
 					debug (DETERMINISTIC_LOOKAHEAD)
-					{
-						process.thread.join(/*rethrow:*/true);
-						process.thread = null;
-					}
+						reapThread(slot);
+					else
+						if (!slot.thread.isRunning)
+							reapThread(slot);
+				}
 
-					auto pid = cast()atomicLoad(process.pid);
+			foreach (ref slot; lookaheadProcessSlots) // Reap processes
+				if (slot.active)
+				{
+					auto pid = cast()atomicLoad(slot.pid);
 					if (pid)
 					{
 						debug (DETERMINISTIC_LOOKAHEAD)
-							reap(process, pid.wait());
+							reapProcess(slot, pid.wait());
 						else
 						{
 							auto waitResult = pid.tryWait();
 							if (waitResult.terminated)
-								reap(process, waitResult.status);
+								reapProcess(slot, waitResult.status);
 						}
 					}
 				}
@@ -2211,8 +2222,8 @@ TestResult test(
 
 			size_t numSteps;
 
-			foreach (ref process; lookaheadProcesses)
-				while (!process.thread && !predictionTree.empty)
+			foreach (ref slot; lookaheadProcessSlots)
+				while (!slot.active && !predictionTree.empty)
 				{
 					auto state = predictionTree.front;
 					predictionTree.removeFront();
@@ -2220,7 +2231,7 @@ TestResult test(
 				retryIter:
 					if (state.iter.done)
 						continue;
-					reductionCache.requireSize(lookaheadProcesses.length + ++numSteps);
+					reductionCache.requireSize(lookaheadProcessSlots.length + ++numSteps);
 					auto reduction = state.iter.front;
 					Entity newRoot;
 					measure!"lookaheadApply"({ newRoot = state.iter.root.applyReduction(reduction); });
@@ -2233,7 +2244,7 @@ TestResult test(
 					auto digest = newRoot.hash;
 
 					double prediction;
-					if (digest in cache || digest in lookaheadResults || lookaheadProcesses[].canFind!(p => p.thread && p.digest == digest))
+					if (digest in cache || digest in lookaheadResults || lookaheadProcessSlots[].canFind!(p => p.thread && p.digest == digest))
 					{
 						if (digest in cache)
 							prediction = cache[digest] ? 1 : 0;
@@ -2245,25 +2256,26 @@ TestResult test(
 					}
 					else
 					{
-						process.digest = digest;
+						slot.active = true;
+						slot.digest = digest;
 
 						static int counter;
-						process.testdir = dirSuffix("lookahead.%d".format(counter++), Yes.temp);
+						slot.testdir = dirSuffix("lookahead.%d".format(counter++), Yes.temp);
 
 						// Saving and process creation are expensive.
 						// Don't block the main thread, use a worker thread instead.
-						static void runThread(Entity newRoot, ref Lookahead process, string tester)
+						static void runThread(Entity newRoot, ref LookaheadSlot slot, string tester)
 						{
-							process.thread = new Thread({
-								save(newRoot, process.testdir);
+							slot.thread = new Thread({
+								save(newRoot, slot.testdir);
 
 								auto nul = File(nullFileName, "w+");
-								auto pid = spawnShell(tester, nul, nul, nul, null, Config.none, process.testdir);
-								atomicStore(process.pid, cast(shared)pid);
+								auto pid = spawnShell(tester, nul, nul, nul, null, Config.none, slot.testdir);
+								atomicStore(slot.pid, cast(shared)pid);
 							});
-							process.thread.start();
+							slot.thread.start();
 						}
-						runThread(newRoot, process, tester);
+						runThread(newRoot, slot, tester);
 
 						prediction = state.predictor.predict();
 					}
@@ -2292,21 +2304,25 @@ TestResult test(
 				return *plookaheadResult;
 			}
 
-			foreach (ref process; lookaheadProcesses)
+			foreach (ref slot; lookaheadProcessSlots)
 			{
-				if (process.thread && process.digest == digest)
+				if (slot.active && slot.digest == digest)
 				{
 					// Current test is already being tested in the background, wait for its result.
 
 					// Join the thread first, to guarantee that there is a pid
-					measure!"lookaheadWaitThread"({ process.thread.join(/*rethrow:*/true); });
-					process.thread = null;
+					if (slot.thread)
+					{
+						measure!"lookaheadWaitThread"({
+							reapThread(slot);
+						});
+					}
 
-					auto pid = cast()atomicLoad(process.pid);
+					auto pid = cast()atomicLoad(slot.pid);
 					int exitCode;
 					measure!"lookaheadWaitProcess"({ exitCode = pid.wait(); });
 
-					auto result = reap(process, exitCode);
+					auto result = reapProcess(slot, exitCode);
 					stderr.writeln(result.success ? "Yes" : "No", " (lookahead-wait)");
 					return result;
 				}
