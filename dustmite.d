@@ -1428,27 +1428,35 @@ static struct FastWriter(Next) /// Accelerates Writer interface by bulking conti
 {
 	Next next;
 	immutable(char)* start, end;
-	void finish()
+
+	private void flush()
 	{
 		if (start != end)
 			next.handleText(start[0 .. end - start]);
 		start = end = null;
 	}
+
 	void handleFile(const(Entity.FileProperties)* fileProperties)
 	{
-		finish();
+		flush();
 		next.handleFile(fileProperties);
 	}
+
 	void handleText(string s)
 	{
 		if (s.ptr != end)
 		{
-			finish();
+			flush();
 			start = s.ptr;
 		}
 		end = s.ptr + s.length;
 	}
-	~this() { finish(); }
+
+	void finish()
+	{
+		flush();
+		next.finish();
+	}
 }
 
 static struct DiskWriter
@@ -1509,8 +1517,6 @@ static struct DiskWriter
 			o = File.init; // Avoid crash on Windows
 		}
 	}
-
-	~this() { finish(); }
 }
 
 struct MemoryWriter
