@@ -2633,6 +2633,7 @@ void applyNoRemoveRules(Entity root, RemoveRule[] removeRules)
 				return true;
 			auto start = s.ptr - f.contents.ptr;
 			auto end = start + s.length;
+			assert(start <= end && end <= f.contents.length, "String is not a slice of the file");
 			return removeChar[start .. end].all;
 		}
 
@@ -2766,7 +2767,8 @@ void convertRefs(Entity root)
 	void convertRef(ref EntityRef r)
 	{
 		assert(r.entity && !r.address);
-		r.address = addresses[r.entity.id];
+		r.address = addresses.get(r.entity.id, null);
+		assert(r.address, "Dependent not in tree");
 		r.entity = null;
 	}
 
