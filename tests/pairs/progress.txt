@@ -36,15 +36,15 @@
 [29.0%] Remove [00010001] => No
 [29.0%] Unwrap [00010001] => No (cached)
 [32.2%] Remove [00010000] => No
-[54.8%] Remove [00000011] => No
+[54.8%] Remove [00000011] => No (cached)
 [61.2%] Remove [00000010] => No
 ============= Depth 9 =============
 [ 9.6%] Remove [000100100] => No
 [32.2%] Remove [000100001] => No
 [35.4%] Remove [000100000] => No
-[54.8%] Remove [000000110] => No
-[61.2%] Remove [000000101] => No
-[64.5%] Remove [000000100] => No
+[54.8%] Remove [000000110] => No (cached)
+[61.2%] Remove [000000101] => No (cached)
+[64.5%] Remove [000000100] => No (cached)
 ============= Depth 10 =============
 [ 9.6%] Remove [0001001001] => No
 [ 9.6%] Unwrap [0001001001] => No
@@ -99,4 +99,4 @@
 [16.1%] Remove [0001001000] => No (cached)
 ============= Depth 11 =============
 [ 9.6%] Remove [00010010010] => No (cached)
-Done in 37 tests
+Done in 33 tests

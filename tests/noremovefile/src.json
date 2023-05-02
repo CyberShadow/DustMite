@@ -22,20 +22,30 @@
                                             {
                                                 "children": [
                                                     {
+                                                        "dependents": [
+                                                            "9"
+                                                        ],
                                                         "head": "std",
                                                         "noRemove": true
                                                     },
                                                     {
+                                                        "dependents": [
+                                                            "9"
+                                                        ],
                                                         "label": "11",
                                                         "noRemove": true,
                                                         "tail": "."
                                                     }
                                                 ],
+                                                "label": "9",
                                                 "noRemove": true
                                             },
                                             {
                                                 "children": [
                                                     {
+                                                        "dependents": [
+                                                            "12"
+                                                        ],
                                                         "head": "stdio",
                                                         "noRemove": true
                                                     }
@@ -43,6 +53,7 @@
                                                 "dependents": [
                                                     "11"
                                                 ],
+                                                "label": "12",
                                                 "noRemove": true
                                             }
                                         ],
@@ -207,23 +218,34 @@
                                             {
                                                 "children": [
                                                     {
+                                                        "dependents": [
+                                                            "44"
+                                                        ],
                                                         "head": "std"
                                                     },
                                                     {
+                                                        "dependents": [
+                                                            "44"
+                                                        ],
                                                         "label": "46",
                                                         "tail": "."
                                                     }
-                                                ]
+                                                ],
+                                                "label": "44"
                                             },
                                             {
                                                 "children": [
                                                     {
+                                                        "dependents": [
+                                                            "47"
+                                                        ],
                                                         "head": "stdio"
                                                     }
                                                 ],
                                                 "dependents": [
                                                     "46"
-                                                ]
+                                                ],
+                                                "label": "47"
                                             }
                                         ]
                                     }

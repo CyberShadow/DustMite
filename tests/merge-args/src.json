@@ -1018,23 +1018,34 @@
                                             {
                                                 "children": [
                                                     {
+                                                        "dependents": [
+                                                            "245"
+                                                        ],
                                                         "head": "std"
                                                     },
                                                     {
+                                                        "dependents": [
+                                                            "245"
+                                                        ],
                                                         "label": "247",
                                                         "tail": "."
                                                     }
-                                                ]
+                                                ],
+                                                "label": "245"
                                             },
                                             {
                                                 "children": [
                                                     {
+                                                        "dependents": [
+                                                            "248"
+                                                        ],
                                                         "head": "stdio"
                                                     }
                                                 ],
                                                 "dependents": [
                                                     "247"
-                                                ]
+                                                ],
+                                                "label": "248"
                                             }
                                         ]
                                     }
@@ -1158,12 +1169,16 @@
                                                                             {
                                                                                 "children": [
                                                                                     {
+                                                                                        "dependents": [
+                                                                                            "281"
+                                                                                        ],
                                                                                         "head": "common"
                                                                                     }
                                                                                 ],
                                                                                 "dependents": [
                                                                                     "280"
-                                                                                ]
+                                                                                ],
+                                                                                "label": "281"
                                                                             }
                                                                         ]
                                                                     }

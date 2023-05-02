@@ -13,23 +13,34 @@
                                     {
                                         "children": [
                                             {
+                                                "dependents": [
+                                                    "6"
+                                                ],
                                                 "head": "std"
                                             },
                                             {
+                                                "dependents": [
+                                                    "6"
+                                                ],
                                                 "label": "8",
                                                 "tail": "."
                                             }
-                                        ]
+                                        ],
+                                        "label": "6"
                                     },
                                     {
                                         "children": [
                                             {
+                                                "dependents": [
+                                                    "9"
+                                                ],
                                                 "head": "stdio"
                                             }
                                         ],
                                         "dependents": [
                                             "8"
-                                        ]
+                                        ],
+                                        "label": "9"
                                     }
                                 ]
                             }

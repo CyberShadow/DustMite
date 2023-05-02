@@ -65,23 +65,34 @@
                                             {
                                                 "children": [
                                                     {
+                                                        "dependents": [
+                                                            "19"
+                                                        ],
                                                         "head": "std"
                                                     },
                                                     {
+                                                        "dependents": [
+                                                            "19"
+                                                        ],
                                                         "label": "21",
                                                         "tail": "."
                                                     }
-                                                ]
+                                                ],
+                                                "label": "19"
                                             },
                                             {
                                                 "children": [
                                                     {
+                                                        "dependents": [
+                                                            "22"
+                                                        ],
                                                         "head": "stdio"
                                                     }
                                                 ],
                                                 "dependents": [
                                                     "21"
-                                                ]
+                                                ],
+                                                "label": "22"
                                             }
                                         ]
                                     }

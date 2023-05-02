@@ -19,6 +19,7 @@ import std.string;
 import std.traits;
 import std.stdio : stderr;
 import std.typecons;
+import std.utf : byChar;
 
 import polyhash;
 
@@ -935,6 +936,49 @@ struct DSplitter
 		}
 	}
 
+	// Join together module names. We should not attempt to reduce "import std.stdio" to "import std" (or "import stdio").
+	static void postProcessImports(ref Entity[] entities)
+	{
+		if (entities.length && entities[0].head.strip == "import" && !entities[0].children.length && !entities[0].tail.length)
+			foreach (entity; entities[1 .. $])
+			{
+				static void visit(Entity entity)
+				{
+					static bool isValidModuleName(string s) { return s.byChar.all!(c => isWordChar(c) || isWhite(c) || c == '.'); }
+					static bool canBeMerged(Entity entity)
+					{
+						return
+							isValidModuleName(entity.head) &&
+							entity.children.all!(child => canBeMerged(child)) &&
+							isValidModuleName(entity.tail);
+					}
+
+					if (canBeMerged(entity))
+					{
+						auto root = entity;
+						// Link all ancestors to the root, and in reverse, therefore making them inextricable.
+						void link(Entity entity)
+						{
+							entity.dependents ~= EntityRef(root);
+							// root.dependents ~= EntityRef(entity);
+							foreach (child; entity.children)
+								link(child);
+						}
+						foreach (child; entity.children)
+							link(child);
+					}
+					else
+					{
+						foreach (child; entity.children)
+							visit(child);
+					}
+				}
+
+				foreach (child; entity.children)
+					visit(child);
+			}
+	}
+
 	static void postProcessDependency(ref Entity[] entities)
 	{
 		if (entities.length < 2)
@@ -1155,6 +1199,7 @@ struct DSplitter
 				postProcessRecursive(e.children);
 
 		postProcessSimplify(entities);
+		postProcessImports(entities);
 		postProcessTemplates(entities);
 		postProcessDependency(entities);
 		postProcessBlockKeywords(entities);
