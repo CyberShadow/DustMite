@@ -1410,9 +1410,45 @@ unittest
 	assert(split2!("]", "[")("[foo] [bar]") == ["[foo] [bar]"]);
 }
 
+// From ae.utils.array
+template skipWhile(alias pred)
+{
+	T[] skipWhile(T)(ref T[] source, bool orUntilEnd = false)
+	{
+		enum bool isSlice = is(typeof(pred(source[0..1])));
+		enum bool isElem  = is(typeof(pred(source[0]   )));
+		static assert(isSlice || isElem, "Can't skip " ~ T.stringof ~ " until " ~ pred.stringof);
+		static assert(isSlice != isElem, "Ambiguous types for skipWhile: " ~ T.stringof ~ " and " ~ pred.stringof);
+
+		foreach (i; 0 .. source.length)
+		{
+			bool match;
+			static if (isSlice)
+				match = pred(source[i .. $]);
+			else
+				match = pred(source[i]);
+			if (!match)
+			{
+				auto result = source[0..i];
+				source = source[i .. $];
+				return result;
+			}
+		}
+
+		if (orUntilEnd)
+		{
+			auto result = source;
+			source = null;
+			return result;
+		}
+		else
+			return null;
+	}
+}
+
 Entity[] parseDiff(string s)
 {
-	return s
+	auto entities = s
 		.split2!("\n", "diff ")
 		.map!(
 			(string file)
@@ -1423,6 +1459,54 @@ Entity[] parseDiff(string s)
 		)
 		.array
 	;
+
+	// If a word occurs only in two or more (but not all) hunks,
+	// create dependency nodes which make Dustmite try reducing these
+	// hunks simultaneously.
+	{
+		auto allHunks = entities.map!(entity => entity.children).join;
+		auto hunkWords = allHunks
+			.map!(hunk => hunk.head)
+			.map!((text) {
+				bool[string] words;
+				while (text.length)
+				{
+					alias isWordChar = c => isAlphaNum(c) || c == '_';
+					text.skipWhile!(not!isWordChar)(true);
+					auto word = text.skipWhile!isWordChar(true);
+					if (word.length)
+						words[word] = true;
+				}
+				return words;
+			})
+			.array;
+
+		auto allWords = hunkWords
+			.map!(words => words.byPair)
+			.joiner
+			.assocArray;
+		string[bool[]] sets; // Deduplicated sets of hunks to try to remove at once
+		foreach (word; allWords.byKey)
+		{
+			immutable bool[] hunkHasWord = hunkWords.map!(c => !!(word in c)).array.assumeUnique;
+			auto numHunksWithWord = hunkHasWord.count!(b => b);
+			if (numHunksWithWord > 1 && numHunksWithWord < allHunks.length)
+				sets[hunkHasWord] = word;
+		}
+
+		foreach (set, word; sets)
+		{
+			auto e = new Entity();
+			debug e.comments ~= word;
+			e.dependents ~= allHunks.length.iota
+				.filter!(i => set[i])
+				.map!(i => EntityRef(allHunks[i]))
+				.array;
+			entities ~= e;
+		}
+	}
+
+	return entities;
 }
 
 Entity[] parseIndent(string s, uint tabWidth)
