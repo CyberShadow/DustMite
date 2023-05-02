@@ -14,7 +14,7 @@ import std.string;
 /// so we can distinguish changes in results due to Dustmite bugs or unexpected effects of changes,
 /// from changes due to differences in how D compiler versions compile D programs.
 // Note: when updating this, also update README.md.
-enum testSuiteDMDVersion = "v2.080.0";
+enum testSuiteDMDVersion = "v2.100.0";
 
 version (Windows)
 	enum scriptExtension = ".cmd";
@@ -48,7 +48,7 @@ void main(string[] args)
 	}
 
 	auto dustmite = buildPath("..", "dustmite").absolutePath;
-	auto flags = ["-g", "-debug", "-unittest", "-cov", "-version=testsuite"];
+	auto flags = ["-g", "-debug", "-cov", "-version=testsuite"];
 	version (Windows)
 		flags ~= ["-m64"];
 	buildPath("..", "cov").rmdirRecurse.collectException;
@@ -59,6 +59,14 @@ void main(string[] args)
 			stdin, stdout, stderr, null, Config.none, tests[0]
 		).wait();
 		enforce(status == 0, "Dustmite build failed with status %s".format(status));
+	}
+
+	stderr.writeln("Running unittests...");
+	{
+		auto status = spawnProcess(["rdmd", "-unittest"] ~ flags ~ [dustmite],
+			stdin, stdout, stderr, null, Config.none, tests[0]
+		).wait();
+		enforce(status == 0, "Dustmite unittest command with status %s".format(status));
 	}
 
 	auto mutex = new Object;
@@ -118,7 +126,7 @@ void main(string[] args)
 		string[] opts;
 		auto optsFile = test ~ "/args.txt";
 		if (optsFile.exists)
-			opts = optsFile.readText().splitLines();
+			opts ~= optsFile.readText().splitLines();
 		if (opts.canFind("--in-place"))
 		{
 			copyRecurse(test ~ "/" ~ target, reducedDir);

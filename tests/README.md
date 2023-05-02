@@ -6,7 +6,7 @@ How to use this test suite:
 You should perform the following steps before beginning work on DustMite,
 as well as before committing any non-trivial changes to DustMite or its algorithms.
 
-1. Make sure you have DMD 2.080 as the first `dmd` binary in your `PATH`.
+1. Make sure you have DMD 2.100 as the first `dmd` binary in your `PATH`.
    (See `testSuiteDMDVersion` in `runtests.d` for an explanation.)
 
 2. Make sure your git checkout of the tests directory is clean (no added/deleted files in the `tests` directory).

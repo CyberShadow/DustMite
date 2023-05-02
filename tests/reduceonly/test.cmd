@@ -1,1 +1,1 @@
-@rdmd --tmpdir=. --build-only -L/ENTRY:_mainCRTStartup test.d > nul 2>&1 && test 2>&1 | grep -qF bbb
+@rdmd --tmpdir=. --build-only test.d > nul 2>&1 && test 2>&1 | grep -qF bbb
