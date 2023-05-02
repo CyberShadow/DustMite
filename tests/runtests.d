@@ -47,7 +47,7 @@ void main(string[] args)
 				dmdVersion, testSuiteDMDVersion);
 	}
 
-	auto dustmite = buildPath("..", "..", "dustmite");
+	auto dustmite = buildPath("..", "dustmite").absolutePath;
 	auto flags = ["-g", "-debug", "-unittest", "-cov", "-version=testsuite"];
 	version (Windows)
 		flags ~= ["-m64"];
@@ -131,13 +131,13 @@ void main(string[] args)
 		synchronized(mutex) output.open(outputFile, "wb");
 
 		stderr.writefln("runtests: test %s: dumping", test);
-		auto status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ (target ? ["--dump", "--no-optimize", target] : []),
+		auto status = spawnProcess([dustmite] ~ opts ~ (target ? ["--dump", "--no-optimize", target] : []),
 			input, output, output, null, Config.retainStdout | Config.retainStderr, test).wait();
 		enforce(status == 0, "Dustmite dump failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
 
 		stderr.writefln("runtests: test %s: dumping JSON", test);
-		status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ (target ? ["--dump-json", "--no-optimize", target] : []),
+		status = spawnProcess([dustmite] ~ opts ~ (target ? ["--dump-json", "--no-optimize", target] : []),
 			input, output, output, null, Config.retainStdout | Config.retainStderr, test).wait();
 		enforce(status == 0, "Dustmite JSON dump failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
@@ -147,7 +147,7 @@ void main(string[] args)
 
 		synchronized(mutex) output.reopen(outputFile, "ab"); // Reopen because spawnProcess closes it
 		stderr.writefln("runtests: test %s: reducing", test);
-		status = spawnProcess(["rdmd"] ~ flags ~ [dustmite] ~ opts ~ ["--times", target, testerCmd],
+		status = spawnProcess([dustmite] ~ opts ~ ["--times", target, testerCmd],
 			input, output, output, null, Config.retainStdout | Config.retainStderr, test).wait();
 		enforce(status == 0, "Dustmite run failed with status %s".format(status));
 		stderr.writefln("runtests: test %s: done", test);
