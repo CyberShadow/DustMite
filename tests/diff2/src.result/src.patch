@@ -1,0 +1,12 @@
+diff --git a/program.d b/program.d
+--- a/program.d
++++ b/program.d
+@@ -23,7 +23,7 @@ int unrelated()
+ 
+ int identifier()
+ {
+-	return 0;
++	return 42;
+ }
+ 
+ /*

@@ -1,0 +1,47 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "head": "@@ -7,7 +7,7 @@\n  * padding\n  *\/\n \n-int unrelated()\n+int unrelated2()\n {\n \treturn 2 + 2;\n }\n",
+                                "label": "4"
+                            },
+                            {
+                                "head": "@@ -23,7 +23,7 @@ int unrelated()\n \n int identifier()\n {\n-\treturn 0;\n+\treturn 42;\n }\n \n \/*\n",
+                                "label": "5"
+                            },
+                            {
+                                "head": "@@ -35,9 +35,9 @@ int identifier()\n  * padding\n  *\/\n \n-int unrelatedCaller()\n+int unrelatedCaller2()\n {\n-\treturn unrelated();\n+\treturn unrelated2();\n }\n \n \/*\n",
+                                "label": "6"
+                            }
+                        ],
+                        "head": "diff --git a\/program.d b\/program.d\n--- a\/program.d\n+++ b\/program.d\n"
+                    },
+                    {
+                        "dependents": [
+                            "4",
+                            "5"
+                        ]
+                    },
+                    {
+                        "dependents": [
+                            "5",
+                            "6"
+                        ]
+                    },
+                    {
+                        "dependents": [
+                            "4",
+                            "6"
+                        ]
+                    }
+                ],
+                "filename": "src.patch"
+            }
+        ]
+    },
+    "version": 1
+}

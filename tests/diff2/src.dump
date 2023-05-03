@@ -1,0 +1,14 @@
+[
+  [
+    /*** src.patch ***/
+    [
+      "diff --git a/program.d b/program.d\n--- a/program.d\n+++ b/program.d\n"
+      [ "@@ -7,7 +7,7 @@\n  * padding\n  */\n \n-int unrelated()\n+int unrelated2()\n {\n 	return 2 + 2;\n }\n" ] => 7 9
+      [ "@@ -23,7 +23,7 @@ int unrelated()\n \n int identifier()\n {\n-	return 0;\n+	return 42;\n }\n \n /*\n" ] => 7 8
+      [ "@@ -35,9 +35,9 @@ int identifier()\n  * padding\n  */\n \n-int unrelatedCaller()\n+int unrelatedCaller2()\n {\n-	return unrelated();\n+	return unrelated2();\n }\n \n /*\n" ] => 8 9
+    ]
+    [ /* 7 */ ] =7
+    [ /* identifier */ ] =8
+    [ /* padding */ ] =9
+  ]
+]

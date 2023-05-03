@@ -14,6 +14,10 @@ jobs:
       uses: dlang-community/setup-dlang@1ccbc70a0eff7f264857b53c562aa45fd7f1e479
       with:
         compiler: dmd-2.100.0
+    - name: Set up PATH on Windows
+      # Needed to use GNU patch instead of Strawberry Perl patch
+      if: runner.os == 'Windows'
+      run: echo "C:\Program Files\Git\usr\bin" >> $env:GITHUB_PATH
     - name: Test
       run: cd tests && rdmd -g runtests.d
     - name: Check test output

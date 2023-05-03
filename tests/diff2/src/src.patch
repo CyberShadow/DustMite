@@ -1,0 +1,33 @@
+diff --git a/program.d b/program.d
+--- a/program.d
++++ b/program.d
+@@ -7,7 +7,7 @@
+  * padding
+  */
+ 
+-int unrelated()
++int unrelated2()
+ {
+ 	return 2 + 2;
+ }
+@@ -23,7 +23,7 @@ int unrelated()
+ 
+ int identifier()
+ {
+-	return 0;
++	return 42;
+ }
+ 
+ /*
+@@ -35,9 +35,9 @@ int identifier()
+  * padding
+  */
+ 
+-int unrelatedCaller()
++int unrelatedCaller2()
+ {
+-	return unrelated();
++	return unrelated2();
+ }
+ 
+ /*
