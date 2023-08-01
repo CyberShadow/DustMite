@@ -1,0 +1,63 @@
+{
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "head": "if "
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "label": "8",
+                                                        "tail": "!"
+                                                    },
+                                                    {
+                                                        "dependents": [
+                                                            "8",
+                                                            "11"
+                                                        ]
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "head": "a"
+                                                                    }
+                                                                ],
+                                                                "head": "(",
+                                                                "label": "11",
+                                                                "tail": ") "
+                                                            },
+                                                            {
+                                                                "head": "then "
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "head": "{",
+                                        "tail": "}\n"
+                                    }
+                                ]
+                            },
+                            {}
+                        ]
+                    }
+                ],
+                "filename": "test.d"
+            }
+        ]
+    },
+    "version": 1
+}
