@@ -1136,7 +1136,7 @@ struct DSplitter
 		{
 			if (parenKeywordTokens.canFind(entities[i].token))
 			{
-				auto pparen = firstHead(entities[i+1]);
+				auto pparen = firstNonEmpty(entities[i+1]);
 				if (pparen
 				 && *pparen !is entities[i+1]
 				 && pparen.token == tokenLookup!"(")
@@ -1345,16 +1345,18 @@ struct DSplitter
 		postProcessArgs(entities);
 	}
 
-	static Entity* firstHead(ref return Entity e)
+	static Entity* firstNonEmpty(ref return Entity e)
 	{
 		if (e.head.length)
 			return &e;
 		foreach (ref c; e.children)
 		{
-			auto r = firstHead(c);
+			auto r = firstNonEmpty(c);
 			if (r)
 				return r;
 		}
+		if (e.tail.length)
+			return &e;
 		return null;
 	}
 
