@@ -323,18 +323,17 @@ Entity loadFile(string name, string path, ParseOptions options)
 	{
 		case Splitter.files:
 			result.children = [new Entity(result.contents, null, null)];
-			return result;
+			break;
 		case Splitter.lines:
 			result.children = parseToLines(result.contents);
-			return result;
+			break;
 		case Splitter.words:
 			result.children = parseToWords(result.contents);
-			return result;
+			break;
 		case Splitter.null_:
 			result.children = parseToNull(result.contents);
-			return result;
+			break;
 		case Splitter.D:
-		{
 			if (result.contents.startsWith("Ddoc"))
 				goto case Splitter.files;
 
@@ -348,22 +347,32 @@ Entity loadFile(string name, string path, ParseOptions options)
 					assert(false);
 				case ParseOptions.Mode.source:
 					result.children = splitter.parse(result.contents);
-					return result;
+					break;
 				case ParseOptions.Mode.words:
 					result.children = splitter.parseToWords(result.contents);
-					return result;
+					break;
 			}
-		}
+			break;
 		case Splitter.diff:
 			result.children = parseDiff(result.contents);
-			return result;
+			break;
 		case Splitter.indent:
 			result.children = parseIndent(result.contents, options.tabWidth);
-			return result;
+			break;
 		case Splitter.lisp:
 			result.children = parseLisp(result.contents);
-			return result;
+			break;
 	}
+
+	debug
+	{
+		string resultContents;
+		void walk(Entity[] entities) { foreach (e; entities) { resultContents ~= e.head; walk(e.children); resultContents ~= e.tail; }}
+		walk(result.children);
+		assert(result.contents == resultContents, "Contents mismatch after splitting:\n" ~ resultContents);
+	}
+
+	return result;
 }
 
 // *****************************************************************************************************************************************************************************
