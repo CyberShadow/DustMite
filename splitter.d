@@ -1520,6 +1520,31 @@ Entity[] parseDiff(string s)
 	return entities;
 }
 
+size_t getIndent(string line, uint tabWidth, size_t lastIndent)
+{
+	size_t indent = 0;
+charLoop:
+	foreach (c; line)
+		switch (c)
+		{
+			case ' ':
+				indent++;
+				break;
+			case '\t':
+				indent += tabWidth;
+				break;
+			case '\r':
+			case '\n':
+				// Treat empty (whitespace-only) lines as belonging to the
+				// immediately higher (most-nested) block.
+				indent = lastIndent;
+				break charLoop;
+			default:
+				break charLoop;
+		}
+	return indent;
+}
+
 Entity[] parseIndent(string s, uint tabWidth)
 {
 	Entity[] root;
@@ -1527,27 +1552,7 @@ Entity[] parseIndent(string s, uint tabWidth)
 
 	foreach (line; s.split2!("\n", ""))
 	{
-		size_t indent = 0;
-	charLoop:
-		foreach (c; line)
-			switch (c)
-			{
-				case ' ':
-					indent++;
-					break;
-				case '\t':
-					indent += tabWidth;
-					break;
-				case '\r':
-				case '\n':
-					// Treat empty (whitespace-only) lines as belonging to the
-					// immediately higher (most-nested) block.
-					indent = stack.length;
-					break charLoop;
-				default:
-					break charLoop;
-			}
-
+		auto indent = getIndent(line, tabWidth, stack.length);
 		auto e = new Entity(line);
 		foreach_reverse (i; 0 .. min(indent, stack.length)) // non-inclusively up to indent
 			if (stack[i])
