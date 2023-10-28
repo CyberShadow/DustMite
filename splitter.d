@@ -1523,7 +1523,7 @@ Entity[] parseDiff(string s)
 Entity[] parseIndent(string s, uint tabWidth)
 {
 	Entity[] root;
-	Entity[]*[] stack;
+	Entity[] stack;
 
 	foreach (line; s.split2!("\n", ""))
 	{
@@ -1552,13 +1552,14 @@ Entity[] parseIndent(string s, uint tabWidth)
 		foreach_reverse (i; 0 .. min(indent, stack.length)) // non-inclusively up to indent
 			if (stack[i])
 			{
-				*stack[i] ~= e;
+				stack[i].children ~= e;
 				goto parentFound;
 			}
 		root ~= e;
 	parentFound:
 		stack.length = indent + 1;
-		stack[indent] = &e.children;
+		stack[indent] = new Entity;
+		e.children ~= stack[indent];
 	}
 
 	return root;

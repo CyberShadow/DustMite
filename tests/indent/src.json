@@ -8,16 +8,33 @@
                             {
                                 "children": [
                                     {
-                                        "head": "    grandchild\n"
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {}
+                                                        ],
+                                                        "head": "    grandchild\n"
+                                                    },
+                                                    {
+                                                        "children": [
+                                                            {}
+                                                        ],
+                                                        "head": "    grandsibling\n"
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "head": "  child\n"
                                     },
                                     {
-                                        "head": "    grandsibling\n"
+                                        "children": [
+                                            {}
+                                        ],
+                                        "head": "  sibling\n"
                                     }
-                                ],
-                                "head": "  child\n"
-                            },
-                            {
-                                "head": "  sibling\n"
+                                ]
                             }
                         ],
                         "head": "root\n"
@@ -31,19 +48,41 @@
                                             {
                                                 "children": [
                                                     {
-                                                        "head": "        child4\n"
-                                                    },
-                                                    {
-                                                        "head": "\ttabtest\n"
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {}
+                                                                                        ],
+                                                                                        "head": "        child4\n"
+                                                                                    },
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {}
+                                                                                        ],
+                                                                                        "head": "\ttabtest\n"
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        ],
+                                                                        "head": "      child3\n"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "head": "    child2\n"
                                                     }
-                                                ],
-                                                "head": "      child3\n"
+                                                ]
                                             }
                                         ],
-                                        "head": "    child2\n"
+                                        "head": "  child1\n"
                                     }
-                                ],
-                                "head": "  child1\n"
+                                ]
                             }
                         ],
                         "head": "root2\n"
@@ -55,21 +94,43 @@
                                     {
                                         "children": [
                                             {
-                                                "head": "\n"
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [
+                                                                            {}
+                                                                        ],
+                                                                        "head": "\n"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "head": "  \n"
+                                                    }
+                                                ]
                                             }
                                         ],
-                                        "head": "  \n"
+                                        "head": "  emptystart\n"
+                                    },
+                                    {
+                                        "children": [
+                                            {}
+                                        ],
+                                        "head": "  emptyend\n"
                                     }
-                                ],
-                                "head": "  emptystart\n"
-                            },
-                            {
-                                "head": "  emptyend\n"
+                                ]
                             }
                         ],
                         "head": "root3\n"
                     },
-                    {}
+                    {
+                        "children": [
+                            {}
+                        ]
+                    }
                 ],
                 "filename": "indent-test.txt"
             }

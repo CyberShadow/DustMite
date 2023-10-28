@@ -4,22 +4,49 @@
     [
       "root\n"
       [
-        "  child\n"
-        [ "    grandchild\n" ]
-        [ "    grandsibling\n" ]
+        [
+          "  child\n"
+          [
+            [
+              "    grandchild\n"
+              [ ]
+            ]
+            [
+              "    grandsibling\n"
+              [ ]
+            ]
+          ]
+        ]
+        [
+          "  sibling\n"
+          [ ]
+        ]
       ]
-      [ "  sibling\n" ]
     ]
     [
       "root2\n"
       [
-        "  child1\n"
         [
-          "    child2\n"
+          "  child1\n"
           [
-            "      child3\n"
-            [ "        child4\n" ]
-            [ "	tabtest\n" ]
+            [
+              "    child2\n"
+              [
+                [
+                  "      child3\n"
+                  [
+                    [
+                      "        child4\n"
+                      [ ]
+                    ]
+                    [
+                      "	tabtest\n"
+                      [ ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
           ]
         ]
       ]
@@ -27,14 +54,29 @@
     [
       "root3\n"
       [
-        "  emptystart\n"
         [
-          "  \n"
-          [ "\n" ]
+          "  emptystart\n"
+          [
+            [
+              "  \n"
+              [
+                [
+                  "\n"
+                  [ ]
+                ]
+              ]
+            ]
+          ]
+        ]
+        [
+          "  emptyend\n"
+          [ ]
         ]
       ]
-      [ "  emptyend\n" ]
     ]
-    [ "" ]
+    [
+      ""
+      [ ]
+    ]
   ]
 ]
