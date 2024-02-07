@@ -147,7 +147,7 @@ struct RemoveRule { Regex!char regexp; string shellGlob; bool remove; }
 
 int main(string[] args)
 {
-	bool force, dumpHtml, dumpJson, readJson, showTimes, stripComments, obfuscate, fuzz, keepLength, showHelp, showVersion, noOptimize, inPlace;
+	bool force, dumpHtml, dumpJson, readJson, showTimes, stripComments, obfuscate, fuzz, keepLength, showHelp, openWiki, showVersion, noOptimize, inPlace;
 	string coverageDir;
 	RemoveRule[] removeRules;
 	string[] splitRules;
@@ -195,6 +195,7 @@ int main(string[] args)
 		"i|in-place", &inPlace,
 		"json", &readJson,
 		"h|help", &showHelp,
+		"man", &openWiki,
 		"V|version", &showVersion,
 	);
 	foreach (ref arg; args)
@@ -210,6 +211,13 @@ int main(string[] args)
 		else
 			enum source = "upstream";
 		stdout.writeln("DustMite build ", __DATE__, " (", source, "), built with ", __VENDOR__, " ", __VERSION__);
+		if (args.length == 1)
+			return 0;
+	}
+
+	if (openWiki)
+	{
+		browse("https://github.com/CyberShadow/DustMite/wiki");
 		if (args.length == 1)
 			return 0;
 	}
@@ -259,6 +267,7 @@ EOS");
 			stderr.write(q"EOS
   -h, --help         Show this message
 Less interesting options:
+  --man              Launch the project wiki web page in a web browser
   -V, --version      Show program version
   --strategy STRAT   Set strategy (careful/lookback/pingpong/indepth/inbreadth)
   --dump             Dump parsed tree to PATH.dump file
